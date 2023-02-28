@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_together/service/router_service.dart' as router;
+import 'package:go_together/service/routing_service.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: 'assets/config/.env');
   runApp(const MyApp());
 }
 
+/// 메인
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -11,10 +16,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      // theme: ThemeData(
+      //   primarySwatch: Colors.blue,
+      // ),
+      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      onGenerateRoute: (settings) => router.generateRoute(settings),
+      initialRoute: HomeViewRoute,
     );
   }
 }
