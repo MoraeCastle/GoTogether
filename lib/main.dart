@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_together/service/router_service.dart' as router;
@@ -21,7 +22,9 @@ class MyApp extends StatelessWidget {
       // ),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
       onGenerateRoute: (settings) => router.generateRoute(settings),
-      initialRoute: HomeViewRoute,
+      builder: BotToastInit(),
+      navigatorObservers: [BotToastNavigatorObserver()],
+      initialRoute: LoginViewRoute,
     );
   }
 }
