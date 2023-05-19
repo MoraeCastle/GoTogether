@@ -137,7 +137,7 @@ class LoginView extends StatelessWidget {
                     ),
                     onPressed: () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, MapViewRoute);
+                      Navigator.pushNamed(context, HomeViewRoute);
                     },
                     child: Text('네')),
                 OutlinedButton(
