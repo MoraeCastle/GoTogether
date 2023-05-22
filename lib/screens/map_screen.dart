@@ -7,11 +7,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class MapView extends StatelessWidget {
   MapView({Key? key}) : super(key: key);
 
-  Completer<GoogleMapController> _controller = Completer();
+  final Completer<GoogleMapController> _controller = Completer();
 
   // 현재 위치 좌표
   CameraPosition currentPosition =
-      CameraPosition(target: LatLng(35.151624, 126.869592), zoom: 16);
+      const CameraPosition(target: LatLng(35.151624, 126.869592), zoom: 16);
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +20,18 @@ class MapView extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           GoogleMap(
+            zoomControlsEnabled: false,
             mapType: MapType.normal,
             initialCameraPosition: currentPosition,
-            onMapCreated: (controller) => {
-              _controller.complete(controller),
+            onMapCreated: (controller) {
+              if (!_controller.isCompleted) _controller.complete(controller);
             },
           ),
-          Container(
-            color: Colors.black,
-            width: 150,
-            height: 150,
-          ),
+          // Container(
+          //   color: Colors.black,
+          //   width: 150,
+          //   height: 150,
+          // ),
         ],
       ),
     );
