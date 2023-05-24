@@ -47,6 +47,7 @@ class _TabBarScreenState extends State<HomeView>
       // ),
       // 하단 탭까지 바디를 늘릴것인지?
       extendBody: true,
+      resizeToAvoidBottomInset: false,
       bottomNavigationBar: _tabBar(),
       body: TabBarView(
         physics: const NeverScrollableScrollPhysics(),
@@ -59,7 +60,7 @@ class _TabBarScreenState extends State<HomeView>
   Widget _tabBar() {
     return Container(
       // color: Colors.white,
-      height: 80,
+      height: 70,
       margin: const EdgeInsets.all(10),
       padding: EdgeInsets.only(left: 10, right: 10),
       decoration: BoxDecoration(
