@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_together/screens/etc_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
+
+import 'chatRoom_screen.dart';
 
 /// 메인 씬
 class HomeView extends StatefulWidget {
@@ -29,8 +32,9 @@ class _TabBarScreenState extends State<HomeView>
 
   final List<Widget> _widgetOptions = [
     MapView(),
-    Placeholder(),
-    Placeholder(),
+    const ChatRoomView(),
+    const EtcView()
+    // Placeholder(),
   ];
 
   @override
@@ -62,7 +66,7 @@ class _TabBarScreenState extends State<HomeView>
       // color: Colors.white,
       height: 70,
       margin: const EdgeInsets.all(10),
-      padding: EdgeInsets.only(left: 10, right: 10),
+      padding: const EdgeInsets.only(left: 10, right: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
