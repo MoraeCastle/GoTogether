@@ -97,19 +97,27 @@ class EtcView extends StatelessWidget {
                             icon: Icons.assignment,
                             title: '공지사항',
                             action: () {
-                              BotToast.showText(text: 'dd');
+                              BotToast.showText(text: '미구현 기능입니다...');
                             },
                           ),
                           EtcMenuItem(
                               icon: Icons.translate,
                               title: '번역기',
-                              action: () {}),
+                              action: () {
+                                BotToast.showText(text: '미구현 기능입니다...');
+                              }),
                           EtcMenuItem(
                               icon: Icons.travel_explore,
                               title: '국가정보',
-                              action: () {}),
+                              action: () {
+                                BotToast.showText(text: '미구현 기능입니다...');
+                              }),
                           EtcMenuItem(
-                              icon: Icons.settings, title: '설정', action: () {}),
+                              icon: Icons.settings,
+                              title: '설정',
+                              action: () {
+                                BotToast.showText(text: '미구현 기능입니다...');
+                              }),
                         ]),
                   ],
                 ),
