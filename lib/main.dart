@@ -1,10 +1,17 @@
 import 'package:bot_toast/bot_toast.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_together/service/router_service.dart' as router;
 import 'package:go_together/service/routing_service.dart';
 
+import 'firebase_options.dart';
+
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await dotenv.load(fileName: 'assets/config/.env');
   runApp(const MyApp());
 }

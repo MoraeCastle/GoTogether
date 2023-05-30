@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "80250456205",
+    "firebase_url": "https://gotogetherforflutter-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "gotogetherforflutter",
+    "storage_bucket": "gotogetherforflutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80250456205:android:6eab852cf08f9d003c7ac4",
+        "android_client_info": {
+          "package_name": "com.example.go_together"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
