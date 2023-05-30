@@ -93,7 +93,10 @@ class LoginView extends StatelessWidget {
                         backColor: Color.fromARGB(255, 158, 174, 255),
                         imageName: "group_add_black",
                         buttonText: "새 그룹 만들기",
-                        action: () => {BotToast.showText(text: '2')},
+                        action: () => {
+                          Navigator.pop(context),
+                          Navigator.pushNamed(context, CreateGroupRoute),
+                        },
                       ),
                       // 비회원으로 접속
                       RowItemButton(
