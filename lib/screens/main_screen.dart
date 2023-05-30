@@ -113,11 +113,11 @@ class _TabBarScreenState extends State<HomeView>
         labelPadding: const EdgeInsets.all(0),
         // 탭 클릭
         onTap: (value) async {
-          await ref.set({
-            "name": "John",
-            "age": 18,
-            "address": {"line1": "100 Mountain View"}
-          });
+          // await ref.set({
+          //   "name": "John",
+          //   "age": 18,
+          //   "address": {"line1": "100 Mountain View"}
+          // });
         },
       ),
     );
