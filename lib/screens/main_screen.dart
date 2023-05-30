@@ -4,6 +4,8 @@ import 'package:go_together/screens/map_screen.dart';
 
 import 'chatRoom_screen.dart';
 
+import 'package:firebase_database/firebase_database.dart';
+
 /// 메인 씬
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -36,6 +38,9 @@ class _TabBarScreenState extends State<HomeView>
     const EtcView()
     // Placeholder(),
   ];
+
+  FirebaseDatabase database = FirebaseDatabase.instance;
+  DatabaseReference ref = FirebaseDatabase.instance.ref();
 
   @override
   void dispose() {
@@ -107,7 +112,13 @@ class _TabBarScreenState extends State<HomeView>
         // padding: const EdgeInsets.all(10),
         labelPadding: const EdgeInsets.all(0),
         // 탭 클릭
-        onTap: (value) {},
+        onTap: (value) async {
+          await ref.set({
+            "name": "John",
+            "age": 18,
+            "address": {"line1": "100 Mountain View"}
+          });
+        },
       ),
     );
   }
