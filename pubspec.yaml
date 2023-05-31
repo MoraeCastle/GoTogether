@@ -16,6 +16,8 @@ dependencies:
   google_maps_flutter: ^2.2.7
   firebase_core: ^2.13.1
   firebase_database: ^10.2.2
+  animations: ^2.0.7
+  syncfusion_flutter_datepicker: ^21.2.8
 
 dev_dependencies:
   flutter_test:
