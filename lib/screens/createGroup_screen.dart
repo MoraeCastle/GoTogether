@@ -97,12 +97,163 @@ class _GroupInfo extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 50),
                 child: Column(
                   children: [
+                    // 1번
+                    Padding(
+                      padding: EdgeInsets.all(15),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 50,
+                            margin: EdgeInsets.only(right: 10),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.grey,
+                                  offset: Offset(0.0, 3.0), //(x,y)
+                                  blurRadius: 3.0,
+                                ),
+                              ],
+                            ),
+                            child: const Text(
+                              '1',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '여행일 선택',
+                                style: TextStyle(
+                                    fontSize: 22, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                '달력에서 여행하는 기간을 선택하세요',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
                     Container(
                       margin: const EdgeInsets.all(15),
-                      width: double.infinity,
-                      // height: 150,
+                      padding: EdgeInsets.all(15),
                       // color: Colors.blue,
-                      // child: SfDateRangePicker(),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.grey,
+                            offset: Offset(0.0, 3.0), //(x,y)
+                            blurRadius: 3.0,
+                          ),
+                        ],
+                      ),
+                      child: SfDateRangePicker(
+                        onSelectionChanged:
+                            (dateRangePickerSelectionChangedArgs) {},
+                        selectionMode: DateRangePickerSelectionMode.range,
+                        initialSelectedRange: PickerDateRange(
+                            DateTime.now().subtract(const Duration(days: 4)),
+                            DateTime.now().add(const Duration(days: 3))),
+                      ),
+                      // child: Text('sdfsd'),
+                    ),
+                    // 2번
+                    Padding(
+                      padding: EdgeInsets.only(
+                          left: 15, right: 15, top: 30, bottom: 15),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 50,
+                            margin: EdgeInsets.only(right: 10),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.grey,
+                                  offset: Offset(0.0, 3.0), //(x,y)
+                                  blurRadius: 3.0,
+                                ),
+                              ],
+                            ),
+                            child: const Text(
+                              '2',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '그룹명 입력',
+                                style: TextStyle(
+                                    fontSize: 22, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                '방 입장시 알아볼 수 있는 그룹명을 입력하세요',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.all(15),
+                      padding: EdgeInsets.all(15),
+                      // color: Colors.blue,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.grey,
+                            offset: Offset(0.0, 3.0), //(x,y)
+                            blurRadius: 3.0,
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: TextEditingController(),
+                        decoration: const InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: '그룹명 입력...',
+                          contentPadding: EdgeInsets.only(
+                              left: 14.0, bottom: 8.0, top: 8.0),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: .5),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: .5),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                        style: const TextStyle(),
+                      ),
+                      // child: Text('sdfsd'),
                     ),
                   ],
                 ),
