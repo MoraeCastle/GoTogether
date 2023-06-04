@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:random_text_reveal/random_text_reveal.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 /// 그룹생성 씬
@@ -13,6 +14,21 @@ class CreateGroupView extends StatefulWidget {
 class _CreateGroupView extends State<CreateGroupView> {
   // 마지막 씬 여부
   bool isLastScene = false;
+
+  // 그룹정보 입력 여부
+  bool isTypeInfo = false;
+
+  // 날짜 입력 컨트롤러
+  DateRangePickerController dateController = DateRangePickerController();
+  // 그룹명 입력 컨트롤러
+  TextEditingController groupNameController = TextEditingController();
+
+  // 다음 버튼 활성화 체크
+  void setAllTypeState() {
+    isTypeInfo = dateController.selectedRange!.startDate != null &&
+        dateController.selectedRange!.endDate != null &&
+        groupNameController.value.text.isNotEmpty;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +49,23 @@ class _CreateGroupView extends State<CreateGroupView> {
                         transitionType: SharedAxisTransitionType.horizontal,
                         child: child);
                   },
-                  child: isLastScene ? _CreateGroupCode() : _GroupInfo(),
+                  child: _CreateGroupCode(),
+                  // child: isLastScene
+                  //     ? _CreateGroupCode()
+                  //     : _GroupInfo(
+                  //         dateController: dateController,
+                  //         textController: groupNameController,
+                  //         textCallback: (value) {
+                  //           setState(() {
+                  //             setAllTypeState();
+                  //           });
+                  //         },
+                  //         dateCallback: (value) {
+                  //           setState(() {
+                  //             setAllTypeState();
+                  //           });
+                  //         },
+                  //       ),
                 )),
               ],
             ),
@@ -43,25 +75,33 @@ class _CreateGroupView extends State<CreateGroupView> {
                 child: Padding(
                   padding: EdgeInsets.only(left: 50, right: 50, bottom: 25),
                   child: SizedBox(
-                    width: double.infinity,
-                    height: 60,
-                    child: ElevatedButton(
-                        onPressed: () {
-                          if (isLastScene) {
-                          } else {
-                            setState(() {
-                              isLastScene = !isLastScene;
-                            });
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(255, 139, 174, 255),
-                            elevation: 5),
-                        child: Text(
-                          isLastScene ? '생성' : '다음',
-                          style: TextStyle(fontSize: 20, color: Colors.black),
-                        )),
-                  ),
+                      width: double.infinity,
+                      height: 60,
+                      child: Visibility(
+                        // visible: MediaQuery.of(context).viewInsets.bottom == 0,
+                        visible: isLastScene
+                            ? false
+                            : MediaQuery.of(context).viewInsets.bottom == 0 &&
+                                isTypeInfo,
+                        child: ElevatedButton(
+                            onPressed: () {
+                              if (isLastScene) {
+                              } else {
+                                setState(() {
+                                  isLastScene = !isLastScene;
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Color.fromARGB(255, 139, 174, 255),
+                                elevation: 5),
+                            child: Text(
+                              isLastScene ? '생성' : '다음',
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.black),
+                            )),
+                      )),
                 ))
           ],
         ));
@@ -70,6 +110,19 @@ class _CreateGroupView extends State<CreateGroupView> {
 
 // 그룹 생성 화면
 class _GroupInfo extends StatelessWidget {
+  final TextEditingController textController;
+  final ValueSetter<bool> textCallback;
+  final ValueSetter<PickerDateRange> dateCallback;
+  final DateRangePickerController dateController;
+
+  const _GroupInfo({
+    Key? key,
+    required this.textCallback,
+    required this.dateCallback,
+    required this.textController,
+    required this.dateController,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -160,12 +213,12 @@ class _GroupInfo extends StatelessWidget {
                         ],
                       ),
                       child: SfDateRangePicker(
-                        onSelectionChanged:
-                            (dateRangePickerSelectionChangedArgs) {},
+                        controller: dateController,
+                        onSelectionChanged: (date) {
+                          dateCallback(dateController.selectedRange!);
+                        },
                         selectionMode: DateRangePickerSelectionMode.range,
-                        initialSelectedRange: PickerDateRange(
-                            DateTime.now().subtract(const Duration(days: 4)),
-                            DateTime.now().add(const Duration(days: 3))),
+                        initialSelectedRange: null,
                       ),
                       // child: Text('sdfsd'),
                     ),
@@ -233,7 +286,10 @@ class _GroupInfo extends StatelessWidget {
                         ],
                       ),
                       child: TextField(
-                        controller: TextEditingController(),
+                        controller: textController,
+                        onChanged: (value) {
+                          textCallback(value.isNotEmpty);
+                        },
                         decoration: const InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
@@ -287,9 +343,18 @@ class _CreateGroupCode extends StatelessWidget {
                         TextStyle(fontSize: 25, fontWeight: FontWeight.normal),
                   ),
                 )),
-            Expanded(
+            const Expanded(
                 child: Center(
-              child: Text('뽈롱'),
+              child: RandomTextReveal(
+                text: 'T-XXXX',
+                duration: Duration(seconds: 2),
+                style: TextStyle(
+                  fontSize: 36,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+                curve: Curves.easeIn,
+              ),
             ))
           ],
         ));

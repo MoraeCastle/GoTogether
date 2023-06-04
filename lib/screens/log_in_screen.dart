@@ -94,7 +94,7 @@ class LoginView extends StatelessWidget {
                         imageName: "group_add_black",
                         buttonText: "새 그룹 만들기",
                         action: () => {
-                          Navigator.pop(context),
+                          // Navigator.pop(context),
                           Navigator.pushNamed(context, CreateGroupRoute),
                         },
                       ),
