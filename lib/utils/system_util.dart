@@ -54,4 +54,10 @@ class SystemUtil {
 
     return result.toString();
   }
+
+  // 시작일, 종료일 데이터를 문자열로 받는다.
+  // ex. xxxx-xx-xx,xxxx-xx-xx
+  static String getTravelDate(DateTime? startDate, DateTime? endDate) {
+    return "${startDate.toString().split(' ')[0]},${endDate.toString().split(' ')[0]}";
+  }
 }

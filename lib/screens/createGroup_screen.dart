@@ -1,9 +1,10 @@
-import 'package:animations/animations.dart';
 import 'package:bot_toast/bot_toast.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:random_text_reveal/random_text_reveal.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+import '../models/Travel.dart';
 import '../service/routing_service.dart';
 import '../utils/system_util.dart';
 
@@ -18,21 +19,26 @@ class CreateGroupView extends StatefulWidget {
 class _CreateGroupView extends State<CreateGroupView> {
   // 그룹정보 입력 여부
   bool isAllTyped = false;
-
   bool isDateCheck = false;
   bool isGeneratedCode = false;
-
   Color checkValueColor = const Color.fromARGB(255, 159, 195, 255);
+  String groupCode = '.......';
+
+  // 그룹코드 위젯
+  final GlobalKey<RandomTextRevealState> globalKey = GlobalKey();
 
   // 날짜 입력 컨트롤러
   DateRangePickerController dateController = DateRangePickerController();
   // 그룹명 입력 컨트롤러
   TextEditingController groupNameController = TextEditingController();
 
-  String groupCode = '';
+  DatabaseReference ref = FirebaseDatabase.instance.ref("travel/");
+  Travel travelItem = Travel();
 
-  // 그룹코드 위젯
-  final GlobalKey<RandomTextRevealState> globalKey = GlobalKey();
+  // 그룹 추가.
+  Future<void> insertGroup(Travel travel) async {
+    await ref.child(travel.travelCode).set(travel.toJson());
+  }
 
   // 다음 버튼 활성화 체크
   void setAllTypeState() {
@@ -48,7 +54,7 @@ class _CreateGroupView extends State<CreateGroupView> {
   void initState() {
     super.initState();
 
-    groupCode = SystemUtil.generateGroupCode();
+    //groupCode = SystemUtil.generateGroupCode();
   }
 
   @override
@@ -152,6 +158,10 @@ class _CreateGroupView extends State<CreateGroupView> {
                           child: SfDateRangePicker(
                             controller: dateController,
                             onSelectionChanged: (date) {
+                              travelItem.setDate(SystemUtil.getTravelDate(
+                                  dateController.selectedRange!.startDate,
+                                  dateController.selectedRange!.endDate));
+
                               isDateCheck =
                                   (dateController.selectedRange!.startDate !=
                                           null &&
@@ -234,6 +244,8 @@ class _CreateGroupView extends State<CreateGroupView> {
                           child: TextField(
                             controller: groupNameController,
                             onChanged: (value) {
+                              travelItem.setTitle(value);
+
                               setAllTypeState();
                             },
                             decoration: const InputDecoration(
@@ -330,10 +342,15 @@ class _CreateGroupView extends State<CreateGroupView> {
                           child: ElevatedButton(
                               onPressed: () {
                                 isGeneratedCode = true;
+
                                 groupCode = SystemUtil.generateGroupCode();
+
+                                travelItem.setTravelCode(groupCode);
+
                                 setState(() {
                                   globalKey.currentState?.play();
                                 });
+
                                 setAllTypeState();
                               },
                               style: ElevatedButton.styleFrom(
@@ -379,6 +396,8 @@ class _CreateGroupView extends State<CreateGroupView> {
                                       BotToast.showText(text: '그룹을 생성합니다...');
                                       Navigator.pushNamed(
                                           context, AddUserRoute);
+
+                                      insertGroup(travelItem);
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(
