@@ -95,8 +95,8 @@ class LoginView extends StatelessWidget {
                         buttonText: "새 그룹 만들기",
                         action: () => {
                           // Navigator.pop(context),
-                          // Navigator.pushNamed(context, CreateGroupRoute),
-                          Navigator.pushNamed(context, AddUserRoute),
+                          Navigator.pushNamed(context, CreateGroupRoute),
+                          // Navigator.pushNamed(context, AddUserRoute),
                         },
                       ),
                       // 비회원으로 접속

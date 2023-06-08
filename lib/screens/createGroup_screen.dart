@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:random_text_reveal/random_text_reveal.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+import '../service/routing_service.dart';
 import '../utils/system_util.dart';
 
 /// 그룹생성 씬
@@ -33,18 +34,13 @@ class _CreateGroupView extends State<CreateGroupView> {
   // 그룹코드 위젯
   final GlobalKey<RandomTextRevealState> globalKey = GlobalKey();
 
-  // 다음으로 넘어가기
-  VoidCallback createGroupAction = () {
-    BotToast.showText(text: '그룹을 생성합니다...');
-  };
-
   // 다음 버튼 활성화 체크
   void setAllTypeState() {
     setState(() {
       // 변경값 알려주기
       isAllTyped = isDateCheck &&
           groupNameController.value.text.isNotEmpty &&
-          groupCode.isNotEmpty;
+          isGeneratedCode;
     });
   }
 
@@ -338,6 +334,7 @@ class _CreateGroupView extends State<CreateGroupView> {
                                 setState(() {
                                   globalKey.currentState?.play();
                                 });
+                                setAllTypeState();
                               },
                               style: ElevatedButton.styleFrom(
                                 elevation: 0,
@@ -361,7 +358,7 @@ class _CreateGroupView extends State<CreateGroupView> {
                                         color: Colors.black87,
                                         fontWeight: FontWeight.bold,
                                       ),
-                                      initialText: '...',
+                                      initialText: '.......',
                                       shouldPlayOnStart: false,
                                       curve: Curves.easeIn),
                                   Container(
@@ -377,7 +374,13 @@ class _CreateGroupView extends State<CreateGroupView> {
                           height: 150,
                           width: double.infinity,
                           child: ElevatedButton(
-                              onPressed: isAllTyped ? createGroupAction : null,
+                              onPressed: isAllTyped
+                                  ? () {
+                                      BotToast.showText(text: '그룹을 생성합니다...');
+                                      Navigator.pushNamed(
+                                          context, AddUserRoute);
+                                    }
+                                  : null,
                               style: ElevatedButton.styleFrom(
                                   backgroundColor:
                                       const Color.fromARGB(255, 139, 174, 255),

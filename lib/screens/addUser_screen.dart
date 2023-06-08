@@ -1,6 +1,5 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:random_text_reveal/random_text_reveal.dart';
 import '../utils/system_util.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -14,21 +13,13 @@ class AddUserView extends StatefulWidget {
 }
 
 class _AddUserView extends State<AddUserView> {
-  // 그룹정보 입력 여부
-  bool isAllTyped = false;
-
-  bool isDateCheck = false;
-  bool isGeneratedCode = false;
-
   Color checkValueColor = const Color.fromARGB(255, 159, 195, 255);
 
   // 그룹명 입력 컨트롤러
-  TextEditingController groupNameController = TextEditingController();
+  TextEditingController userNameController = TextEditingController();
+  bool isNameEdited = false;
 
-  String groupCode = '';
-
-  // 그룹코드 위젯
-  final GlobalKey<RandomTextRevealState> globalKey = GlobalKey();
+  String userName = '';
 
   XFile? _imageFile; // 카메라/갤러리에서 사진 가져올 때 사용함 (image_picker)
   final ImagePicker _picker =
@@ -39,13 +30,9 @@ class _AddUserView extends State<AddUserView> {
     BotToast.showText(text: '그룹을 생성합니다...');
   };
 
-  // 다음 버튼 활성화 체크
-  void setAllTypeState() {
+  void setButtonState(bool action) {
     setState(() {
-      // 변경값 알려주기
-      isAllTyped = isDateCheck &&
-          groupNameController.value.text.isNotEmpty &&
-          groupCode.isNotEmpty;
+      isNameEdited = action;
     });
   }
 
@@ -53,7 +40,7 @@ class _AddUserView extends State<AddUserView> {
   void initState() {
     super.initState();
 
-    groupCode = SystemUtil.generateGroupCode();
+    userName = SystemUtil.generateGroupCode();
   }
 
   @override
@@ -92,11 +79,14 @@ class _AddUserView extends State<AddUserView> {
                           child: Column(
                             children: [
                               imageProfile(),
-                              SizedBox(
+                              const SizedBox(
                                 height: 25,
                               ),
                               TextField(
-                                controller: TextEditingController(),
+                                controller: userNameController,
+                                onChanged: (value) {
+                                  setButtonState(value.isNotEmpty);
+                                },
                                 decoration: const InputDecoration(
                                   filled: true,
                                   fillColor: Colors.white,
@@ -126,7 +116,9 @@ class _AddUserView extends State<AddUserView> {
                       height: 150,
                       width: double.infinity,
                       child: ElevatedButton(
-                          onPressed: isAllTyped ? createGroupAction : null,
+                          onPressed: userNameController.value.text.isNotEmpty
+                              ? createGroupAction
+                              : null,
                           style: ElevatedButton.styleFrom(
                               backgroundColor:
                                   const Color.fromARGB(255, 139, 174, 255),
@@ -181,43 +173,43 @@ class _AddUserView extends State<AddUserView> {
     return Container(
         height: 100,
         width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(
           children: <Widget>[
-            Text(
+            const Text(
               '프로필 등록',
               style: TextStyle(
                 fontSize: 20,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 ElevatedButton.icon(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.camera,
                     size: 50,
                   ),
                   onPressed: () {
                     takePhoto(ImageSource.camera);
                   },
-                  label: Text(
+                  label: const Text(
                     '카메라',
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
                 ElevatedButton.icon(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.photo_library,
                     size: 50,
                   ),
                   onPressed: () {
                     takePhoto(ImageSource.gallery);
                   },
-                  label: Text(
+                  label: const Text(
                     '갤러리',
                     style: TextStyle(fontSize: 20),
                   ),
