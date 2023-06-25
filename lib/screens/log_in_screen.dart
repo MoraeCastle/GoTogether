@@ -1,6 +1,11 @@
 import 'package:bot_toast/bot_toast.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:go_together/models/Travel.dart';
 import 'package:go_together/service/routing_service.dart';
+import 'package:go_together/utils/string.dart';
+import 'package:go_together/utils/system_util.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// 로그인 씬
 class LoginView extends StatelessWidget {
@@ -44,27 +49,43 @@ class LoginView extends StatelessWidget {
                         ),
                       ),
                       // 코드 입력
-                      TextField(
-                        controller: editingController,
-                        decoration: const InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: '코드 입력',
-                          contentPadding: EdgeInsets.only(
-                              left: 14.0, bottom: 8.0, top: 8.0),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.black, width: 1),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                      Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(width: 1.0),
+                            borderRadius: const BorderRadius.all(
+                                Radius.circular(10) // POINT
+                                ),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.black, width: 1.0),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        ),
-                        style: const TextStyle(),
-                      ),
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 20, right: 20),
+                            child: Row(
+                              children: [
+                                const Text(
+                                  'T -',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: TextFormField(
+                                    inputFormatters: [UpperCaseTextFormatter()],
+                                    controller: editingController,
+                                    // textCapitalization: TextCapitalization.characters,
+                                    decoration: const InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      hintText: '코드 입력',
+                                      contentPadding: EdgeInsets.only(),
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                    ),
+                                    style: const TextStyle(),
+                                  ),
+                                )
+                              ],
+                            ),
+                          )),
                       const Padding(
                         padding: EdgeInsets.all(10),
                         child: Text(
@@ -105,7 +126,7 @@ class LoginView extends StatelessWidget {
                         backColor: Color.fromARGB(255, 218, 218, 218),
                         imageName: "none_black",
                         buttonText: "비회원으로 이용하기",
-                        action: () => {BotToast.showText(text: '3')},
+                        action: () => noIdModeDialog(context),
                       ),
                     ],
                   ),
@@ -117,10 +138,98 @@ class LoginView extends StatelessWidget {
   }
 
   // 입력된 그룹으로 접속하기
-  void login(BuildContext context, String travleCode) {
-    BotToast.showLoading();
-    BotToast.showText(text: "$travleCode 입력");
+  Future login(BuildContext context, String travelCode) async {
+    if (travelCode.isNotEmpty) {
+      // T- 코드 방지
+      if (!travelCode.contains("T-")) travelCode = "T-$travelCode";
 
+      BotToast.showLoading();
+
+      // DB 탐색
+      DatabaseReference ref = FirebaseDatabase.instance.ref();
+      final snapshot = await ref.child('travel/$travelCode').get();
+      BotToast.closeAllLoading();
+
+      if (snapshot.exists) {
+        var result = snapshot.value;
+        var travel = Travel.fromJson(result);
+
+        // ignore: use_build_context_synchronously
+        showDialog(
+            context: context,
+            // barrierDismissible: false,
+            builder: (context) => AlertDialog(
+                  title: Container(
+                    alignment: Alignment.center,
+                    child: const Text('안내'),
+                  ),
+                  content: Container(
+                    alignment: Alignment.center,
+                    constraints: const BoxConstraints(maxHeight: 100),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.all(10),
+                          margin: EdgeInsets.only(bottom: 15),
+                          decoration: BoxDecoration(
+                              color: Color.fromARGB(255, 194, 204, 255),
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Text(
+                            travel.getTitle(),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.normal),
+                          ),
+                        ),
+                        Text(
+                          '방을 찾았습니다. 입장하시겠습니까?',
+                          style: TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.normal),
+                        )
+                      ],
+                    ),
+                  ),
+                  icon: Icon(Icons.priority_high),
+                  actions: [
+                    OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide.none,
+                        ),
+                        onPressed: () {
+                          // 데이터 저장
+                          saveTravel(travel);
+
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, HomeViewRoute);
+                        },
+                        child: const Text('네')),
+                    OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide.none,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('아니오')),
+                  ],
+                ));
+      } else {
+        BotToast.showText(text: '조회된 여행이 없습니다...');
+      }
+    } else {
+      BotToast.showText(text: '여행 코드를 입력해주세요...');
+    }
+  }
+
+  // 기기 내에 여행정보 저장.
+  Future saveTravel(Travel data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SystemData.trvelCode, data.travelCode);
+  }
+
+  // 비회원 모드
+  void noIdModeDialog(BuildContext context) {
     showDialog(
         context: context,
         // barrierDismissible: false,
@@ -130,30 +239,43 @@ class LoginView extends StatelessWidget {
                 child: const Text('안내'),
               ),
               content: Container(
-                height: 100,
                 alignment: Alignment.center,
-                child: const Text('그룹을 찾았습니다.\n입장하시겠습니까?'),
+                constraints: const BoxConstraints(maxHeight: 50),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '비회원 모드는 맵 이용만 가능합니다.\n입장하시겠습니까?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.normal),
+                    ),
+                  ],
+                ),
               ),
+              icon: const Icon(Icons.priority_high),
               actions: [
                 OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       side: BorderSide.none,
                     ),
                     onPressed: () {
+                      // 메인에서는 여행코드가 비어있다면 비회원모드로 시작해야 함.
+                      saveTravel(Travel());
+
+                      // 데이터 저장
                       Navigator.pop(context);
                       Navigator.pushNamed(context, HomeViewRoute);
                     },
-                    child: Text('네')),
+                    child: const Text('네')),
                 OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       side: BorderSide.none,
                     ),
                     onPressed: () => Navigator.pop(context),
-                    child: Text('아니오')),
+                    child: const Text('아니오')),
               ],
             ));
-
-    BotToast.closeAllLoading();
   }
 }
 

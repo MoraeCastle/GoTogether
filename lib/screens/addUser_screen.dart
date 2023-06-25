@@ -79,10 +79,17 @@ class _AddUserView extends State<AddUserView> {
       travel.addUser(userItem);
 
       await ref.child('travel/$travelCode').set(travel.toJson());
+      saveUser(userItem);
 
       Navigator.pop(context);
       Navigator.pushNamed(context, HomeViewRoute);
     }
+  }
+
+  // 기기 내에 유저정보 저장.
+  Future saveUser(User data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SystemData.userCode, data.getUserCode());
   }
 
   @override

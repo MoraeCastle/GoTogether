@@ -413,3 +413,27 @@ class _CreateGroupCode extends StatelessWidget {
         ));
   }
 }
+// 코드 입력
+// TextFormField(
+//   inputFormatters: [UpperCaseTextFormatter()],
+//   controller: editingController,
+//   // textCapitalization: TextCapitalization.characters,
+//   decoration: const InputDecoration(
+//     filled: true,
+//     fillColor: Colors.white,
+//     hintText: '코드 입력',
+//     contentPadding: EdgeInsets.only(
+//         left: 14.0, bottom: 8.0, top: 8.0),
+//     enabledBorder: OutlineInputBorder(
+//       borderSide:
+//           BorderSide(color: Colors.black, width: 1),
+//       borderRadius: BorderRadius.all(Radius.circular(10)),
+//     ),
+//     focusedBorder: OutlineInputBorder(
+//       borderSide:
+//           BorderSide(color: Colors.black, width: 1.0),
+//       borderRadius: BorderRadius.all(Radius.circular(10)),
+//     ),
+//   ),
+//   style: const TextStyle(),
+// ),

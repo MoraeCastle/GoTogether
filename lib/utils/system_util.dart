@@ -1,6 +1,8 @@
 // 앱 내 주요 기능관련 클래스.
 import 'dart:math';
 
+import 'package:flutter/services.dart';
+
 class SystemUtil {
   static List<String> codeTable = [
     'A',
@@ -74,5 +76,23 @@ class SystemUtil {
   // ex. xxxx-xx-xx,xxxx-xx-xx
   static String getTravelDate(DateTime? startDate, DateTime? endDate) {
     return "${startDate.toString().split(' ')[0]},${endDate.toString().split(' ')[0]}";
+  }
+}
+
+// 대문자 형식
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: capitalize(newValue.text),
+      selection: newValue.selection,
+    );
+  }
+
+  String capitalize(String value) {
+    if (value.trim().isEmpty) return "";
+
+    return value.toUpperCase();
   }
 }
