@@ -1,7 +1,9 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:go_together/utils/string.dart';
 import 'package:random_text_reveal/random_text_reveal.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../models/Travel.dart';
@@ -36,8 +38,23 @@ class _CreateGroupView extends State<CreateGroupView> {
   Travel travelItem = Travel();
 
   // 그룹 추가.
-  Future<void> insertGroup(Travel travel) async {
-    await ref.child(travel.travelCode).set(travel.toJson());
+  Future insertGroup(Travel travel) async {
+    // 생성된 그룹 코드를 DB에 조회...
+    final snapshot = await ref.child(travelItem.getTravelCode()).get();
+
+    if (snapshot.exists) {
+      BotToast.showText(text: "여행코드가 이미 존재합니다. 다시 생성해주세요.");
+    } else {
+      // 기기 내에 데이터 저장.
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(SystemData.trvelCode, travelItem.travelCode);
+      await prefs.setBool(SystemData.travelState, true);
+
+      await ref.child(travel.travelCode).set(travel.toJson());
+
+      BotToast.showText(text: '그룹을 생성합니다...');
+      Navigator.pushNamed(context, AddUserRoute);
+    }
   }
 
   // 다음 버튼 활성화 체크
@@ -393,10 +410,6 @@ class _CreateGroupView extends State<CreateGroupView> {
                           child: ElevatedButton(
                               onPressed: isAllTyped
                                   ? () {
-                                      BotToast.showText(text: '그룹을 생성합니다...');
-                                      Navigator.pushNamed(
-                                          context, AddUserRoute);
-
                                       insertGroup(travelItem);
                                     }
                                   : null,

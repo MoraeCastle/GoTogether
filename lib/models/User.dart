@@ -16,6 +16,17 @@ class User {
     userCode = "";
   }
 
+  factory User.fromJson(Map<String, dynamic> json) {
+    User data = User();
+    data.setAuthority(json['authority']);
+    data.setDeviceCode(json['deviceCode']);
+    data.setName(json['name']);
+    data.setPosition(json['position']);
+    data.setPushToken(json['pushToken']);
+    data.setUserCode(json['userCode']);
+    return data;
+  }
+
   void setAuthority(String authority) {
     this.authority = authority;
   }

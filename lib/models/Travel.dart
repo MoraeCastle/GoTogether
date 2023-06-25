@@ -6,14 +6,27 @@ class Travel {
   late String guideCode; // 가이드 아이디
   late String travelCode; // 고유 그룹코드
   late String title; // 그룹명
-  late List<User> userList; // 유저 리스트
+  late Map<String, User> userList; // 유저 리스트
 
   Travel() {
     date = "";
     guideCode = "";
     travelCode = "";
     title = "";
-    userList = List.empty();
+    userList = {};
+  }
+
+  factory Travel.fromJson(json) {
+    Travel data = Travel();
+    data.setDate(json['date']);
+    data.setGuideCode(json['guideCode']);
+    data.setTravelCode(json['travelCode']);
+    data.setTitle(json['title']);
+    if (json['userList'] != null) {
+      data.setUserList(json['userList'].cast<String, User>());
+    }
+    // data.setUserList(List<User>.from(json['userList']));
+    return data;
   }
 
   void setDate(String date) {
@@ -48,11 +61,16 @@ class Travel {
     return title;
   }
 
-  void setUserList(List<User> userList) {
+  void setUserList(Map<String, User> userList) {
     this.userList = userList;
   }
 
-  getUserList() {
+  // 키에는 특수문자가 포함되면 안됨.
+  void addUser(User user) {
+    userList.addAll({user.getUserCode(): user});
+  }
+
+  Map<String, User> getUserList() {
     return userList;
   }
 
@@ -62,7 +80,7 @@ class Travel {
       "title": title,
       "date": date,
       "guideCode": guideCode,
-      "userList": userList,
+      "userList": userList.map((key, value) => MapEntry(key, value.toJson())),
     };
   }
 }
