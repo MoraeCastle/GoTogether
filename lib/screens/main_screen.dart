@@ -1,20 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:go_together/models/Travel.dart';
+import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/screens/etc_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
+import 'package:provider/provider.dart';
 
 import 'chatRoom_screen.dart';
 
 import 'package:firebase_database/firebase_database.dart';
 
 /// 메인 씬
-class HomeView extends StatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+class HomeView extends StatelessWidget {
+  const HomeView({super.key});
 
   @override
-  State<HomeView> createState() => _TabBarScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => DataClass(), // DataClass 인스턴스를 생성하여 제공
+      child: const Scaffold(
+        body: TabBarWidget(),
+      ),
+    );
+  }
 }
 
-class _TabBarScreenState extends State<HomeView>
+class TabBarWidget extends StatefulWidget {
+  const TabBarWidget({Key? key}) : super(key: key);
+
+  @override
+  State<TabBarWidget> createState() => _TabBarScreenState();
+}
+
+class _TabBarScreenState extends State<TabBarWidget>
     with SingleTickerProviderStateMixin {
   // 탭 정의.
   late TabController tabController = TabController(

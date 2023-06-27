@@ -9,7 +9,7 @@ import 'package:go_together/service/routing_service.dart';
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case HomeViewRoute:
-      return MaterialPageRoute(builder: (context) => const HomeView());
+      return MaterialPageRoute(builder: (context) => HomeView());
     case LoginViewRoute:
       return MaterialPageRoute(builder: (context) => const LoginView());
     case MapViewRoute:
@@ -19,6 +19,6 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case AddUserRoute:
       return MaterialPageRoute(builder: (context) => const AddUserView());
     default:
-      return MaterialPageRoute(builder: (context) => const HomeView());
+      return MaterialPageRoute(builder: (context) => HomeView());
   }
 }

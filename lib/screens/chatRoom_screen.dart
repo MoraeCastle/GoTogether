@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../models/chatRoom.dart';
+import 'package:go_together/providers/data_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 채팅방 씬
 class ChatRoomView extends StatelessWidget {
@@ -8,14 +8,16 @@ class ChatRoomView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final data = Provider.of<DataClass>(context);
+
     return SafeArea(
       child: Column(
         children: [
           Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(15),
-            child: const Text(
-              '채팅방',
+            child: Text(
+              '채팅방' + data.travel.getTitle(),
               style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
             ),
           ),
