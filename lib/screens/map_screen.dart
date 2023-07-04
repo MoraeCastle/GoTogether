@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:go_together/screens/schedule_screen.dart';
+import 'package:go_together/service/routing_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 /// 메인 씬
@@ -66,8 +68,12 @@ class MapView extends StatelessWidget {
                       child: IconButton(
                           padding: const EdgeInsets.all(0),
                           onPressed: () {
-                            _scaffoldKey.currentState!.openDrawer();
-                            BotToast.showText(text: "text");
+                            // _scaffoldKey.currentState!.openDrawer();
+                            // BotToast.showText(text: "text");
+
+                            // 테스트
+                            // Navigator.pop(context),
+                            Navigator.pushNamed(context, ScheduleRoute);
                           },
                           icon: Icon(Icons.menu)),
                     ),
