@@ -27,6 +27,7 @@ dependencies:
   drop_down_list: ^0.0.5
   table_calendar: ^3.0.9
   schedule_widget: ^0.0.3
+  logger: ^1.4.0
 
 dependency_overrides:
  intl: any

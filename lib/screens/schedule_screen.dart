@@ -1,18 +1,38 @@
 import 'package:bot_toast/bot_toast.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:go_together/models/Travel.dart';
+import 'package:go_together/providers/schedule_provider.dart';
 import 'package:go_together/screens/schedule_edit_view.dart';
 import 'package:go_together/screens/schedule_info_view.dart';
 import 'package:flutter/material.dart';
+import 'package:go_together/utils/string.dart';
+import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 // 일정 씬.
-class ScheduleView extends StatefulWidget {
+class ScheduleView extends StatelessWidget {
   const ScheduleView({super.key});
 
   @override
-  State<StatefulWidget> createState() => _ScheduleView();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+        create: (_) => ScheduleClass(),
+        child: const Scaffold(
+          body: ScheduleWidget(),
+        ));
+  }
 }
 
-class _ScheduleView extends State<ScheduleView>
+class ScheduleWidget extends StatefulWidget {
+  const ScheduleWidget({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _ScheduleWidget();
+}
+
+class _ScheduleWidget extends State<ScheduleWidget>
     with SingleTickerProviderStateMixin {
   late int toggleIndex = 0;
   late TabController tabController = TabController(
@@ -23,6 +43,11 @@ class _ScheduleView extends State<ScheduleView>
     /// 탭 변경 애니메이션 시간
     animationDuration: const Duration(milliseconds: 500),
   );
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  late ScheduleClass _scheduleProvider;
+  FirebaseDatabase database = FirebaseDatabase.instance;
+  DatabaseReference ref = FirebaseDatabase.instance.ref();
+  var logger = Logger();
 
   @override
   void initState() {
@@ -34,6 +59,29 @@ class _ScheduleView extends State<ScheduleView>
         toggleIndex = tabController.index;
       });
     });
+
+    setTrevelDate();
+  }
+
+  setTrevelDate() async {
+    SharedPreferences prefs = await _prefs;
+    String travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+
+    ref = FirebaseDatabase.instance.ref();
+    var snapshot = await ref.child('travel/$travelCode').get();
+
+    if (snapshot.exists) {
+      var result = snapshot.value;
+      var travel = Travel.fromJson(result);
+
+      _scheduleProvider = Provider.of<ScheduleClass>(context, listen: false);
+      _scheduleProvider.travel = travel;
+
+      logger.d("데이터가 저장되었습니다...");
+    } else {
+      // 여행 데이터 불러오기 오류...
+      logger.d("데이터가 저장 오류.");
+    }
   }
 
   @override
@@ -48,7 +96,9 @@ class _ScheduleView extends State<ScheduleView>
         appBar: AppBar(
           backgroundColor: Colors.black.withAlpha(200),
           leading: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              BotToast.showText(text: "토글 선택....");
+            },
             icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
           actions: [
@@ -82,8 +132,8 @@ class _ScheduleView extends State<ScheduleView>
           ],
           shadowColor: Colors.transparent,
           centerTitle: true,
-          title: const Text(
-            '일정관리',
+          title: Text(
+            '일정관리(' + _scheduleProvider.travel.getTravelCode() + ')',
             style: TextStyle(color: Colors.white, fontSize: 17),
           ),
         ),
