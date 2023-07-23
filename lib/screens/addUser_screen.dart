@@ -65,10 +65,12 @@ class _AddUserView extends State<AddUserView> {
       // 유저 코드 중복 검사
       bool codeCheck = true;
       int exitCount = 0;
+
       while (codeCheck) {
         userItem.setUserCode(SystemUtil.generateUserCode());
         // 일치하는 코드가 없으면 탈출.
-        codeCheck = !travel.getUserList().containsKey(userItem.getUserCode());
+        codeCheck = travel.getUserList().containsKey(userItem.getUserCode());
+
         ++exitCount;
         if (exitCount > 50) {
           BotToast.showText(text: '서버에 오류가 있습니다. 잠시 후 다시 시도해 주세요.');

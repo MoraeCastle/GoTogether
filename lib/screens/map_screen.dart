@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/screens/schedule_screen.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 
 /// 메인 씬
 class MapView extends StatelessWidget {
   MapView({Key? key}) : super(key: key);
+  late DataClass _countProvider;
 
   final Completer<GoogleMapController> _controller = Completer();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -19,6 +22,8 @@ class MapView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _countProvider = Provider.of<DataClass>(context, listen: false);
+
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomInset: false,
@@ -101,6 +106,10 @@ class MapView extends StatelessWidget {
                           ),
                         ),
                         style: const TextStyle(),
+                        onTap: () {
+                          BotToast.showText(
+                              text: _countProvider.travel.getTravelCode());
+                        },
                       ),
                     ),
                   ],
