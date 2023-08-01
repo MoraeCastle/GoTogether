@@ -22,6 +22,9 @@ class ScheduleView extends StatelessWidget {
         child: const Scaffold(
           body: ScheduleWidget(),
         ));
+    // return ProxyProvider<Counter, Translations>(
+    //   update: (_, counter, __) => Translations(counter.value),
+    // );
   }
 }
 
@@ -44,14 +47,17 @@ class _ScheduleWidget extends State<ScheduleWidget>
     animationDuration: const Duration(milliseconds: 500),
   );
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  late ScheduleClass _scheduleProvider;
+
   FirebaseDatabase database = FirebaseDatabase.instance;
   DatabaseReference ref = FirebaseDatabase.instance.ref();
   var logger = Logger();
+  Travel travelData = Travel();
 
   @override
   void initState() {
     super.initState();
+
+    logger.d("initState...");
 
     // 탭 전환 시 토글에도 변경내용 적용하기.
     tabController.addListener(() {
@@ -73,9 +79,9 @@ class _ScheduleWidget extends State<ScheduleWidget>
     if (snapshot.exists) {
       var result = snapshot.value;
       var travel = Travel.fromJson(result);
+      travelData = travel;
 
-      _scheduleProvider = Provider.of<ScheduleClass>(context, listen: false);
-      _scheduleProvider.travel = travel;
+      Provider.of<ScheduleClass>(context, listen: false).travel = travelData;
 
       logger.d("데이터가 저장되었습니다...");
     } else {
@@ -92,6 +98,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
 
   @override
   Widget build(BuildContext context) {
+    logger.d('빌드...');
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black.withAlpha(200),
@@ -132,10 +139,14 @@ class _ScheduleWidget extends State<ScheduleWidget>
           ],
           shadowColor: Colors.transparent,
           centerTitle: true,
-          title: Text(
-            '일정관리(' + _scheduleProvider.travel.getTravelCode() + ')',
-            style: TextStyle(color: Colors.white, fontSize: 17),
-          ),
+          title: Consumer<ScheduleClass>(
+              // Consumer를 활용해서 provider에 접근하여 데이터를 받아올 수 있다
+              builder: (context, provider, child) {
+            return Text(
+              '일정관리(' + provider.travel.getTravelCode() + ')', // count를 화면에 출력
+              style: TextStyle(color: Colors.white, fontSize: 17),
+            );
+          }),
         ),
         body: DefaultTabController(
           length: 2,

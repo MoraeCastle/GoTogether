@@ -2,6 +2,7 @@
 import 'dart:math';
 
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 
 class SystemUtil {
   static List<String> codeTable = [
@@ -76,6 +77,25 @@ class SystemUtil {
   // ex. xxxx-xx-xx,xxxx-xx-xx
   static String getTravelDate(DateTime? startDate, DateTime? endDate) {
     return "${startDate.toString().split(' ')[0]},${endDate.toString().split(' ')[0]}";
+  }
+
+  // 날짜를 받아서 출력용 데이터로 변환합니다.
+  static String chagePrintDate(String date) {
+    String resultDate = '';
+
+    var dataArray = date.split('');
+
+    if (dataArray.length == 2) {
+      DateTime startDate = DateTime.parse(dataArray[0]);
+      DateTime endDate = DateTime.parse(dataArray[1]);
+
+      var logger = Logger();
+      logger.d(startDate.toString());
+    } else {
+      return '';
+    }
+
+    return resultDate;
   }
 }
 
