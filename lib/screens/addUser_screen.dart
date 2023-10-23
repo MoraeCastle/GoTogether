@@ -232,7 +232,7 @@ class _AddUserView extends State<AddUserView> {
         height: 100,
         width: MediaQuery.of(context).size.width,
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Column(
+        child: Wrap(
           children: <Widget>[
             const Text(
               '프로필 사진 선택',
@@ -241,16 +241,17 @@ class _AddUserView extends State<AddUserView> {
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 50,
             ),
             Padding(
-              padding: EdgeInsets.only(left: 25, right: 25),
+              padding: const EdgeInsets.only(left: 25, right: 25),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 159, 195, 255),
+                        backgroundColor:
+                            const Color.fromARGB(255, 159, 195, 255),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
@@ -271,7 +272,8 @@ class _AddUserView extends State<AddUserView> {
                   ),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 159, 195, 255),
+                        backgroundColor:
+                            const Color.fromARGB(255, 159, 195, 255),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
