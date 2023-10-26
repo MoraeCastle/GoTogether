@@ -105,6 +105,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
           leading: IconButton(
             onPressed: () {
               BotToast.showText(text: "토글 선택....");
+              Navigator.pop(context);
             },
             icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
@@ -112,7 +113,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: ToggleSwitch(
-                customWidths: [35, 35],
+                customWidths: const [35, 35],
                 initialLabelIndex: toggleIndex,
                 cornerRadius: 20.0,
                 activeFgColor: Colors.white,
@@ -143,8 +144,8 @@ class _ScheduleWidget extends State<ScheduleWidget>
               // Consumer를 활용해서 provider에 접근하여 데이터를 받아올 수 있다
               builder: (context, provider, child) {
             return Text(
-              '일정관리(' + provider.travel.getTravelCode() + ')', // count를 화면에 출력
-              style: TextStyle(color: Colors.white, fontSize: 17),
+              '${'일정관리(' + provider.travel.getTravelCode()})', // count를 화면에 출력
+              style: const TextStyle(color: Colors.white, fontSize: 17),
             );
           }),
         ),

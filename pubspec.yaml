@@ -28,6 +28,7 @@ dependencies:
   table_calendar: ^3.0.9
   schedule_widget: ^0.0.3
   logger: ^1.4.0
+  syncfusion_flutter_calendar: ^21.2.10
 
 dependency_overrides:
  intl: any

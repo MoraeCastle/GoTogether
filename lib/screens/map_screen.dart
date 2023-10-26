@@ -97,12 +97,12 @@ class MapView extends StatelessWidget {
                           enabledBorder: OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.black12, width: 1.5),
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.black12, width: 1.5),
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
                         ),
                         style: const TextStyle(),
