@@ -4,6 +4,7 @@ import 'package:go_together/screens/createGroup_screen.dart';
 import 'package:go_together/screens/log_in_screen.dart';
 import 'package:go_together/screens/main_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
+import 'package:go_together/screens/schedule_add_view.dart';
 import 'package:go_together/screens/schedule_screen.dart';
 import 'package:go_together/service/routing_service.dart';
 
@@ -17,6 +18,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => MapView());
     case CreateGroupRoute:
       return MaterialPageRoute(builder: (context) => const CreateGroupView());
+    case AddScheduleRoute:
+      return MaterialPageRoute(builder: (context) => const ScheduleAddView());
     case AddUserRoute:
       return MaterialPageRoute(builder: (context) => const AddUserView());
     case ScheduleRoute:

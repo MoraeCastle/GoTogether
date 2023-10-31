@@ -2,9 +2,11 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/providers/schedule_provider.dart';
+import 'package:go_together/screens/schedule_add_view.dart';
 import 'package:go_together/screens/schedule_edit_view.dart';
 import 'package:go_together/screens/schedule_info_view.dart';
 import 'package:flutter/material.dart';
+import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -100,64 +102,90 @@ class _ScheduleWidget extends State<ScheduleWidget>
   Widget build(BuildContext context) {
     logger.d('빌드...');
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black.withAlpha(200),
-          leading: IconButton(
-            onPressed: () {
-              BotToast.showText(text: "토글 선택....");
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: ToggleSwitch(
-                customWidths: const [35, 35],
-                initialLabelIndex: toggleIndex,
-                cornerRadius: 20.0,
-                activeFgColor: Colors.white,
-                inactiveBgColor: Colors.grey,
-                inactiveFgColor: Colors.white,
-                totalSwitches: 2,
-                icons: const [
-                  Icons.info,
-                  Icons.edit_calendar_sharp,
-                ],
-                iconSize: 20.0,
-                borderWidth: 1.0,
-                borderColor: const [Colors.blueGrey],
-                activeBgColors: const [
-                  [Colors.blue],
-                  [Colors.pink]
-                ],
-                onToggle: (index) {
-                  print('switched to: $index');
-                  tabController.animateTo(index!);
-                },
-              ),
-            ),
-          ],
-          shadowColor: Colors.transparent,
-          centerTitle: true,
-          title: Consumer<ScheduleClass>(
-              // Consumer를 활용해서 provider에 접근하여 데이터를 받아올 수 있다
-              builder: (context, provider, child) {
-            return Text(
-              '${'일정관리(' + provider.travel.getTravelCode()})', // count를 화면에 출력
-              style: const TextStyle(color: Colors.white, fontSize: 17),
-            );
-          }),
+      appBar: AppBar(
+        backgroundColor: Colors.black.withAlpha(200),
+        leading: IconButton(
+          onPressed: () {
+            BotToast.showText(text: "토글 선택....");
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
         ),
-        body: DefaultTabController(
-          length: 2,
-          child: TabBarView(
-            controller: tabController,
-            children: const [
-              ScheduleInfoView(),
-              ScheduleEditView(),
-            ],
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: ToggleSwitch(
+              customWidths: const [35, 35],
+              initialLabelIndex: toggleIndex,
+              cornerRadius: 20.0,
+              activeFgColor: Colors.white,
+              inactiveBgColor: Colors.grey,
+              inactiveFgColor: Colors.white,
+              totalSwitches: 2,
+              icons: const [
+                Icons.info,
+                Icons.edit_calendar_sharp,
+              ],
+              iconSize: 20.0,
+              borderWidth: 1.0,
+              borderColor: const [Colors.blueGrey],
+              activeBgColors: const [
+                [Colors.blue],
+                [Colors.pink]
+              ],
+              onToggle: (index) {
+                print('switched to: $index');
+                tabController.animateTo(index!);
+              },
+            ),
           ),
-        ));
+        ],
+        shadowColor: Colors.transparent,
+        centerTitle: true,
+        title: Consumer<ScheduleClass>(
+            // Consumer를 활용해서 provider에 접근하여 데이터를 받아올 수 있다
+            builder: (context, provider, child) {
+          return Text(
+            '${'일정관리(' + provider.travel.getTravelCode()})', // count를 화면에 출력
+            style: const TextStyle(color: Colors.white, fontSize: 17),
+          );
+        }),
+      ),
+      body: Stack(
+        children: [
+          DefaultTabController(
+            length: 2,
+            child: TabBarView(
+              controller: tabController,
+              children: const [
+                ScheduleInfoView(),
+                ScheduleEditView(),
+              ],
+            ),
+          ),
+          Positioned(
+            right: 25,
+            bottom: 25,
+            child: SizedBox(
+              width: 65,
+              height: 65,
+              child: CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.white,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.add,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, AddScheduleRoute);
+                  },
+                ),
+              ),
+            )
+          ),
+        ],
+      )
+    );
   }
 }

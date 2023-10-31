@@ -195,102 +195,20 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
               margin: const EdgeInsets.only(bottom: 15),
               decoration: BoxDecoration(
                   color: Colors.grey, borderRadius: BorderRadius.circular(15)),
-              child: Column(
-                children: [
-                  const SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        filled: true, //<-- SEE HERE
-                        fillColor: Color.fromARGB(150, 255, 255, 255),
-                        labelText: '일정명',
-                        hintText: '내용 입력',
-                        labelStyle: TextStyle(
-                            color: Colors.black),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(width: 1, color: Colors.grey),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(width: 1, color: Colors.grey),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        ),
-                      ),
-                      keyboardType: TextInputType.text,
-                    ),
-                  ),
-                  SizedBox(height: 10,),
-                  // 시간 선택기
-                  GestureDetector(
-                    onTap: () {
-                      DatePicker.showDatePicker(
-                        context,
-                        showTitleActions: true,
-                        minTime: DateTime(2022, 1, 1),
-                        maxTime: DateTime(2030, 1, 1),
-                        onChanged: (date) {
-                          print('change $date');
-                        },
-                        onConfirm: (date) {
-                          print('confirm $date');
-                        },
-                        currentTime: DateTime.now(), locale: LocaleType.ko);
+              child: SizedBox(
+                width: double.infinity,
+                height: 350,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: GoogleMap(
+                    zoomControlsEnabled: false,
+                    mapType: MapType.normal,
+                    initialCameraPosition: CameraPosition(target: LatLng(0, 0)),
+                    onMapCreated: (controller) {
+                      // if (!_controller.isCompleted) _controller.complete(controller);
                     },
-                    child: Container(
-                      width: double.infinity,
-                      height: 50,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(15),
-                      margin: const EdgeInsets.only(bottom: 15),
-                      decoration: BoxDecoration(
-                          color: Color.fromARGB(150, 255, 255, 255),
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Text(
-                        '날짜 선택하기'
-                      ),
-                    ),
                   ),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 100,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Stack(
-                        children: [
-                          GoogleMap(
-                            zoomControlsEnabled: false,
-                            mapType: MapType.normal,
-                            initialCameraPosition: CameraPosition(target: LatLng(0, 0)),
-                            onMapCreated: (controller) {
-                              // if (!_controller.isCompleted) _controller.complete(controller);
-                            },
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              BotToast.showText(text: '클릭');
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                              alignment: Alignment.center,
-                              color: Color.fromARGB(100, 0, 0, 0),
-                              child: Text(
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold
-                                ),
-                                '탭 해서 위치 선택'
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
+                ),
               ),
             ),
           ],
