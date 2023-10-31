@@ -240,7 +240,7 @@ class LoginView extends StatelessWidget {
               ),
               content: Container(
                 alignment: Alignment.center,
-                constraints: const BoxConstraints(maxHeight: 50),
+                constraints: const BoxConstraints(maxHeight: 60),
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

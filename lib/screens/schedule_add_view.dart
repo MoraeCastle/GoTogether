@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:day_night_time_picker/lib/daynight_timepicker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_place_picker_mb/google_maps_place_picker.dart';
 
 /// 일정추가 씬
 class ScheduleAddView extends StatefulWidget {
@@ -178,6 +181,23 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                                       ),
                                       onPressed: () {
                                         // Navigator.pushNamed(context, AddScheduleRoute);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => PlacePicker(
+                                              apiKey: Platform.isAndroid
+                                                  ? "AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts"
+                                                  : "AIzaSyD9pEqWcgdjmvGeV40fMB834Fw3u_4vs0c",
+                                              onPlacePicked: (result) {
+                                                // print(result.address);
+                                                Navigator.of(context).pop();
+                                              },
+                                              initialPosition: LatLng(0, 0),
+                                              useCurrentLocation: true,
+                                              resizeToAvoidBottomInset: false, // only works in page mode, less flickery, remove if wrong offsets
+                                            ),
+                                          ),
+                                        );
                                       },
                                     ),
                                   ),
