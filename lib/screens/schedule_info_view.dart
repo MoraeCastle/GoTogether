@@ -1,6 +1,10 @@
-import 'package:toggle_switch/toggle_switch.dart';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:rounded_expansion_tile/rounded_expansion_tile.dart';
 
 class ScheduleInfoView extends StatefulWidget {
   const ScheduleInfoView({super.key});
@@ -12,11 +16,7 @@ class ScheduleInfoView extends StatefulWidget {
 class _ScheduleInfoView extends State<ScheduleInfoView> {
   DateTime _selectedDay = DateTime.now();
   late DateTime _focusedDay = DateTime.now();
-  List userList = [
-    UserItem(userId: "", userName: "하나", profileUrl: ""),
-    UserItem(userId: "", userName: "둘", profileUrl: ""),
-    UserItem(userId: "", userName: "셋", profileUrl: ""),
-  ];
+
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
           children: [
             Container(
               padding: EdgeInsets.all(15),
-              margin: EdgeInsets.only(bottom: 15),
+              margin: EdgeInsets.only(bottom: 5),
               decoration: BoxDecoration(
                   color: Colors.grey, borderRadius: BorderRadius.circular(15)),
               child: Row(
@@ -57,6 +57,7 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
             ),
             Container(
               padding: EdgeInsets.all(15),
+              margin: EdgeInsets.only(bottom: 15),
               decoration: BoxDecoration(
                   color: Colors.grey, borderRadius: BorderRadius.circular(15)),
               child: TableCalendar(
@@ -77,49 +78,218 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                 },
               ),
             ),
+            Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)
+              ),
+              color: Colors.grey,
+              margin: EdgeInsets.only(bottom: 5),
+              child: RoundedExpansionTile(
+                rotateTrailing: false,
+                trailing: const SizedBox(
+                  child: Text(
+                    '탭 해서 일정 선택',
+                    style: TextStyle(fontSize: 11),
+                  ),
+                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                title: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(15)),
+                    child: const Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.event_note),
+                                  SizedBox(width: 5),
+                                  Text('일정 상세'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )),
+                children: [
+                  Container(
+                      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                      margin: const EdgeInsets.only(bottom: 5),
+                      child: Column(
+                        children: [
+                          // 구분선
+                          const SizedBox(
+                              width: 500,
+                              child: Divider(color: Color.fromARGB(50, 0, 0, 0), thickness: 1.0)),
+                          Container(
+                            height: 400,
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Color.fromARGB(100, 0, 0, 0))
+                            ),
+                            child: SfCalendar(
+                              dataSource: _getCalendarDataSource(),
+                              view: CalendarView.day,
+                              /*appointmentTextStyle: TextStyle(
+                          backgroundColor: Colors.yellow,
+                          color: Colors.red
+                        ),*/
+                              // cellBorderColor: Colors.green,
+                              backgroundColor: Colors.grey,
+                              viewHeaderStyle: const ViewHeaderStyle(
+                                backgroundColor: Colors.grey,
+                                dateTextStyle: TextStyle(
+                                  color: Colors.black,
+                                ),
+                                dayTextStyle: TextStyle(
+                                  color: Colors.black,
+                                ),
+
+                              ),
+                              showCurrentTimeIndicator: false,
+                              minDate: DateTime(2023, 1, 1, 0, 1),
+                              maxDate: DateTime(2052, 12, 31, 23, 59),
+                              scheduleViewSettings: const ScheduleViewSettings(
+                                dayHeaderSettings: DayHeaderSettings(
+                                    dayFormat: 'EEEE',
+                                    width: 70,
+                                    dayTextStyle: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w300,
+                                      color: Colors.black,
+                                    ),
+                                    dateTextStyle: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w300,
+                                      color: Colors.red,
+                                    )),
+                              ),
+                              viewHeaderHeight: 0,
+                              headerHeight: 0,
+                              headerStyle: const CalendarHeaderStyle(
+                                  backgroundColor: Color.fromARGB(70, 0, 0, 0),
+                                  textAlign: TextAlign.center,
+                                  textStyle: TextStyle(
+                                      color: Color.fromARGB(225, 255, 255, 255),
+                                      fontWeight: FontWeight.bold)
+                              ),
+                              todayHighlightColor: Colors.black,
+                              todayTextStyle: const TextStyle(
+                                  color: Colors.white
+                              ),
+                            ),
+                          )
+                        ],
+                      )),
+                ],
+              ),
+            ),
+
+            // 일정상세
             Container(
-              padding: EdgeInsets.all(15),
-              margin: EdgeInsets.only(top: 15, bottom: 15),
+              padding: const EdgeInsets.all(15),
+              margin: const EdgeInsets.only(bottom: 15),
               decoration: BoxDecoration(
                   color: Colors.grey, borderRadius: BorderRadius.circular(15)),
               child: Column(
                 children: [
-                  // 인원 수
-                  Container(
+                  const SizedBox(
                     width: double.infinity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.person),
-                            SizedBox(width: 5),
-                            Text('0' + ' 명'),
-                          ],
+                    height: 50,
+                    child: TextField(
+                      decoration: InputDecoration(
+                        filled: true, //<-- SEE HERE
+                        fillColor: Color.fromARGB(150, 255, 255, 255),
+                        labelText: '일정명',
+                        hintText: '내용 입력',
+                        labelStyle: TextStyle(
+                            color: Colors.black),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          borderSide: BorderSide(width: 1, color: Colors.grey),
                         ),
-                        Text(
-                          '꾹 눌러서 삭제',
-                          style: TextStyle(fontSize: 11),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          borderSide: BorderSide(width: 1, color: Colors.grey),
                         ),
-                      ],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        ),
+                      ),
+                      keyboardType: TextInputType.text,
                     ),
                   ),
-                  // 구분선
-                  Container(
-                      width: 500,
-                      child: Divider(color: Colors.black, thickness: 1.0)),
-                  // 인원 리스트
-                  GridView.count(
-                      childAspectRatio: 3 / 1,
-                      shrinkWrap: true,
-                      physics: ScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 5,
-                      crossAxisSpacing: 5,
-                      children: List.generate(
-                        userList.length,
-                        (index) => userList[index],
-                      )),
+                  SizedBox(height: 10,),
+                  // 시간 선택기
+                  GestureDetector(
+                    onTap: () {
+                      DatePicker.showDatePicker(
+                        context,
+                        showTitleActions: true,
+                        minTime: DateTime(2022, 1, 1),
+                        maxTime: DateTime(2030, 1, 1),
+                        onChanged: (date) {
+                          print('change $date');
+                        },
+                        onConfirm: (date) {
+                          print('confirm $date');
+                        },
+                        currentTime: DateTime.now(), locale: LocaleType.ko);
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(15),
+                      margin: const EdgeInsets.only(bottom: 15),
+                      decoration: BoxDecoration(
+                          color: Color.fromARGB(150, 255, 255, 255),
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Text(
+                        '날짜 선택하기'
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 100,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Stack(
+                        children: [
+                          GoogleMap(
+                            zoomControlsEnabled: false,
+                            mapType: MapType.normal,
+                            initialCameraPosition: CameraPosition(target: LatLng(0, 0)),
+                            onMapCreated: (controller) {
+                              // if (!_controller.isCompleted) _controller.complete(controller);
+                            },
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              BotToast.showText(text: '클릭');
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              alignment: Alignment.center,
+                              color: Color.fromARGB(100, 0, 0, 0),
+                              child: Text(
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold
+                                ),
+                                '탭 해서 위치 선택'
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -128,44 +298,23 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
   }
 }
 
-// 인원목록 아이템
-class UserItem extends StatelessWidget {
-  final String userId;
-  final String userName;
-  final String profileUrl;
+/// 테스트 데이터
+_AppointmentDataSource _getCalendarDataSource() {
+  List<Appointment> appointments = <Appointment>[];
+  appointments.add(Appointment(
+    startTime: DateTime.now(),
+    endTime: DateTime.now().add(Duration(minutes: 10)),
+    subject: 'Meeting',
+    color: Colors.blue,
+    startTimeZone: '',
+    endTimeZone: '',
+  ));
 
-  const UserItem({
-    super.key,
-    required this.userId,
-    required this.userName,
-    required this.profileUrl,
-  });
+  return _AppointmentDataSource(appointments);
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          //모서리를 둥글게 하기 위해 사용
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        elevation: 4.0, //그림자 깊이
-        child: SizedBox(
-          width: double.infinity,
-          height: 35,
-          child: Container(
-              padding:
-                  const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CircleAvatar(
-                    radius: 15,
-                    backgroundImage: NetworkImage(profileUrl),
-                  ),
-                  Text(userName),
-                ],
-              )),
-        ));
+class _AppointmentDataSource extends CalendarDataSource {
+  _AppointmentDataSource(List<Appointment> source){
+    appointments = source;
   }
 }
