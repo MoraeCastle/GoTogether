@@ -188,25 +188,27 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                 ],
               ),
             ),
-
             // 일정상세
-            Container(
-              padding: const EdgeInsets.all(15),
-              margin: const EdgeInsets.only(bottom: 15),
-              decoration: BoxDecoration(
-                  color: Colors.grey, borderRadius: BorderRadius.circular(15)),
-              child: SizedBox(
-                width: double.infinity,
-                height: 350,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: GoogleMap(
-                    zoomControlsEnabled: false,
-                    mapType: MapType.normal,
-                    initialCameraPosition: CameraPosition(target: LatLng(0, 0)),
-                    onMapCreated: (controller) {
-                      // if (!_controller.isCompleted) _controller.complete(controller);
-                    },
+            Visibility(
+              visible: false,
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                margin: const EdgeInsets.only(bottom: 15),
+                decoration: BoxDecoration(
+                    color: Colors.grey, borderRadius: BorderRadius.circular(15)),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 350,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: GoogleMap(
+                      zoomControlsEnabled: false,
+                      mapType: MapType.normal,
+                      initialCameraPosition: CameraPosition(target: LatLng(0, 0)),
+                      onMapCreated: (controller) {
+                        // if (!_controller.isCompleted) _controller.complete(controller);
+                      },
+                    ),
                   ),
                 ),
               ),

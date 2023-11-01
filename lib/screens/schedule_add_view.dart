@@ -16,171 +16,209 @@ class ScheduleAddView extends StatefulWidget {
 }
 
 class _ScheduleAddView extends State<ScheduleAddView> {
+  LatLng selectPosition = LatLng(0, 0);
+  late GoogleMapController _controller;
+
   @override
   void initState() {
     super.initState();
   }
 
+  Future<bool> backPress() async {
+    return (await showDialog(
+        context: context,
+        // barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: Container(
+            alignment: Alignment.center,
+            child: const Text('안내'),
+          ),
+          content: Container(
+            alignment: Alignment.center,
+            constraints: const BoxConstraints(maxHeight: 60),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '도중에 나가시겠습니까?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.normal),
+                ),
+              ],
+            ),
+          ),
+          icon: const Icon(Icons.info_outline_rounded),
+          actions: [
+            OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide.none,
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+                child: const Text('네')),
+            OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide.none,
+                ),
+                onPressed: () => Navigator.pop(context),
+                child: const Text('아니오')),
+          ],
+        ))) ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black.withAlpha(200),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              BotToast.showText(text: '저장되었습니다.');
-            },
-            icon: Icon(Icons.save),
+    return WillPopScope(
+      onWillPop: () => backPress(),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.black.withAlpha(200),
+          leading: IconButton(
+            onPressed: () => backPress(),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
-        ],
-        shadowColor: Colors.transparent,
-        centerTitle: true,
-        title: Text(
-          '일정 추가',
-          style: const TextStyle(color: Colors.white, fontSize: 17),
+          actions: [
+            IconButton(
+              onPressed: () {
+                BotToast.showText(text: '저장되었습니다.');
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.save),
+            ),
+          ],
+          shadowColor: Colors.transparent,
+          centerTitle: true,
+          title: Text(
+            '일정 추가',
+            style: const TextStyle(color: Colors.white, fontSize: 17),
+          ),
         ),
-      ),
-      body: Container(
-        padding: EdgeInsets.all(15),
-        width: double.infinity,
-        height: double.infinity,
-        color: Colors.black.withAlpha(200),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(15),
-                margin: EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                    color: Colors.grey, borderRadius: BorderRadius.circular(15)),
-                child:Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.assignment),
-                            SizedBox(width: 5),
-                            Text('기본 정보')
-                          ],
-                        ),
-                      ],
-                    ),
-                    Container(
-                      width: 500,
-                      child: Divider(color: Color.fromARGB(100, 0, 0, 0), thickness: 1.0)),
-                    // 시간 선택기
-                    showPicker(
-                      isInlinePicker: true,
-                      elevation: 1,
-                      value: Time.fromTimeOfDay(TimeOfDay.now(), 0),
-                      onChange: (p0) {
-
-                      },
-                      width: double.infinity,
-                      height: 400,
-                      showCancelButton: true,
-                      hideButtons: true,
-                      dialogInsetPadding: EdgeInsets.only(bottom: 10),
-                      minuteInterval: TimePickerInterval.FIVE,
-                      iosStylePicker: true,
-                      is24HrFormat: false,
-                    ),
-                    const SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          filled: true, //<-- SEE HERE
-                          fillColor: Color.fromARGB(150, 255, 255, 255),
-                          labelText: '일정명',
-                          hintText: '내용 입력',
-                          labelStyle: TextStyle(
-                              color: Colors.black),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(width: 1, color: Colors.grey),
+        body: Container(
+          padding: EdgeInsets.all(15),
+          width: double.infinity,
+          height: double.infinity,
+          color: Colors.black.withAlpha(200),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(15),
+                  margin: EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                      color: Colors.grey, borderRadius: BorderRadius.circular(15)),
+                  child:Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.assignment),
+                              SizedBox(width: 5),
+                              Text('기본 정보')
+                            ],
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(width: 1, color: Colors.grey),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          ),
-                        ),
-                        keyboardType: TextInputType.text,
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.all(15),
-                margin: EdgeInsets.only(bottom: 5),
-                decoration: BoxDecoration(
-                    color: Colors.grey, borderRadius: BorderRadius.circular(15)),
-                child:Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.location_on),
-                            SizedBox(width: 5),
-                            Text('위치')
-                          ],
-                        ),
-                        Text(
-                          '일정의 위치를 지정하세요',
-                          style: TextStyle(fontWeight: FontWeight.normal, fontSize: 11),
-                        ),
-                      ],
-                    ),
-                    Container(
-                        width: 500,
-                        child: Divider(color: Color.fromARGB(100, 0, 0, 0), thickness: 1.0)),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 350,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Stack(
-                          children: [
-                            GoogleMap(
-                              zoomControlsEnabled: false,
-                              mapType: MapType.normal,
-                              initialCameraPosition: CameraPosition(target: LatLng(0, 0)),
-                              onMapCreated: (controller) {
-                                // if (!_controller.isCompleted) _controller.complete(controller);
-                              },
+                      Container(
+                          width: 500,
+                          child: Divider(color: Color.fromARGB(100, 0, 0, 0), thickness: 1.0)),
+                      // 시간 선택기
+                      showPicker(
+                        isInlinePicker: true,
+                        elevation: 1,
+                        value: Time.fromTimeOfDay(TimeOfDay.now(), 0),
+                        onChange: (p0) {
+
+                        },
+                        width: double.infinity,
+                        height: 400,
+                        showCancelButton: true,
+                        hideButtons: true,
+                        dialogInsetPadding: EdgeInsets.only(bottom: 10),
+                        minuteInterval: TimePickerInterval.FIVE,
+                        iosStylePicker: true,
+                        is24HrFormat: false,
+                      ),
+                      const SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: TextField(
+                          decoration: InputDecoration(
+                            filled: true, //<-- SEE HERE
+                            fillColor: Color.fromARGB(150, 255, 255, 255),
+                            labelText: '일정명',
+                            hintText: '내용 입력',
+                            labelStyle: TextStyle(
+                                color: Colors.black),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              borderSide: BorderSide(width: 1, color: Colors.grey),
                             ),
-                            // 검색
-                            Positioned(
-                                right: 20,
-                                bottom: 80,
-                                child: SizedBox(
-                                  width: 45,
-                                  height: 45,
-                                  child: CircleAvatar(
-                                    radius: 30,
-                                    backgroundColor: Colors.white,
-                                    child: IconButton(
-                                      icon: Icon(
-                                        Icons.search,
-                                        color: Colors.black,
-                                      ),
-                                      onPressed: () {
-                                        // Navigator.pushNamed(context, AddScheduleRoute);
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              borderSide: BorderSide(width: 1, color: Colors.grey),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            ),
+                          ),
+                          keyboardType: TextInputType.text,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                    padding: EdgeInsets.all(15),
+                    margin: EdgeInsets.only(bottom: 5),
+                    decoration: BoxDecoration(
+                        color: Colors.grey, borderRadius: BorderRadius.circular(15)),
+                    child:Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.location_on),
+                                  SizedBox(width: 5),
+                                  Text('위치')
+                                ],
+                              ),
+                              Text(
+                                '일정의 위치를 지정하세요',
+                                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                          Container(
+                              width: 500,
+                              child: Divider(color: Color.fromARGB(100, 0, 0, 0), thickness: 1.0)),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 350,
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Stack(
+                                  children: [
+                                    GoogleMap(
+                                      zoomControlsEnabled: false,
+                                      mapType: MapType.normal,
+                                      initialCameraPosition: CameraPosition(target: selectPosition),
+                                      onMapCreated: (controller) {
+                                        setState(() {
+                                          _controller = controller;
+                                        });
+                                        // if (!_controller.isCompleted) _controller.complete(controller);
+                                      },
+                                    ),
+                                    // 터치 이벤트
+                                    GestureDetector(
+                                      onTap: () {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -190,49 +228,59 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                                                   : "AIzaSyD9pEqWcgdjmvGeV40fMB834Fw3u_4vs0c",
                                               onPlacePicked: (result) {
                                                 // print(result.address);
+                                                setState(() {
+                                                  selectPosition =
+                                                      LatLng(result.geometry!.location.lat, result.geometry!.location.lng);
+
+                                                  _controller.moveCamera(CameraUpdate.newLatLngZoom(selectPosition, 15));
+
+                                                  BotToast.showText(text: selectPosition.toString());
+                                                });
                                                 Navigator.of(context).pop();
                                               },
                                               initialPosition: LatLng(0, 0),
                                               useCurrentLocation: true,
-                                              resizeToAvoidBottomInset: false, // only works in page mode, less flickery, remove if wrong offsets
+                                              hintText: '장소 검색...',
+                                              searchingText: '검색 중 입니다...',
+                                              selectText: '이 장소로 저장',
+                                              resizeToAvoidBottomInset: false,
+                                              // automaticallyImplyAppBarLeading: false,  // 뒤로가기 활성여부
+                                              autocompleteLanguage: 'ko', // 검색결과 언어...
+                                              onAutoCompleteFailed: (value) {
+                                                BotToast.showText(text: '장소를 다시 검색해주세요.');
+                                              },// only works in page mode, less flickery,
+                                              onGeocodingSearchFailed: (value) {
+                                                BotToast.showText(text: '장소를 다시 선택해주세요.');
+                                              },// remove if wrong offsets
                                             ),
                                           ),
                                         );
                                       },
-                                    ),
-                                  ),
-                                )
-                            ),
-                            // GPS
-                            Positioned(
-                                right: 20,
-                                bottom: 20,
-                                child: SizedBox(
-                                  width: 45,
-                                  height: 45,
-                                  child: CircleAvatar(
-                                    radius: 30,
-                                    backgroundColor: Colors.white,
-                                    child: IconButton(
-                                      icon: Icon(
-                                        Icons.gps_fixed,
-                                        color: Colors.black,
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        alignment: Alignment.center,
+                                        color: selectPosition == LatLng(0, 0) ?
+                                        Colors.black.withAlpha(150) : Colors.black.withAlpha(0),
+                                        child: selectPosition == LatLng(0, 0) ?
+                                        Text(
+                                          '탭 하여 위치 지정',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ) : null,
                                       ),
-                                      onPressed: () {
-                                        // Navigator.pushNamed(context, AddScheduleRoute);
-                                      },
-                                    ),
-                                  ),
+                                    )
+                                  ],
                                 )
                             ),
-                          ],
-                        )
-                      ),
-                    ),
-                  ]
-                )
-              ),
-            ],
+                          ),
+                        ]
+                    )
+                ),
+              ],
+            ),
           ),
         ),
       ),
