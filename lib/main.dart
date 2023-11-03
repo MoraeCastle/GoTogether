@@ -50,7 +50,8 @@ class MyApp extends StatelessWidget {
       // 타겟 언어 설정.
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
         Locale('ko'),

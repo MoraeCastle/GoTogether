@@ -40,7 +40,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '도중에 나가시겠습니까?',
+                  '입력한 내용이 사라집니다.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 18, fontWeight: FontWeight.normal),

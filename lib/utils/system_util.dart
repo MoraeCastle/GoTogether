@@ -44,7 +44,7 @@ class SystemUtil {
     '0'
   ];
 
-  // 그룹코드 생성.
+  /// 그룹코드 생성.
   static String generateGroupCode() {
     // 코드문자 리스트.
     var random = Random();
@@ -59,7 +59,7 @@ class SystemUtil {
     return result.toString();
   }
 
-  // 유저코드 생성.
+  /// 유저코드 생성.
   static String generateUserCode() {
     // 코드문자 리스트.
     var random = Random();
@@ -73,33 +73,45 @@ class SystemUtil {
     return result.toString();
   }
 
-  // 시작일, 종료일 데이터를 문자열로 받는다.
-  // ex. xxxx-xx-xx,xxxx-xx-xx
+  /// 시작일, 종료일 데이터를 문자열로 받는다.
+  /// ex. xxxx-xx-xx,xxxx-xx-xx
   static String getTravelDate(DateTime? startDate, DateTime? endDate) {
     return "${startDate.toString().split(' ')[0]},${endDate.toString().split(' ')[0]}";
   }
 
-  // 날짜를 받아서 출력용 데이터로 변환합니다.
-  static String chagePrintDate(String date) {
-    String resultDate = '';
-
-    var dataArray = date.split('');
+  /// 날짜를 받고 차이 일수를 반환합니다.
+  static int getTravelDay(String date) {
+    var dataArray = date.split(',');
 
     if (dataArray.length == 2) {
       DateTime startDate = DateTime.parse(dataArray[0]);
       DateTime endDate = DateTime.parse(dataArray[1]);
 
-      var logger = Logger();
-      logger.d(startDate.toString());
+      return endDate.difference(startDate).inDays + 1;
+    } else {
+      return 0;
+    }
+  }
+
+  /// 날짜를 받아서 출력용 데이터로 변환합니다.
+  static String changePrintDate(String date) {
+    String resultDate = '';
+
+    var dataArray = date.split(',');
+
+    if (dataArray.length == 2) {
+      // DateTime startDate = DateTime.parse(dataArray[0]);
+      // DateTime endDate = DateTime.parse(dataArray[1]);
+
+      return dataArray[0].substring(2, dataArray[0].length) + ' ~ '
+       + dataArray[1].substring(2, dataArray[0].length);
     } else {
       return '';
     }
-
-    return resultDate;
   }
 }
 
-// 대문자 형식
+/// 대문자 형식
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(

@@ -2,9 +2,13 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:rounded_expansion_tile/rounded_expansion_tile.dart';
+
+import '../providers/schedule_provider.dart';
+import '../utils/system_util.dart';
 
 class ScheduleInfoView extends StatefulWidget {
   const ScheduleInfoView({super.key});
@@ -41,17 +45,28 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       Icon(Icons.calendar_today),
                       SizedBox(width: 5),
                       Text('여행일')
                     ],
                   ),
-                  Text(
-                    '23.06.24 ~ 23.07.01',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  Consumer<ScheduleClass>(
+                    // Consumer를 활용해서 provider에 접근하여 데이터를 받아올 수 있다
+                      builder: (context, provider, child) {
+                        String sdf = '';
+                        return Text(
+                            provider.travel.getDate() == "" ? '조회 중...' :
+                            SystemUtil.changePrintDate(provider.travel.getDate()) + " (" +
+                          SystemUtil.getTravelDay(provider.travel.getDate()).toString() + "일)", // count를 화면에 출력
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        );
+                      }),
+                  // Text(
+                  //   '23.06.24 ~ 23.07.01',
+                  //   style: TextStyle(fontWeight: FontWeight.bold),
+                  // ),
                 ],
               ),
             ),
