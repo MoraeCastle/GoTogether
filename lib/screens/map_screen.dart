@@ -177,7 +177,7 @@ class _MapViewState extends State<MapView> {
                                     contentPadding: EdgeInsets.only(left: 10, right: 50),
                                     filled: true,
                                     fillColor: Colors.white,
-                                    hintText: '그룹명 입력...',
+                                    hintText: '장소 입력...',
                                     enabledBorder: OutlineInputBorder(
                                       borderSide:
                                       BorderSide(color: Colors.grey, width: .5),

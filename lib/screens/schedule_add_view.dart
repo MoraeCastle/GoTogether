@@ -4,6 +4,8 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:day_night_time_picker/lib/daynight_timepicker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_together/screens/map_select_screen.dart';
+import 'package:go_together/service/routing_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 // import 'package:google_maps_place_picker_mb/google_maps_place_picker.dart';
 
@@ -219,42 +221,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                                     // 터치 이벤트
                                     GestureDetector(
                                       onTap: () {
-                                        /*Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => PlacePicker(
-                                              apiKey: Platform.isAndroid
-                                                  ? "AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts"
-                                                  : "AIzaSyD9pEqWcgdjmvGeV40fMB834Fw3u_4vs0c",
-                                              onPlacePicked: (result) {
-                                                // print(result.address);
-                                                setState(() {
-                                                  selectPosition =
-                                                      LatLng(result.geometry!.location.lat, result.geometry!.location.lng);
-
-                                                  _controller.moveCamera(CameraUpdate.newLatLngZoom(selectPosition, 15));
-
-                                                  BotToast.showText(text: selectPosition.toString());
-                                                });
-                                                Navigator.of(context).pop();
-                                              },
-                                              initialPosition: LatLng(0, 0),
-                                              useCurrentLocation: true,
-                                              hintText: '장소 검색...',
-                                              searchingText: '검색 중 입니다...',
-                                              selectText: '이 장소로 저장',
-                                              resizeToAvoidBottomInset: false,
-                                              // automaticallyImplyAppBarLeading: false,  // 뒤로가기 활성여부
-                                              autocompleteLanguage: 'ko', // 검색결과 언어...
-                                              onAutoCompleteFailed: (value) {
-                                                BotToast.showText(text: '장소를 다시 검색해주세요.');
-                                              },// only works in page mode, less flickery,
-                                              onGeocodingSearchFailed: (value) {
-                                                BotToast.showText(text: '장소를 다시 선택해주세요.');
-                                              },// remove if wrong offsets
-                                            ),
-                                          ),
-                                        );*/
+                                        Navigator.pushNamed(context, MapSelectViewRoute);
                                       },
                                       child: Container(
                                         width: double.infinity,

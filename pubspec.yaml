@@ -37,6 +37,7 @@ dependencies:
   geolocator: ^10.1.0
   map_autocomplete_field: ^0.0.2
   flutter_google_maps_webservices: ^1.1.1
+  geocoding: ^2.1.1
 
 dependency_overrides:
  intl: any
