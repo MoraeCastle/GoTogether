@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_google_maps_webservices/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/screens/schedule_screen.dart';
@@ -9,6 +10,7 @@ import 'package:go_together/service/routing_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:map_autocomplete_field/map_autocomplete_field.dart';
 
 /// 메인 씬
 class MapView extends StatefulWidget {
@@ -26,15 +28,41 @@ class _MapViewState extends State<MapView> {
 
   late DataClass _countProvider;
   final Completer<GoogleMapController> _controller = Completer();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   // 현재 위치 좌표
   late LatLng currentLatLng;
   CameraPosition currentPosition =
-  const CameraPosition(target: LatLng(35.151624, 126.869592), zoom: 16);
+      const CameraPosition(target: LatLng(35.151624, 126.869592), zoom: 16);
+
+  TextEditingController textEditingController = TextEditingController();
+
+  FocusNode textFocus = FocusNode();
 
   /// 맵 컨트롤러 가져오기
   Future<GoogleMapController> getController() async {
     return await _controller.future;
+  }
+
+  /// PlaceId의 위치로 이동하기
+  findAddressForPlace(String placeId) async {
+    final geocoding = GoogleMapsGeocoding(apiKey: "AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts");
+    final response =
+        await geocoding.searchByPlaceId(placeId);
+
+    if (response.isOkay) {
+      final result = response.results.first.geometry;
+
+      currentLatLng = LatLng(result.location.lat, result.location.lng);
+      GoogleMapController controller = await getController();
+
+      setState(() {
+        currentPosition = CameraPosition(target: currentLatLng, zoom: 16);
+
+        controller.moveCamera(CameraUpdate.newLatLngZoom(currentLatLng, 17));
+      });
+    } else {
+      BotToast.showText(text: response.errorMessage.toString());
+    }
   }
 
   @override
@@ -50,7 +78,7 @@ class _MapViewState extends State<MapView> {
       position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
           forceAndroidLocationManager: true,
-          timeLimit: Duration(seconds: 15));
+          timeLimit: const Duration(seconds: 15));
 
       currentLatLng = LatLng(position.latitude, position.longitude);
       GoogleMapController controller = await getController();
@@ -96,6 +124,11 @@ class _MapViewState extends State<MapView> {
             onMapCreated: (controller) {
               if (!_controller.isCompleted) _controller.complete(controller);
             },
+            onTap: (argument) {
+              setState(() {
+                textFocus.unfocus();
+              });
+            },
           ),
           // 검색창
           Positioned(
@@ -104,7 +137,6 @@ class _MapViewState extends State<MapView> {
             right: 10,
             child: Container(
                 width: double.infinity,
-                height: 50,
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -131,38 +163,67 @@ class _MapViewState extends State<MapView> {
                             // Navigator.pop(context),
                             Navigator.pushNamed(context, ScheduleRoute);
                           },
-                          icon: Icon(Icons.menu)),
+                          icon: const Icon(Icons.menu)),
                     ),
                     Flexible(
-                      flex: 8,
-                      child: TextField(
-                        maxLines: 1,
-                        controller: TextEditingController(),
-                        decoration: const InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: '탭 해서 지도 검색...',
-                          hintStyle: TextStyle(color: Colors.black26),
-                          contentPadding: EdgeInsets.only(
-                              left: 14.0, bottom: 8.0, top: 8.0),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                            BorderSide(color: Colors.black12, width: 1.5),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                            BorderSide(color: Colors.black12, width: 1.5),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        ),
-                        style: const TextStyle(),
-                        onTap: () {
-                          BotToast.showText(
-                              text: _countProvider.travel.getTravelCode());
-                        },
-                      ),
-                    ),
+                        flex: 7,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Wrap(
+                              children: [
+                                MapAutoCompleteField(
+                                  inputDecoration: const InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10, right: 50),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    hintText: '그룹명 입력...',
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide:
+                                      BorderSide(color: Colors.grey, width: .5),
+                                      borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide:
+                                      BorderSide(color: Colors.grey, width: .5),
+                                      borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                    ),
+                                  ),
+                                  googleMapApiKey:
+                                  'AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts',
+                                  // locale: 'kr',
+                                  focusNode: textFocus,
+                                  controller: textEditingController,
+                                  hint: '탭 해서 검색...',
+                                  itemBuilder: (BuildContext context, suggestion) {
+                                    return ListTile(
+                                      leading: const Icon(Icons.explore_outlined),
+                                      title: Text(suggestion.description),
+                                    );
+                                  },
+                                  onSuggestionSelected: (suggestion) {
+                                    textEditingController.text =
+                                        suggestion.description;
+
+                                    findAddressForPlace(suggestion.placeId);
+                                  },
+                                ),
+                              ],
+                            ),
+                            Positioned(
+                              right: 0,
+                              child: IconButton(
+                                icon: Icon(Icons.close),
+                                onPressed: () {
+                                  textEditingController.text = "";
+                                },
+                              ),
+                            ),
+
+                          ],
+                        )),
                   ],
                 )),
           ),
@@ -177,13 +238,19 @@ class _MapViewState extends State<MapView> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
-                      boxShadow: [BoxShadow(offset: Offset(3, 3), blurRadius: 10, color: Colors.black.withAlpha(50), spreadRadius: 1)],
+                      boxShadow: [
+                        BoxShadow(
+                            offset: const Offset(3, 3),
+                            blurRadius: 10,
+                            color: Colors.black.withAlpha(50),
+                            spreadRadius: 1)
+                      ],
                     ),
                     child: CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.white,
                       child: IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.my_location,
                           color: Colors.black,
                         ),
@@ -192,9 +259,25 @@ class _MapViewState extends State<MapView> {
                         },
                       ),
                     ),
-                  )
-              )
-          ),
+                  ))),
+          /*Container(
+            color: Colors.white,
+            margin: EdgeInsets.all(50),
+            width: double.infinity,
+            height: double.infinity,
+            child: MapAutoCompleteField(
+              googleMapApiKey: 'AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts',
+              controller: textEditingController,
+              itemBuilder: (BuildContext context, suggestion) {
+                return ListTile(
+                  title: Text(suggestion.description),
+                );
+              },
+              onSuggestionSelected: (suggestion) {
+                textEditingController.text = suggestion.description;
+              },
+            ),
+          )*/
         ],
       ),
     );

@@ -5,7 +5,7 @@ import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:day_night_time_picker/lib/daynight_timepicker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_place_picker_mb/google_maps_place_picker.dart';
+// import 'package:google_maps_place_picker_mb/google_maps_place_picker.dart';
 
 /// 일정추가 씬
 class ScheduleAddView extends StatefulWidget {
@@ -219,7 +219,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                                     // 터치 이벤트
                                     GestureDetector(
                                       onTap: () {
-                                        Navigator.push(
+                                        /*Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => PlacePicker(
@@ -254,7 +254,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                                               },// remove if wrong offsets
                                             ),
                                           ),
-                                        );
+                                        );*/
                                       },
                                       child: Container(
                                         width: double.infinity,
