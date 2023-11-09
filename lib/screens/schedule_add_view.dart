@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
@@ -7,6 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:go_together/screens/map_select_screen.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../utils/string.dart';
+import '../utils/system_util.dart';
 // import 'package:google_maps_place_picker_mb/google_maps_place_picker.dart';
 
 /// 일정추가 씬
@@ -18,12 +24,38 @@ class ScheduleAddView extends StatefulWidget {
 }
 
 class _ScheduleAddView extends State<ScheduleAddView> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   LatLng selectPosition = LatLng(0, 0);
-  late GoogleMapController _controller;
+  final Completer<GoogleMapController> _controller = Completer();
+  Set<Marker> markers = {};
 
   @override
   void initState() {
     super.initState();
+  }
+
+  /// 맵 컨트롤러 가져오기
+  Future<GoogleMapController> getController() async {
+    return await _controller.future;
+  }
+
+  /// 특정 위치로 카메라 이동
+  _targetPosition(LatLng position) async {
+    GoogleMapController controller = await getController();
+    controller.moveCamera(CameraUpdate.newLatLngZoom(position, 17));
+  }
+
+  _getTargetPosition() async {
+    final SharedPreferences prefs = await _prefs;
+    var targetPosition = prefs.getString(SystemData.selectPosition) ?? "";
+
+    selectPosition = SystemUtil.convertStringPosition(targetPosition);
+
+    BotToast.showText(text: selectPosition.toString());
+
+    // 초기화.
+    await prefs.remove(SystemData.selectPosition);
   }
 
   Future<bool> backPress() async {
@@ -59,6 +91,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                 onPressed: () {
                   Navigator.pop(context);
                   Navigator.pop(context);
+                  //Navigator.pushNamed(context, ScheduleRoute);
                 },
                 child: const Text('네')),
             OutlinedButton(
@@ -73,6 +106,8 @@ class _ScheduleAddView extends State<ScheduleAddView> {
 
   @override
   Widget build(BuildContext context) {
+    /*Logger logger = Logger();
+    logger.e("add 신 실행됨....");*/
     return WillPopScope(
       onWillPop: () => backPress(),
       child: Scaffold(
@@ -202,7 +237,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                               child: Divider(color: Color.fromARGB(100, 0, 0, 0), thickness: 1.0)),
                           SizedBox(
                             width: double.infinity,
-                            height: 350,
+                            height: 200,
                             child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
                                 child: Stack(
@@ -212,16 +247,38 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                                       mapType: MapType.normal,
                                       initialCameraPosition: CameraPosition(target: selectPosition),
                                       onMapCreated: (controller) {
-                                        setState(() {
-                                          _controller = controller;
-                                        });
-                                        // if (!_controller.isCompleted) _controller.complete(controller);
+                                        if (!_controller.isCompleted) _controller.complete(controller);
                                       },
+                                      markers: markers,
                                     ),
                                     // 터치 이벤트
                                     GestureDetector(
-                                      onTap: () {
-                                        Navigator.pushNamed(context, MapSelectViewRoute);
+                                      onTap: () async {
+                                        //Navigator.push(context, MaterialPageRoute(builder: (context) => MapSelectView()));
+                                        // 만약 위치가 있다면 해당 위치로 저장.(보류)
+
+                                        Navigator.pushNamed(context, MapSelectViewRoute).then(
+                                          (value) async {
+                                            await _getTargetPosition();
+
+                                            setState(() {
+                                              if (selectPosition != LatLng(0, 0)) {
+                                                final Marker marker = Marker(
+                                                  markerId: MarkerId("selectMarker"),
+                                                  position: selectPosition,
+                                                  icon: BitmapDescriptor.defaultMarker,
+                                                );
+
+                                                _targetPosition(selectPosition);
+
+                                                markers.clear();
+                                                markers.add(marker);
+                                              } else {
+                                                markers.clear();
+                                              }
+                                            });
+                                          },
+                                        );
                                       },
                                       child: Container(
                                         width: double.infinity,

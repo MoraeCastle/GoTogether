@@ -2,7 +2,10 @@
 import 'dart:math';
 
 import 'package:flutter/services.dart';
+import 'package:go_together/utils/string.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SystemUtil {
   static List<String> codeTable = [
@@ -108,6 +111,24 @@ class SystemUtil {
     } else {
       return '';
     }
+  }
+
+  /// 문자방식의 위치(LatLng) 값을 원래 데이터로 변환합니다.
+  static LatLng convertStringPosition(String position) {
+    LatLng answer = LatLng(0, 0);
+
+    if (position.isEmpty) return answer;
+
+    List<String> array = position.split(",");
+
+    if (array.length != 2) return answer;
+    return LatLng(double.parse(array[0]), double.parse(array[1]));
+  }
+
+  /// 위치 선택 초기화
+  static void resetTargetPosition() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove(SystemData.selectPosition);
   }
 }
 

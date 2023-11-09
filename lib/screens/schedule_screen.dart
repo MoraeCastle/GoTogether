@@ -8,6 +8,7 @@ import 'package:go_together/screens/schedule_info_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/string.dart';
+import 'package:go_together/utils/system_util.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -178,6 +179,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
                     color: Colors.black,
                   ),
                   onPressed: () {
+                    SystemUtil.resetTargetPosition();
                     Navigator.pushNamed(context, AddScheduleRoute);
                   },
                 ),

@@ -10,6 +10,9 @@ import 'package:go_together/service/routing_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:map_autocomplete_field/map_autocomplete_field.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../utils/string.dart';
 
 /// 위치 선택 씬
 class MapSelectView extends StatefulWidget {
@@ -46,6 +49,12 @@ class _MapSelectViewState extends State<MapSelectView> {
   /// 맵 컨트롤러 가져오기
   Future<GoogleMapController> getController() async {
     return await _controller.future;
+  }
+
+  /// 선택한 위치 저장
+  _saveTargetPosition(String position) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SystemData.selectPosition, position);
   }
 
   /// PlaceId의 위치로 이동하기
@@ -329,6 +338,15 @@ class _MapSelectViewState extends State<MapSelectView> {
               onTap: () {
                 if (!isSearchDone) {
                   BotToast.showText(text: '위치를 조회중입니다...');
+                } else {
+                  _saveTargetPosition(
+                      "${currentLatLng.latitude},${currentLatLng.longitude}");
+                  //Navigator.pushNamedAndRemoveUntil(context, AddScheduleRoute, (route) => false);
+
+                  // Navigator.pushNamed(context, AddScheduleRoute);
+                  Navigator.pop(context);
+
+                  //BotToast.showText(text: '장소를 선택했습니다.');
                 }
               },
             )

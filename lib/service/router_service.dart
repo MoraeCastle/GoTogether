@@ -22,7 +22,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case CreateGroupRoute:
       return MaterialPageRoute(builder: (context) => const CreateGroupView());
     case AddScheduleRoute:
-      return MaterialPageRoute(builder: (context) => const ScheduleAddView());
+      return MaterialPageRoute(builder: (context) => ScheduleAddView());
     case AddUserRoute:
       return MaterialPageRoute(builder: (context) => const AddUserView());
     case ScheduleRoute:
