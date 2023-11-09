@@ -1,4 +1,6 @@
 // 여행그룹 객체
+import 'package:go_together/models/Schedule.dart';
+
 import 'User.dart';
 
 class Travel {
@@ -8,12 +10,15 @@ class Travel {
   late String title; // 그룹명
   late Map<String, User> userList; // 유저 리스트
 
+  late List<Schedule> schedule;
+
   Travel() {
     date = "";
     guideCode = "";
     travelCode = "";
     title = "";
     userList = {};
+    schedule = [];
   }
 
   factory Travel.fromJson(json) {
@@ -24,6 +29,9 @@ class Travel {
     data.setTitle(json['title']);
     if (json['userList'] != null) {
       data.setUserList(json['userList'].cast<String, User>());
+    }
+    if (json['schedule'] != null) {
+      data.setSchedule(json['schedule'].cast<Schedule>());
     }
     // data.setUserList(List<User>.from(json['userList']));
     return data;
@@ -74,6 +82,16 @@ class Travel {
     return userList;
   }
 
+  getSchedule() {
+    return schedule;
+  }
+  /// DB 규칙으로 인해 리스트 형식으로 저장.
+  /// 따라서 삽입 시 무조건 clear.
+  setSchedule(Schedule data) {
+    schedule.clear();
+    schedule.add(data);
+  }
+
   Map<String, dynamic> toJson() {
     return {
       "travelCode": travelCode,
@@ -81,6 +99,7 @@ class Travel {
       "date": date,
       "guideCode": guideCode,
       "userList": userList.map((key, value) => MapEntry(key, value.toJson())),
+      "schedule": schedule.map((player) => player.toJson()).toList(),
     };
   }
 }
