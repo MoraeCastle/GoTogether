@@ -1,16 +1,19 @@
 // 일정 객체
 class RouteItem {
-  late String routeName; // 권한
-  late String position; // 권한
-  late String time; // 권한
+  late String routeName;
+  late String position;
+  late String startTime;
+  late String endTime;
 
   RouteItem({
     String routeName = "",
     String position = "",
-    String time = "",
+    String startTime = "",
+    String endTime = "",
   })  : routeName = routeName,
         position = position,
-        time = time;
+        startTime = startTime,
+        endTime = endTime;
 
   String getRouteName() {
     return routeName;
@@ -26,24 +29,33 @@ class RouteItem {
     position = latlng;
   }
 
-  String getTime() {
-    return time;
+  String getStartTime() {
+    return startTime;
   }
-  setTime(String t) {
-    time = t;
+  setStartTime(String t) {
+    startTime = t;
+  }
+
+  String getEndTime() {
+    return endTime;
+  }
+  setEndTime(String t) {
+    endTime = t;
   }
 
   Map<String, dynamic> toJson() => {
     'routeName': routeName,
     'position': position,
-    'time': time,
+    'startTime': startTime,
+    'endTime': endTime,
   };
 
   factory RouteItem.fromJson(json) {
     var routeItem = RouteItem(
       routeName: json['routeName'] ?? "",
       position: json['position'] ?? "",
-      time: json['time'] ?? "",
+      startTime: json['startTime'] ?? "",
+      endTime: json['endTime'] ?? "",
     );
 
     return routeItem;

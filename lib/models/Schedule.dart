@@ -17,6 +17,7 @@ class Schedule {
     routeMap = data;
   }
 
+  /// 추후 오름차순으로 추가하게...
   addRoute(String day, RouteItem item) {
     routeMap[day] ??= [];  // If null, assign an empty list.
     routeMap[day]!.add(item);
