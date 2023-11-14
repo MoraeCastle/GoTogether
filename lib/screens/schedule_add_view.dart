@@ -145,10 +145,18 @@ class _ScheduleAddView extends State<ScheduleAddView> {
           // logger.d(travel.toJson().toString());
           logger.d(selectDate);
 
+          routeItem.setStartTime(_startTime.format(context));
+          routeItem.setEndTime(_endTime.format(context));
           travel.getSchedule()[0].addRoute(selectDate, routeItem);
-          travel.setTitle("아햏햏");
 
-          await ref.child(travelCode).set(travel.toJson());
+          await ref.child(travelCode).set(travel.toJson()).whenComplete(() {
+            BotToast.showText(text: '일정이 추가되었습니다.');
+
+            Navigator.pop(context);
+          }).onError((error, stackTrace) {
+            BotToast.showText(text: '서버에 오류가 있습니다.');
+          });
+
         } else {
           // Handle the case where 'result' is null.
         }
