@@ -60,31 +60,38 @@ class _AddUserView extends State<AddUserView> {
       // ref.onValue.listen((event) {
       //   Travel travelData = Travel.fromJson(snapshot.value);
       var result = snapshot.value;
-      var travel = Travel.fromJson(result);
 
-      // 유저 코드 중복 검사
-      bool codeCheck = true;
-      int exitCount = 0;
+      BotToast.showText(text: result.toString());
 
-      while (codeCheck) {
-        userItem.setUserCode(SystemUtil.generateUserCode());
-        // 일치하는 코드가 없으면 탈출.
-        codeCheck = travel.getUserList().containsKey(userItem.getUserCode());
+      if (result != null) {
+        var travel = Travel.fromJson(result);
 
-        ++exitCount;
-        if (exitCount > 50) {
-          BotToast.showText(text: '서버에 오류가 있습니다. 잠시 후 다시 시도해 주세요.');
-          return;
+        // 유저 코드 중복 검사
+        bool codeCheck = true;
+        int exitCount = 0;
+
+        while (codeCheck) {
+          userItem.setUserCode(SystemUtil.generateUserCode());
+          // 일치하는 코드가 없으면 탈출.
+          codeCheck = travel.getUserList().containsKey(userItem.getUserCode());
+
+          ++exitCount;
+          if (exitCount > 50) {
+            BotToast.showText(text: '서버에 오류가 있습니다. 잠시 후 다시 시도해 주세요.');
+            return;
+          }
         }
+
+        travel.addUser(userItem);
+
+        await ref.child('travel/$travelCode').set(travel.toJson());
+        saveUser(userItem);
+
+        Navigator.pop(context);
+        Navigator.pushNamed(context, HomeViewRoute);
+      } else {
+        //
       }
-
-      travel.addUser(userItem);
-
-      await ref.child('travel/$travelCode').set(travel.toJson());
-      saveUser(userItem);
-
-      Navigator.pop(context);
-      Navigator.pushNamed(context, HomeViewRoute);
     }
   }
 

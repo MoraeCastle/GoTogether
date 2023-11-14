@@ -1,5 +1,6 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/screens/etc_screen.dart';
@@ -41,29 +42,97 @@ class _TabBarScreenState extends State<TabBarWidget>
 
   @override
   void initState() {
-    super.initState();
+    BotToast.showLoading();
 
-    setTrevelDate();
+    super.initState();
+    setTravelDate();
   }
 
-  setTrevelDate() async {
+  /// 오류로 인한 나가기.
+  Future<bool> finishDialog() async {
+    return (await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: AlertDialog(
+          title: Container(
+            alignment: Alignment.center,
+            child: const Text('오류'),
+          ),
+          content: Container(
+            alignment: Alignment.center,
+            constraints: const BoxConstraints(maxHeight: 60),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '서버에 문제가 있습니다.\n나중에 다시 시도해주세요.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.normal),
+                ),
+              ],
+            ),
+          ),
+          icon: const Icon(Icons.info_outline_rounded),
+          actions: [
+            OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide.none,
+                ),
+                onPressed: () {
+                  SystemNavigator.pop();
+                },
+                child: const Text('종료')),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  /// 여행 데이터 불러오기...
+  setTravelDate() async {
     SharedPreferences prefs = await _prefs;
     String travelCode = prefs.getString(SystemData.trvelCode) ?? "";
 
-    ref = FirebaseDatabase.instance.ref();
-    var snapshot = await ref.child('travel/$travelCode').get();
+    BotToast.closeAllLoading();
 
-    if (snapshot.exists) {
-      var result = snapshot.value;
-      var travel = Travel.fromJson(result);
+    // 비회원모드 판별
+    if (travelCode.isNotEmpty) {
+      ref = FirebaseDatabase.instance.ref();
+      var snapshot = await ref.child('travel/$travelCode').get();
+      if (snapshot.exists) {
+        var result = snapshot.value;
+        if (result != null) {
+          var travel = Travel.fromJson(result);
 
-      _countProvider = Provider.of<DataClass>(context, listen: false);
-      _countProvider.travel = travel;
+          _countProvider = Provider.of<DataClass>(context, listen: false);
+          _countProvider.travel = travel;
 
-      BotToast.showText(text: "여행 데이터를 불러왔습니다...");
-    } else {
-      // 여행 데이터 불러오기 오류...
+          listenTravelChange(travelCode);
+        } else {
+          // 데이터가 null이라면 처리할 로직을 여기에 추가하세요.
+          BotToast.showText(text: "여행 데이터 불러오기 오류...");
+          finishDialog();
+        }
+      } else {
+        // 여행 데이터 불러오기 오류...
+        BotToast.showText(text: "???");
+        finishDialog();
+      }
     }
+  }
+
+  /// 여행 데이터 변경 감지
+  void listenTravelChange(String travelCode) {
+    DatabaseReference ref =
+      FirebaseDatabase.instance.ref('travel/$travelCode');
+    ref.onValue.listen((DatabaseEvent event) {
+      final data = event.snapshot.value;
+
+      BotToast.showText(text: "여행 데이터 로드됨");
+    });
   }
 
   // 탭 정의.

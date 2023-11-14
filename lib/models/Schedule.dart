@@ -3,29 +3,28 @@ import 'package:go_together/main.dart';
 import 'package:go_together/models/RouteItem.dart';
 
 class Schedule {
-  late Map<int, List<RouteItem>> routeMap;
+  /// 날짜에 따른 일정 리스트.
+  late Map<String, List<RouteItem>> routeMap;
 
-  Schedule() {
-    routeMap = Map();
+  Schedule () {
+    routeMap = {};
   }
 
   getRouteMap() {
     return routeMap;
   }
-  setRouteMap(Map<int, List<RouteItem>> data) {
+  setRouteMap(Map<String, List<RouteItem>> data) {
     routeMap = data;
   }
 
-  addRoute(int day, RouteItem item) {
-    if (routeMap[day] == null) {
-      routeMap[day] = <RouteItem>[];
-    }
+  addRoute(String day, RouteItem item) {
+    routeMap[day] ??= [];  // If null, assign an empty list.
     routeMap[day]!.add(item);
   }
-  removeRoute(int day, RouteItem item) {
-    if (routeMap.keys.contains(day)) {
+  removeRoute(String day, RouteItem item) {
+    if (routeMap.containsKey(day)) {
       if (routeMap[day] != null) {
-        RouteItem target = RouteItem();
+        RouteItem? target; // Initialize as nullable
         for (RouteItem data in routeMap[day]!) {
           if (data.position == item.position) {
             target = data;
@@ -33,25 +32,28 @@ class Schedule {
           }
         }
 
-        if (target.position.isNotEmpty) {
+        if (target != null && target.position.isNotEmpty) {
           routeMap[day]!.remove(target);
         }
       }
     }
   }
 
-  factory Schedule.fromJson(Map<String, dynamic> json) {
-    Schedule data = Schedule();
-    if (json['routeMap'] != null) {
-      data.setRouteMap(json['routeMap'].cast<int, RouteItem>());
-    }
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'routeMap': routeMap.map((key, value) =>
+        MapEntry(key, value.map((item) => item.toJson()).toList())),
+  };
 
-  Map<String, dynamic> toJson() {
-    return {
-      "routeMap": routeMap.map((key, value) => MapEntry(key,
-          value.map((value) => value.toJson()).toList())),
-    };
+  factory Schedule.fromJson(json) {
+    var schedule = Schedule();
+
+    schedule.setRouteMap(Map.from(json['routeMap'] ?? {}).map((key, value) => MapEntry(
+        key,
+        (value as List<dynamic>)
+            .map((item) =>
+            RouteItem.fromJson(Map<String, dynamic>.from(item)))
+            .toList())));
+
+    return schedule;
   }
 }

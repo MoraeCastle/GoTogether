@@ -96,6 +96,20 @@ class SystemUtil {
     }
   }
 
+  /// 날짜를 받아서 DateTime으로 변환합니다.
+  static DateTime changeDateTime(String dateRange, int isStartDay) {
+    DateTime resultDate = DateTime(2023, 1, 1);
+
+    if (dateRange.isNotEmpty) {
+      String date = isStartDay == 0 ? dateRange.split(",")[0] : dateRange.split(",")[1];
+      List<int> dateList = date.split("-").toList().map(int.parse).toList();
+
+      resultDate = DateTime(dateList[0], dateList[1], dateList[2]);
+    }
+
+    return resultDate;
+  }
+
   /// 날짜를 받아서 출력용 데이터로 변환합니다.
   static String changePrintDate(String date) {
     String resultDate = '';

@@ -1,4 +1,6 @@
 // 여행그룹 객체
+import 'dart:convert';
+
 import 'package:go_together/models/Schedule.dart';
 
 import 'User.dart';
@@ -19,22 +21,6 @@ class Travel {
     title = "";
     userList = {};
     schedule = [];
-  }
-
-  factory Travel.fromJson(json) {
-    Travel data = Travel();
-    data.setDate(json['date']);
-    data.setGuideCode(json['guideCode']);
-    data.setTravelCode(json['travelCode']);
-    data.setTitle(json['title']);
-    if (json['userList'] != null) {
-      data.setUserList(json['userList'].cast<String, User>());
-    }
-    if (json['schedule'] != null) {
-      data.setSchedule(json['schedule'].cast<Schedule>());
-    }
-    // data.setUserList(List<User>.from(json['userList']));
-    return data;
   }
 
   void setDate(String date) {
@@ -82,24 +68,37 @@ class Travel {
     return userList;
   }
 
-  getSchedule() {
+  List<Schedule> getSchedule() {
     return schedule;
   }
   /// DB 규칙으로 인해 리스트 형식으로 저장.
   /// 따라서 삽입 시 무조건 clear.
-  setSchedule(Schedule data) {
-    schedule.clear();
-    schedule.add(data);
+  setSchedule(List<Schedule> data) {
+    schedule = data;
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      "travelCode": travelCode,
-      "title": title,
-      "date": date,
-      "guideCode": guideCode,
-      "userList": userList.map((key, value) => MapEntry(key, value.toJson())),
-      "schedule": schedule.map((player) => player.toJson()).toList(),
-    };
+  Map<String, dynamic> toJson() => {
+    'date': date ?? '',
+    'guideCode': guideCode ?? '',
+    'travelCode': travelCode ?? '',
+    'title': title ?? '',
+    'userList': userList?.map((key, value) => MapEntry(key, value.toJson())) ?? {},
+    'schedule': schedule?.map((s) => s.toJson())?.toList() ?? [],
+  };
+
+  factory Travel.fromJson(json) {
+    var travel = Travel();
+    travel.setDate(json['date'] ?? "");
+    travel.setGuideCode(json['guideCode'] ?? "");
+    travel.setTravelCode(json['travelCode'] ?? "");
+    travel.setTitle(json['title'] ?? "");
+    travel.setUserList(Map.from(json['userList'] ?? {}).map(
+            (key, value) => MapEntry(key, User.fromJson(Map<String, dynamic>.from(value)))));
+    var data = (json['schedule'] as List<dynamic>? ?? [])
+        .map((item) => Schedule.fromJson(Map<String, dynamic>.from(item)))
+        .toList();
+    travel.setSchedule(data);
+
+    return travel;
   }
 }

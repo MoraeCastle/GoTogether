@@ -1,6 +1,7 @@
 // 일정관리 씬 내에서 관리되는 provider
 import 'package:flutter/foundation.dart';
 import 'package:go_together/models/Travel.dart';
+import 'package:go_together/utils/system_util.dart';
 import 'package:logger/logger.dart';
 
 class ScheduleClass with ChangeNotifier {
@@ -16,5 +17,9 @@ class ScheduleClass with ChangeNotifier {
     logger.d("저장됨...");
     _travel = value;
     notifyListeners();
+  }
+
+  getDateTime(int isStartDay) {
+    return SystemUtil.changeDateTime(travel.date, isStartDay);
   }
 }

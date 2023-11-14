@@ -32,6 +32,7 @@ void main() async {
 Future<String> checkAutoLogin() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
+  // 유저코드가 있으면 홈으로...
   String initScene = "";
   prefs.getString(SystemData.userCode) != null
       ? initScene = HomeViewRoute

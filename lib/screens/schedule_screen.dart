@@ -58,9 +58,9 @@ class _ScheduleWidget extends State<ScheduleWidget>
 
   @override
   void initState() {
-    super.initState();
+    BotToast.showLoading();
 
-    logger.d("initState...");
+    super.initState();
 
     // 탭 전환 시 토글에도 변경내용 적용하기.
     tabController.addListener(() {
@@ -69,28 +69,37 @@ class _ScheduleWidget extends State<ScheduleWidget>
       });
     });
 
-    setTrevelDate();
+    listenTravelChange();
   }
 
-  setTrevelDate() async {
+  /// 여행 데이터 적용
+  setTravelDate(Travel data) async {
+    //BotToast.showText(text: "여행 데이터 로드됨");
+
+    Provider.of<ScheduleClass>(context, listen: false).travel = data;
+  }
+
+  /// 여행 데이터 변경 감지
+  Future<void> listenTravelChange() async {
     SharedPreferences prefs = await _prefs;
     String travelCode = prefs.getString(SystemData.trvelCode) ?? "";
 
-    ref = FirebaseDatabase.instance.ref();
-    var snapshot = await ref.child('travel/$travelCode').get();
+    DatabaseReference ref =
+    FirebaseDatabase.instance.ref('travel/$travelCode');
 
-    if (snapshot.exists) {
-      var result = snapshot.value;
-      var travel = Travel.fromJson(result);
-      travelData = travel;
+    ref.onValue.listen((DatabaseEvent event) {
+      BotToast.closeAllLoading();
 
-      Provider.of<ScheduleClass>(context, listen: false).travel = travelData;
+      var result = event.snapshot.value;
+      if (result != null) {
+        var travel = Travel.fromJson(result);
 
-      logger.d("데이터가 저장되었습니다...");
-    } else {
-      // 여행 데이터 불러오기 오류...
-      logger.d("데이터가 저장 오류.");
-    }
+        // 'travel' 객체를 사용할 수 있습니다.
+        setTravelDate(travel);
+      } else {
+        // 'result'가 null인 경우를 처리하세요.
+      }
+    });
   }
 
   @override

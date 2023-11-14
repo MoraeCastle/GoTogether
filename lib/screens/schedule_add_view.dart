@@ -2,14 +2,16 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
-import 'package:day_night_time_picker/day_night_time_picker.dart';
-import 'package:day_night_time_picker/lib/daynight_timepicker.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:go_together/screens/map_select_screen.dart';
+import 'package:go_together/models/RouteItem.dart';
+import 'package:go_together/models/Schedule.dart';
+import 'package:go_together/models/Travel.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:time_range_picker/time_range_picker.dart';
 
 import '../utils/string.dart';
 import '../utils/system_util.dart';
@@ -29,6 +31,17 @@ class _ScheduleAddView extends State<ScheduleAddView> {
   LatLng selectPosition = LatLng(0, 0);
   final Completer<GoogleMapController> _controller = Completer();
   Set<Marker> markers = {};
+
+  TimeOfDay _startTime = TimeOfDay.now();
+  TimeOfDay _endTime =
+      TimeOfDay.fromDateTime(DateTime.now().add(const Duration(hours: 3)));
+
+  Logger logger = Logger();
+
+  RouteItem routeItem = RouteItem();
+
+  DatabaseReference ref = FirebaseDatabase.instance.ref("travel");
+
 
   @override
   void initState() {
@@ -60,48 +73,89 @@ class _ScheduleAddView extends State<ScheduleAddView> {
 
   Future<bool> backPress() async {
     return (await showDialog(
-        context: context,
-        // barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          title: Container(
-            alignment: Alignment.center,
-            child: const Text('안내'),
-          ),
-          content: Container(
-            alignment: Alignment.center,
-            constraints: const BoxConstraints(maxHeight: 60),
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '입력한 내용이 사라집니다.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.normal),
-                ),
-              ],
-            ),
-          ),
-          icon: const Icon(Icons.info_outline_rounded),
-          actions: [
-            OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide.none,
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                  //Navigator.pushNamed(context, ScheduleRoute);
-                },
-                child: const Text('네')),
-            OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide.none,
-                ),
-                onPressed: () => Navigator.pop(context),
-                child: const Text('아니오')),
-          ],
-        ))) ?? false;
+            context: context,
+            // barrierDismissible: false,
+            builder: (context) => AlertDialog(
+                  title: Container(
+                    alignment: Alignment.center,
+                    child: const Text('안내'),
+                  ),
+                  content: Container(
+                    alignment: Alignment.center,
+                    constraints: const BoxConstraints(maxHeight: 60),
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '입력한 내용이 사라집니다.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                  ),
+                  icon: const Icon(Icons.info_outline_rounded),
+                  actions: [
+                    OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide.none,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                          //Navigator.pushNamed(context, ScheduleRoute);
+                        },
+                        child: const Text('네')),
+                    OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide.none,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('아니오')),
+                  ],
+                ))) ??
+        false;
+  }
+
+  /// 일정 저장
+  Future<void> saveSchedule() async {
+    //BotToast.showText(text: routeItem.getRouteName() + ", " + routeItem.getPosition());
+
+    if (routeItem.getRouteName().isEmpty) {
+      BotToast.showText(text: '일정을 입력해주세요.');
+    } else if (routeItem.getPosition().isEmpty) {
+      BotToast.showText(text: '장소를 지정해주세요.');
+    } else {
+      // 일정 저장.
+      final SharedPreferences prefs = await _prefs;
+      var travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+      var selectDate = prefs.getString(SystemData.selectDate) ?? "";
+
+      // 생성된 그룹 코드를 DB에 조회...
+      final snapshot = await ref.child(travelCode).get();
+      if (snapshot.exists) {
+        var result = snapshot.value;
+        if (result != null) {
+          var travel = Travel.fromJson(result);
+
+          if (travel.getSchedule().isEmpty) {
+            travel.getSchedule().add(Schedule());
+          }
+          // logger.d(travel.toJson().toString());
+          logger.d(selectDate);
+
+          travel.getSchedule()[0].addRoute(selectDate, routeItem);
+          travel.setTitle("아햏햏");
+
+          await ref.child(travelCode).set(travel.toJson());
+        } else {
+          // Handle the case where 'result' is null.
+        }
+      } else {
+        // BotToast.showText(text: '4');
+      }
+    }
   }
 
   @override
@@ -120,17 +174,16 @@ class _ScheduleAddView extends State<ScheduleAddView> {
           actions: [
             IconButton(
               onPressed: () {
-                BotToast.showText(text: '저장되었습니다.');
-                Navigator.pop(context);
+                saveSchedule();
               },
-              icon: Icon(Icons.save),
+              icon: const Icon(Icons.save),
             ),
           ],
           shadowColor: Colors.transparent,
           centerTitle: true,
-          title: Text(
+          title: const Text(
             '일정 추가',
-            style: const TextStyle(color: Colors.white, fontSize: 17),
+            style: TextStyle(color: Colors.white, fontSize: 17),
           ),
         ),
         body: Container(
@@ -145,62 +198,171 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                   padding: EdgeInsets.all(15),
                   margin: EdgeInsets.only(bottom: 10),
                   decoration: BoxDecoration(
-                      color: Colors.grey, borderRadius: BorderRadius.circular(15)),
-                  child:Column(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Column(
                     children: [
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.assignment),
+                              Icon(Icons.schedule),
                               SizedBox(width: 5),
-                              Text('기본 정보')
+                              Text('시간')
                             ],
                           ),
                         ],
                       ),
-                      Container(
-                          width: 500,
-                          child: Divider(color: Color.fromARGB(100, 0, 0, 0), thickness: 1.0)),
-                      // 시간 선택기
-                      showPicker(
-                        isInlinePicker: true,
-                        elevation: 1,
-                        value: Time.fromTimeOfDay(TimeOfDay.now(), 0),
-                        onChange: (p0) {
-
-                        },
-                        width: double.infinity,
-                        height: 400,
-                        showCancelButton: true,
-                        hideButtons: true,
-                        dialogInsetPadding: EdgeInsets.only(bottom: 10),
-                        minuteInterval: TimePickerInterval.FIVE,
-                        iosStylePicker: true,
-                        is24HrFormat: false,
-                      ),
                       const SizedBox(
+                          width: 500,
+                          child: Divider(
+                              color: Color.fromARGB(100, 0, 0, 0),
+                              thickness: 1.0)),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 20, right: 20, top: 5, bottom: 5),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 30,
+                                        right: 30,
+                                        top: 10,
+                                        bottom: 10),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white.withAlpha(230),
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          '시작',
+                                          style: TextStyle(
+                                              color:
+                                                  Colors.black.withAlpha(150),
+                                              fontSize: 13),
+                                        ),
+                                        Text(
+                                          _startTime.format(context),
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_right),
+                                  Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 30,
+                                        right: 30,
+                                        top: 10,
+                                        bottom: 10),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white.withAlpha(230),
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          '종료',
+                                          style: TextStyle(
+                                              color:
+                                                  Colors.black.withAlpha(150),
+                                              fontSize: 13),
+                                        ),
+                                        Text(
+                                          _endTime.format(context),
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // 시간 선택기
+                            TimeRangePicker(
+                              hideButtons: true,
+                              hideTimes: true,
+                              rotateLabels: false,
+                              paintingStyle: PaintingStyle.fill,
+                              backgroundColor: Colors.black.withAlpha(50),
+                              toText: '종료',
+                              fromText: '시작',
+                              labels: [
+                                "12 AM",
+                                "3",
+                                "6 AM",
+                                "9",
+                                "12 PM",
+                                "3",
+                                "6 PM",
+                                "9"
+                              ].asMap().entries.map((e) {
+                                return ClockLabel.fromIndex(
+                                    idx: e.key, length: 8, text: e.value);
+                              }).toList(),
+                              start: _startTime,
+                              end: _endTime,
+                              ticks: 10,
+                              strokeColor: Theme.of(context)
+                                  .primaryColor
+                                  .withOpacity(0.5),
+                              ticksColor: Theme.of(context).primaryColor,
+                              labelOffset: 20,
+                              padding: 60,
+                              onStartChange: (start) {
+                                setState(() {
+                                  _startTime = start;
+                                });
+                              },
+                              onEndChange: (end) {
+                                setState(() {
+                                  _endTime = end;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: TextField(
-                          decoration: InputDecoration(
-                            filled: true, //<-- SEE HERE
+                          onChanged: (value) {
+                            routeItem.setRouteName(value);
+                          },
+                          decoration: const InputDecoration(
+                            filled: true,
+                            //<-- SEE HERE
                             fillColor: Color.fromARGB(150, 255, 255, 255),
                             labelText: '일정명',
                             hintText: '내용 입력',
-                            labelStyle: TextStyle(
-                                color: Colors.black),
+                            labelStyle: TextStyle(color: Colors.black),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                              borderSide: BorderSide(width: 1, color: Colors.grey),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10.0)),
+                              borderSide:
+                                  BorderSide(width: 1, color: Colors.grey),
                             ),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                              borderSide: BorderSide(width: 1, color: Colors.grey),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10.0)),
+                              borderSide:
+                                  BorderSide(width: 1, color: Colors.grey),
                             ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10.0)),
                             ),
                           ),
                           keyboardType: TextInputType.text,
@@ -210,99 +372,114 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                   ),
                 ),
                 Container(
-                    padding: EdgeInsets.all(15),
-                    margin: EdgeInsets.only(bottom: 5),
+                    padding: const EdgeInsets.all(15),
+                    margin: const EdgeInsets.only(bottom: 5),
                     decoration: BoxDecoration(
-                        color: Colors.grey, borderRadius: BorderRadius.circular(15)),
-                    child:Column(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Column(children: [
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.location_on),
-                                  SizedBox(width: 5),
-                                  Text('위치')
-                                ],
-                              ),
-                              Text(
-                                '일정의 위치를 지정하세요',
-                                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 11),
-                              ),
+                              Icon(Icons.location_on),
+                              SizedBox(width: 5),
+                              Text('위치')
                             ],
                           ),
-                          Container(
-                              width: 500,
-                              child: Divider(color: Color.fromARGB(100, 0, 0, 0), thickness: 1.0)),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 200,
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Stack(
-                                  children: [
-                                    GoogleMap(
-                                      zoomControlsEnabled: false,
-                                      mapType: MapType.normal,
-                                      initialCameraPosition: CameraPosition(target: selectPosition),
-                                      onMapCreated: (controller) {
-                                        if (!_controller.isCompleted) _controller.complete(controller);
-                                      },
-                                      markers: markers,
-                                    ),
-                                    // 터치 이벤트
-                                    GestureDetector(
-                                      onTap: () async {
-                                        //Navigator.push(context, MaterialPageRoute(builder: (context) => MapSelectView()));
-                                        // 만약 위치가 있다면 해당 위치로 저장.(보류)
-
-                                        Navigator.pushNamed(context, MapSelectViewRoute).then(
-                                          (value) async {
-                                            await _getTargetPosition();
-
-                                            setState(() {
-                                              if (selectPosition != LatLng(0, 0)) {
-                                                final Marker marker = Marker(
-                                                  markerId: MarkerId("selectMarker"),
-                                                  position: selectPosition,
-                                                  icon: BitmapDescriptor.defaultMarker,
-                                                );
-
-                                                _targetPosition(selectPosition);
-
-                                                markers.clear();
-                                                markers.add(marker);
-                                              } else {
-                                                markers.clear();
-                                              }
-                                            });
-                                          },
-                                        );
-                                      },
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        alignment: Alignment.center,
-                                        color: selectPosition == LatLng(0, 0) ?
-                                        Colors.black.withAlpha(150) : Colors.black.withAlpha(0),
-                                        child: selectPosition == LatLng(0, 0) ?
-                                        Text(
-                                          '탭 하여 위치 지정',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ) : null,
-                                      ),
-                                    )
-                                  ],
-                                )
-                            ),
+                          Text(
+                            '일정의 위치를 지정하세요',
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 11),
                           ),
-                        ]
-                    )
-                ),
+                        ],
+                      ),
+                      const SizedBox(
+                          width: 500,
+                          child: Divider(
+                              color: Color.fromARGB(100, 0, 0, 0),
+                              thickness: 1.0)),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 200,
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Stack(
+                              children: [
+                                GoogleMap(
+                                  zoomControlsEnabled: false,
+                                  mapType: MapType.normal,
+                                  initialCameraPosition:
+                                      CameraPosition(target: selectPosition),
+                                  onMapCreated: (controller) {
+                                    if (!_controller.isCompleted) {
+                                      _controller.complete(controller);
+                                    }
+                                  },
+                                  markers: markers,
+                                ),
+                                // 터치 이벤트
+                                GestureDetector(
+                                  onTap: () async {
+                                    //Navigator.push(context, MaterialPageRoute(builder: (context) => MapSelectView()));
+                                    // 만약 위치가 있다면 해당 위치로 저장.(보류)
+
+                                    Navigator.pushNamed(
+                                            context, MapSelectViewRoute)
+                                        .then(
+                                      (value) async {
+                                        await _getTargetPosition();
+
+                                        setState(() {
+                                          if (selectPosition !=
+                                              const LatLng(0, 0)) {
+                                            final Marker marker = Marker(
+                                              markerId: const MarkerId(
+                                                  "selectMarker"),
+                                              position: selectPosition,
+                                              icon: BitmapDescriptor
+                                                  .defaultMarker,
+                                            );
+
+                                            _targetPosition(selectPosition);
+
+                                            routeItem.setPosition(
+                                                "${selectPosition.latitude},${selectPosition.longitude}");
+
+                                            markers.clear();
+                                            markers.add(marker);
+                                          } else {
+                                            markers.clear();
+
+                                            routeItem.setPosition("");
+                                          }
+                                        });
+                                      },
+                                    );
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    alignment: Alignment.center,
+                                    color: selectPosition == const LatLng(0, 0)
+                                        ? Colors.black.withAlpha(150)
+                                        : Colors.black.withAlpha(0),
+                                    child: selectPosition == const LatLng(0, 0)
+                                        ? const Text(
+                                            '탭 하여 위치 지정',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                )
+                              ],
+                            )),
+                      ),
+                    ])),
               ],
             ),
           ),

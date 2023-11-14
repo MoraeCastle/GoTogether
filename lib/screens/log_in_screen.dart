@@ -152,68 +152,72 @@ class LoginView extends StatelessWidget {
 
       if (snapshot.exists) {
         var result = snapshot.value;
-        var travel = Travel.fromJson(result);
+        if (result != null) {
+          var travel = Travel.fromJson(result);
 
-        // ignore: use_build_context_synchronously
-        showDialog(
-            context: context,
-            // barrierDismissible: false,
-            builder: (context) => AlertDialog(
-                  title: Container(
-                    alignment: Alignment.center,
-                    child: const Text('안내'),
-                  ),
-                  content: Container(
-                    alignment: Alignment.center,
-                    constraints: const BoxConstraints(maxHeight: 100),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.all(10),
-                          margin: EdgeInsets.only(bottom: 15),
-                          decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 194, 204, 255),
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Text(
-                            travel.getTitle(),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.normal),
-                          ),
-                        ),
-                        Text(
-                          '방을 찾았습니다. 입장하시겠습니까?',
+          // ignore: use_build_context_synchronously
+          showDialog(
+              context: context,
+              // barrierDismissible: false,
+              builder: (context) => AlertDialog(
+                title: Container(
+                  alignment: Alignment.center,
+                  child: const Text('안내'),
+                ),
+                content: Container(
+                  alignment: Alignment.center,
+                  constraints: const BoxConstraints(maxHeight: 100),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(10),
+                        margin: EdgeInsets.only(bottom: 15),
+                        decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 194, 204, 255),
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Text(
+                          travel.getTitle(),
+                          textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.normal),
-                        )
-                      ],
-                    ),
+                              fontSize: 18, fontWeight: FontWeight.normal),
+                        ),
+                      ),
+                      Text(
+                        '방을 찾았습니다. 입장하시겠습니까?',
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.normal),
+                      )
+                    ],
                   ),
-                  icon: Icon(Icons.priority_high),
-                  actions: [
-                    OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide.none,
-                        ),
-                        onPressed: () {
-                          // 데이터 저장
-                          saveTravel(travel);
+                ),
+                icon: Icon(Icons.priority_high),
+                actions: [
+                  OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide.none,
+                      ),
+                      onPressed: () {
+                        // 데이터 저장
+                        saveTravel(travel);
 
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, HomeViewRoute);
-                        },
-                        child: const Text('네')),
-                    OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide.none,
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('아니오')),
-                  ],
-                ));
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, HomeViewRoute);
+                      },
+                      child: const Text('네')),
+                  OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide.none,
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('아니오')),
+                ],
+              ));
+        } else {
+          //
+        }
       } else {
         BotToast.showText(text: '조회된 여행이 없습니다...');
       }

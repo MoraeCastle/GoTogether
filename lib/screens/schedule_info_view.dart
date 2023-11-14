@@ -1,8 +1,10 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:go_together/utils/string.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:rounded_expansion_tile/rounded_expansion_tile.dart';
@@ -21,10 +23,22 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
   DateTime _selectedDay = DateTime.now();
   late DateTime _focusedDay = DateTime.now();
 
+  /// 선택한 날짜 기기에 저장.
+  Future<void> setSelectDay(DateTime dateTime) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String date = dateTime.year.toString() + "-"
+        + dateTime.month.toString() + "-"
+        + dateTime.day.toString();
+
+    await prefs.setString(SystemData.selectDate, date);
+  }
 
   @override
   void initState() {
     super.initState();
+
+    setSelectDay(_selectedDay);
   }
 
   @override
@@ -77,6 +91,8 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                   color: Colors.grey, borderRadius: BorderRadius.circular(15)),
               child: TableCalendar(
                 locale: 'ko_KR',
+                rangeStartDay: context.watch<ScheduleClass>().getDateTime(0),
+                rangeEndDay: context.watch<ScheduleClass>().getDateTime(1),
                 firstDay: DateTime.utc(2010, 10, 16),
                 lastDay: DateTime.utc(2030, 3, 14),
                 // focusedDay: DateTime.now(),
@@ -85,6 +101,8 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                   return isSameDay(_selectedDay, day);
                 },
                 onDaySelected: (selectedDay, focusedDay) {
+                  setSelectDay(selectedDay);
+
                   setState(() {
                     _selectedDay = selectedDay;
                     _focusedDay =

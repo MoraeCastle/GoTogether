@@ -7,25 +7,19 @@ class User {
   late String pushToken; // 알림전송용 고유토큰
   late String userCode; // 유저 고유코드
 
-  User() {
-    authority = "";
-    deviceCode = "";
-    name = "";
-    position = "";
-    pushToken = "";
-    userCode = "";
-  }
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    User data = User();
-    data.setAuthority(json['authority']);
-    data.setDeviceCode(json['deviceCode']);
-    data.setName(json['name']);
-    data.setPosition(json['position']);
-    data.setPushToken(json['pushToken']);
-    data.setUserCode(json['userCode']);
-    return data;
-  }
+  User({
+    String authority = "",
+    String deviceCode = "",
+    String name = "",
+    String position = "",
+    String pushToken = "",
+    String userCode = "",
+  })  : authority = authority,
+        deviceCode = deviceCode,
+        name = name,
+        position = position,
+        pushToken = pushToken,
+        userCode = userCode;
 
   void setAuthority(String authority) {
     this.authority = authority;
@@ -75,14 +69,25 @@ class User {
     return userCode;
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      "authority": authority,
-      "deviceCode": deviceCode,
-      "name": name,
-      "position": position,
-      "pushToken": pushToken,
-      "userCode": userCode,
-    };
+  Map<String, dynamic> toJson() => {
+    'authority': authority,
+    'deviceCode': deviceCode,
+    'name': name,
+    'position': position,
+    'pushToken': pushToken,
+    'userCode': userCode,
+  };
+
+  factory User.fromJson(json) {
+    var user = User(
+      authority: json['authority'] ?? "",
+      deviceCode: json['deviceCode'] ?? "",
+      name: json['name'] ?? "",
+      position: json['position'] ?? "",
+      pushToken: json['pushToken'] ?? "",
+      userCode: json['userCode'] ?? "",
+    );
+
+    return user;
   }
 }
