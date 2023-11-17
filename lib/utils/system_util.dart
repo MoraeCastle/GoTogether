@@ -1,6 +1,8 @@
 // 앱 내 주요 기능관련 클래스.
 import 'dart:math';
 
+import 'package:bot_toast/bot_toast.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -94,6 +96,18 @@ class SystemUtil {
     } else {
       return 0;
     }
+  }
+
+  /// 해당 날짜가 범위 안에 있는지 판별합니다.
+  static bool isDateInSchedule(String dateStr, DateTime target) {
+    if (dateStr.isEmpty) return false;
+
+    DateTime startDate = changeDateTime(dateStr, 0);
+    DateTime endDate = changeDateTime(dateStr, 1);
+    startDate = DateTime(startDate.year, startDate.month, startDate.day - 1);
+    endDate = DateTime(endDate.year, endDate.month, endDate.day + 1);
+
+    return startDate.isBefore(target) && endDate.isAfter(target);
   }
 
   /// 날짜를 받아서 DateTime으로 변환합니다.

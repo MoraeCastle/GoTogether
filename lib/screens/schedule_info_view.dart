@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -38,7 +39,9 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
   void initState() {
     super.initState();
 
-    setSelectDay(_selectedDay);
+    // 가장 첫 번째 일차로 지정.
+    Logger logger = Logger();
+    logger.e(_selectedDay.toString());
   }
 
   @override
@@ -101,13 +104,18 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                   return isSameDay(_selectedDay, day);
                 },
                 onDaySelected: (selectedDay, focusedDay) {
-                  setSelectDay(selectedDay);
+                  // BotToast.showText(text: context.read<ScheduleClass>().travel.getDate());
+                  if (SystemUtil.isDateInSchedule(context.read<ScheduleClass>().travel.getDate(), selectedDay)) {
+                    setSelectDay(selectedDay);
 
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay =
-                        focusedDay; // update `_focusedDay` here as well
-                  });
+                    setState(() {
+                      _selectedDay = selectedDay;
+                      _focusedDay =
+                          focusedDay; // update `_focusedDay` here as well
+                    });
+                  } else {
+                    BotToast.showText(text: '범위 내에 일차를 선택하세요.');
+                  }
                 },
               ),
             ),

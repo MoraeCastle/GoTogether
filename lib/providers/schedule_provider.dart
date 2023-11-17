@@ -19,7 +19,7 @@ class ScheduleClass with ChangeNotifier {
     notifyListeners();
   }
 
-  getDateTime(int isStartDay) {
-    return SystemUtil.changeDateTime(travel.date, isStartDay);
+  DateTime getDateTime(int isStartDay) {
+    return SystemUtil.changeDateTime(travel.getDate(), isStartDay);
   }
 }
