@@ -46,6 +46,9 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
 
   @override
   Widget build(BuildContext context) {
+    _selectedDay = context.read<ScheduleClass>().getDateTime(0);
+    setSelectDay(_selectedDay);
+
     return Container(
         padding: EdgeInsets.all(15),
         width: double.infinity,
