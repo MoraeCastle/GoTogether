@@ -10,7 +10,7 @@ class Schedule {
     routeMap = {};
   }
 
-  getRouteMap() {
+  Map<String, List<RouteItem>> getRouteMap() {
     return routeMap;
   }
   setRouteMap(Map<String, List<RouteItem>> data) {

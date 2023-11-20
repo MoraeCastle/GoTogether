@@ -88,8 +88,6 @@ class _ScheduleWidget extends State<ScheduleWidget>
     FirebaseDatabase.instance.ref('travel/$travelCode');
 
     ref.onValue.listen((DatabaseEvent event) {
-      BotToast.closeAllLoading();
-
       var result = event.snapshot.value;
       if (result != null) {
         var travel = Travel.fromJson(result);
