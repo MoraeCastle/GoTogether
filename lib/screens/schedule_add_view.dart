@@ -19,7 +19,9 @@ import '../utils/system_util.dart';
 
 /// 일정추가 씬
 class ScheduleAddView extends StatefulWidget {
-  const ScheduleAddView({super.key});
+  const ScheduleAddView({Key? key, required this.arguments}) : super(key: key);
+
+  final String arguments;
 
   @override
   State<StatefulWidget> createState() => _ScheduleAddView();
@@ -130,7 +132,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
       // 일정 저장.
       final SharedPreferences prefs = await _prefs;
       var travelCode = prefs.getString(SystemData.trvelCode) ?? "";
-      var selectDate = prefs.getString(SystemData.selectDate) ?? "";
+      var selectDate = widget.arguments;
 
       // 생성된 그룹 코드를 DB에 조회...
       final snapshot = await ref.child(travelCode).get();

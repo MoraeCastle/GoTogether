@@ -22,7 +22,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case CreateGroupRoute:
       return MaterialPageRoute(builder: (context) => const CreateGroupView());
     case AddScheduleRoute:
-      return MaterialPageRoute(builder: (context) => ScheduleAddView());
+      // 씬 이동 전 변수가 넘어올 경우...
+      String? argument = settings.arguments as String?;
+
+      return MaterialPageRoute(builder: (context) => ScheduleAddView(arguments: argument ?? ''));
     case AddUserRoute:
       return MaterialPageRoute(builder: (context) => const AddUserView());
     case ScheduleRoute:

@@ -3,9 +3,11 @@ import 'dart:math';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -110,6 +112,27 @@ class SystemUtil {
     return startDate.isBefore(target) && endDate.isAfter(target);
   }
 
+  /// 시간을 받아서 DateTime으로 변환합니다.
+  static DateTime changeDateTimeFromClock(DateTime date, String clock) {
+    // "오전" 또는 "오후"를 제거하고 시간과 분을 추출
+    List<String> components = clock.split(' ');
+    String timeWithoutPeriod = components[1];
+    List<String> timeComponents = timeWithoutPeriod.split(':');
+    // 시간과 분을 정수로 변환
+    int hour = int.parse(timeComponents[0]);
+    int minute = int.parse(timeComponents[1]);
+    // "오후"일 경우 시간을 조정
+    if (components[0] == "오후") {
+      hour = (hour + 12) % 24;
+    }
+
+    // TimeOfDay 객체 생성
+    TimeOfDay timeOfDay = TimeOfDay(hour: hour, minute: minute);
+    date = DateTime(date.year, date.month, date.day, timeOfDay.hour, timeOfDay.minute);
+
+    return date;
+  }
+
   /// 날짜를 받아서 DateTime으로 변환합니다.
   static DateTime changeDateTime(String dateRange, int isStartDay) {
     DateTime resultDate = DateTime(2023, 1, 1);
@@ -122,6 +145,15 @@ class SystemUtil {
     }
 
     return resultDate;
+  }
+
+  /// DateTime을 String으로 변환합니다.(자릿수채움)
+  static String changePrintDateOnlyDate(DateTime date) {
+    String result = date.year.toString() + "-"
+        + date.month.toString().padLeft(2, '0') + "-"
+        + date.day.toString().padLeft(2, '0');
+
+    return result;
   }
 
   /// 날짜를 받아서 출력용 데이터로 변환합니다.

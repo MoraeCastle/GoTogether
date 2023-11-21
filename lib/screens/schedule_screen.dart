@@ -84,8 +84,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
     SharedPreferences prefs = await _prefs;
     String travelCode = prefs.getString(SystemData.trvelCode) ?? "";
 
-    DatabaseReference ref =
-    FirebaseDatabase.instance.ref('travel/$travelCode');
+    DatabaseReference ref = FirebaseDatabase.instance.ref('travel/$travelCode');
 
     ref.onValue.listen((DatabaseEvent event) {
       var result = event.snapshot.value;
@@ -110,91 +109,93 @@ class _ScheduleWidget extends State<ScheduleWidget>
   Widget build(BuildContext context) {
     logger.d('빌드...');
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black.withAlpha(200),
-        leading: IconButton(
-          onPressed: () {
-            BotToast.showText(text: "토글 선택....");
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: ToggleSwitch(
-              customWidths: const [35, 35],
-              initialLabelIndex: toggleIndex,
-              cornerRadius: 20.0,
-              activeFgColor: Colors.white,
-              inactiveBgColor: Colors.grey,
-              inactiveFgColor: Colors.white,
-              totalSwitches: 2,
-              icons: const [
-                Icons.info,
-                Icons.edit_calendar_sharp,
-              ],
-              iconSize: 20.0,
-              borderWidth: 1.0,
-              borderColor: const [Colors.blueGrey],
-              activeBgColors: const [
-                [Colors.blue],
-                [Colors.pink]
-              ],
-              onToggle: (index) {
-                print('switched to: $index');
-                tabController.animateTo(index!);
-              },
-            ),
+        appBar: AppBar(
+          backgroundColor: Colors.black.withAlpha(200),
+          leading: IconButton(
+            onPressed: () {
+              BotToast.showText(text: "토글 선택....");
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
-        ],
-        shadowColor: Colors.transparent,
-        centerTitle: true,
-        title: Consumer<ScheduleClass>(
-            // Consumer를 활용해서 provider에 접근하여 데이터를 받아올 수 있다
-            builder: (context, provider, child) {
-          return Text(
-            '${'일정관리(' + provider.travel.getTravelCode()})', // count를 화면에 출력
-            style: const TextStyle(color: Colors.white, fontSize: 17),
-          );
-        }),
-      ),
-      body: Stack(
-        children: [
-          DefaultTabController(
-            length: 2,
-            child: TabBarView(
-              controller: tabController,
-              children: const [
-                ScheduleInfoView(),
-                ScheduleEditView(),
-              ],
-            ),
-          ),
-          Positioned(
-            right: 25,
-            bottom: 25,
-            child: SizedBox(
-              width: 65,
-              height: 65,
-              child: CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.white,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.add,
-                    color: Colors.black,
-                  ),
-                  onPressed: () {
-                    SystemUtil.resetTargetPosition();
-                    Navigator.pushNamed(context, AddScheduleRoute);
-                  },
-                ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ToggleSwitch(
+                customWidths: const [35, 35],
+                initialLabelIndex: toggleIndex,
+                cornerRadius: 20.0,
+                activeFgColor: Colors.white,
+                inactiveBgColor: Colors.grey,
+                inactiveFgColor: Colors.white,
+                totalSwitches: 2,
+                icons: const [
+                  Icons.info,
+                  Icons.edit_calendar_sharp,
+                ],
+                iconSize: 20.0,
+                borderWidth: 1.0,
+                borderColor: const [Colors.blueGrey],
+                activeBgColors: const [
+                  [Colors.blue],
+                  [Colors.pink]
+                ],
+                onToggle: (index) {
+                  print('switched to: $index');
+                  tabController.animateTo(index!);
+                },
               ),
-            )
-          ),
-        ],
-      )
-    );
+            ),
+          ],
+          shadowColor: Colors.transparent,
+          centerTitle: true,
+          title: Consumer<ScheduleClass>(
+              // Consumer를 활용해서 provider에 접근하여 데이터를 받아올 수 있다
+              builder: (context, provider, child) {
+            return Text(
+              '${'일정관리(' + provider.travel.getTravelCode()})',
+              // count를 화면에 출력
+              style: const TextStyle(color: Colors.white, fontSize: 17),
+            );
+          }),
+        ),
+        body: Stack(
+          children: [
+            DefaultTabController(
+              length: 2,
+              child: TabBarView(
+                controller: tabController,
+                children: const [
+                  ScheduleInfoView(),
+                  ScheduleEditView(),
+                ],
+              ),
+            ),
+            Positioned(
+                right: 25,
+                bottom: 25,
+                child: SizedBox(
+                  width: 65,
+                  height: 65,
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.add,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        SystemUtil.resetTargetPosition();
+
+                        Navigator.pushNamed(context, AddScheduleRoute,
+                            arguments: SystemUtil.changePrintDateOnlyDate(
+                                context.read<ScheduleClass>().selectDate));
+                      },
+                    ),
+                  ),
+                )),
+          ],
+        ));
   }
 }
