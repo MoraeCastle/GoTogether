@@ -108,6 +108,12 @@ class _ScheduleWidget extends State<ScheduleWidget>
   @override
   Widget build(BuildContext context) {
     logger.d('빌드...');
+
+    // 탭 이동 시 기본적으로 일정 씬 내 지도 닫기.
+    tabController.addListener(() {
+      Provider.of<ScheduleClass>(context, listen: false).detailViewVisible = false;
+    });
+
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black.withAlpha(200),
@@ -141,7 +147,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
                   [Colors.pink]
                 ],
                 onToggle: (index) {
-                  print('switched to: $index');
+                  // print('switched to: $index');
                   tabController.animateTo(index!);
                 },
               ),

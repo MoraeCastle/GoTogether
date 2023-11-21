@@ -116,7 +116,9 @@ class SystemUtil {
   static DateTime changeDateTimeFromClock(DateTime date, String clock) {
     // "오전" 또는 "오후"를 제거하고 시간과 분을 추출
     List<String> components = clock.split(' ');
-    String timeWithoutPeriod = components[1];
+
+    // 일부 기기는 24시간으로 설정되면 오전 오후 없음.
+    String timeWithoutPeriod = components.length > 1 ? components[1] : components[0];
     List<String> timeComponents = timeWithoutPeriod.split(':');
     // 시간과 분을 정수로 변환
     int hour = int.parse(timeComponents[0]);
@@ -154,6 +156,12 @@ class SystemUtil {
         + date.day.toString().padLeft(2, '0');
 
     return result;
+  }
+
+  /// HH:MM 날짜 비교
+  static bool isDateSame(DateTime time, String timeStr) {
+    return timeStr
+        == "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
   }
 
   /// 날짜를 받아서 출력용 데이터로 변환합니다.

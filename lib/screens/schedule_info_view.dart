@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
@@ -26,8 +28,36 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
   DateTime? _selectedDay;
   late DateTime _focusedDay = DateTime.now();
   final GlobalKey<ExpansionTileCardState> detailCard = GlobalKey();
+  bool isDetailTarget = false;
+
+  final Completer<GoogleMapController> _controller = Completer();
+  Set<Marker> markers = {};
 
   CalendarController calendarController = CalendarController();
+
+  /// 맵 컨트롤러 가져오기
+  Future<GoogleMapController> getController() async {
+    return await _controller.future;
+  }
+
+  /// 특정 위치로 카메라 이동
+  _targetPosition(LatLng position) async {
+    GoogleMapController controller = await getController();
+    controller.moveCamera(CameraUpdate.newLatLngZoom(position, 17));
+
+    final Marker marker = Marker(
+      markerId: const MarkerId(
+          "selectMarker"),
+      position: position,
+      icon: BitmapDescriptor
+          .defaultMarker,
+    );
+
+    setState(() {
+      markers.clear();
+      markers.add(marker);
+    });
+  }
 
   /// 선택한 날짜 기기에 저장.
   Future<void> setSelectDay(DateTime dateTime) async {
@@ -106,13 +136,6 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                   // ),
                 ],
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                BotToast.showText(
-                    text: context.read<ScheduleClass>().selectDate.toString());
-              },
             ),
             Container(
               padding: EdgeInsets.all(15),
@@ -209,18 +232,51 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                               child: Divider(
                                   color: Color.fromARGB(50, 0, 0, 0),
                                   thickness: 1.0)),
+                          /// 스케줄 창
                           Container(
                             height: 400,
                             decoration: BoxDecoration(
                                 border: Border.all(
                                     color: Color.fromARGB(100, 0, 0, 0))),
                             child: SfCalendar(
+                              view: CalendarView.day,
                               controller: calendarController,
+                              onSelectionChanged: (calendarSelectionDetails) {
+                                //BotToast.showText(text: calendarSelectionDetails.date.toString());
+                              },
+                              onTap: (details) {
+                                // 지도 출력여부.
+                                Provider.of<ScheduleClass>(context, listen: false).detailViewVisible
+                                  = details.targetElement == CalendarElement.appointment;
+
+                                // 만약 일정을 선택한다면?
+                                if (details.targetElement == CalendarElement.appointment) {
+                                  // I want to access the appointment details like eventName, from, to, background, isAllDay etc. if I tap over an event
+
+                                  final Appointment appointmentDetails = details.appointments![0];
+                                  BotToast.showText(text: appointmentDetails.startTime.toString());
+
+                                  // 같은 데이터인 경우 하단 구글맵 위치 최신화.
+                                  for (Schedule schedule in context.read<ScheduleClass>().travel.getSchedule()) {
+                                    for (List<RouteItem> list in schedule.getRouteMap().values) {
+                                      for (RouteItem item in list) {
+                                        if (SystemUtil.isDateSame(appointmentDetails.startTime, item.startTime)
+                                        && appointmentDetails.subject == item.routeName) {
+                                          _targetPosition(SystemUtil.convertStringPosition(item.position));
+                                          break;
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                // 그냥 창 클릭 시
+                                //BotToast.showText(text: calendarTapDetails.date.toString());
+                              },
+                              viewNavigationMode: ViewNavigationMode.none,
                               dataSource: _getCalendarDataSource(context
                                   .watch<ScheduleClass>()
                                   .travel
                                   .getSchedule()),
-                              view: CalendarView.day,
                               appointmentTextStyle: TextStyle(
                                   backgroundColor: Colors.yellow,
                                   color: Colors.red
@@ -254,7 +310,7 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                                       color: Colors.red,
                                     )),
                               ),
-                              viewHeaderHeight: 50,
+                              viewHeaderHeight: 0,
                               headerHeight: 0,
                               headerStyle: const CalendarHeaderStyle(
                                   backgroundColor: Color.fromARGB(70, 0, 0, 0),
@@ -271,50 +327,10 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                       )),
                 ],
               ),
-              /*RoundedExpansionTile(
-                onTap: () {
-                  //BotToast.showText(text: _selectedDay.toString());
-                },
-                rotateTrailing: false,
-                trailing: const SizedBox(
-                  child: Text(
-                    '탭 해서 일정 선택',
-                    style: TextStyle(fontSize: 11),
-                  ),
-                ),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                title: Container(
-                    decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(15)),
-                    child: const Column(
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.event_note),
-                                  SizedBox(width: 5),
-                                  Text('일정 상세'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    )),
-                children: [
-
-                ],
-              ),*/
             ),
             // 일정상세
             Visibility(
-              visible: false,
+              visible: context.watch<ScheduleClass>().isDetailViewVisible,
               child: Container(
                 padding: const EdgeInsets.all(15),
                 margin: const EdgeInsets.only(bottom: 15),
@@ -332,8 +348,9 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                       initialCameraPosition:
                           CameraPosition(target: LatLng(0, 0)),
                       onMapCreated: (controller) {
-                        // if (!_controller.isCompleted) _controller.complete(controller);
+                        if (!_controller.isCompleted) _controller.complete(controller);
                       },
+                      markers: markers,
                     ),
                   ),
                 ),
@@ -358,7 +375,7 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
             startTime: SystemUtil.changeDateTimeFromClock(date, item.startTime),
             endTime: SystemUtil.changeDateTimeFromClock(date, item.endTime),
             subject: item.routeName,
-            color: Colors.blue,
+            color: Colors.white.withAlpha(150),
             startTimeZone: '',
             endTimeZone: '',
           ));
@@ -366,17 +383,6 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
       }
     }
 
-    // BotToast.showText(text: appointments.length.toString());
-
-    /* appointments.add(Appointment(
-      startTime: DateTime.now(),
-      endTime: DateTime.now().add(Duration(minutes: 10)),
-      subject: 'Meeting',
-      color: Colors.blue,
-      startTimeZone: '',
-      endTimeZone: '',
-    ));
-*/
     return _AppointmentDataSource(appointments);
   }
 }

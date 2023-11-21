@@ -147,8 +147,13 @@ class _ScheduleAddView extends State<ScheduleAddView> {
           // logger.d(travel.toJson().toString());
           logger.d(selectDate);
 
-          routeItem.setStartTime(_startTime.format(context));
-          routeItem.setEndTime(_endTime.format(context));
+          routeItem.setStartTime(
+              "${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}"
+          );
+          routeItem.setEndTime(
+              "${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}"
+          );
+
           travel.getSchedule()[0].addRoute(selectDate, routeItem);
 
           await ref.child(travelCode).set(travel.toJson()).whenComplete(() {

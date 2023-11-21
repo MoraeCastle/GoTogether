@@ -8,6 +8,12 @@ class ScheduleClass with ChangeNotifier {
   // 데이터 필드들
   Travel _travel = Travel();
   DateTime selectDate = DateTime.now();
+  bool isDetailViewVisible = false;
+
+  set detailViewVisible(bool isVisible) {
+    isDetailViewVisible = isVisible;
+    notifyListeners();
+  }
 
   // 데이터 접근자(getter)
   Travel get travel => _travel;
@@ -15,6 +21,7 @@ class ScheduleClass with ChangeNotifier {
   DateTime get date => selectDate;
   set date(DateTime date) {
     selectDate = date;
+    notifyListeners();
   }
 
   // 데이터 설정자(setter)
