@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_together/models/User.dart';
+import 'package:go_together/providers/schedule_provider.dart';
+import 'package:provider/provider.dart';
 
 class ScheduleEditView extends StatefulWidget {
   const ScheduleEditView({super.key});
@@ -8,11 +11,7 @@ class ScheduleEditView extends StatefulWidget {
 }
 
 class _ScheduleInfoView extends State<ScheduleEditView> {
-  List userList = [
-    UserItem(userId: "", userName: "하나", profileUrl: ""),
-    UserItem(userId: "", userName: "둘", profileUrl: ""),
-    UserItem(userId: "", userName: "셋", profileUrl: ""),
-  ];
+  List userList = [];
 
   @override
   void initState() {
@@ -46,7 +45,9 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                           children: [
                             Icon(Icons.person),
                             SizedBox(width: 5),
-                            Text('0' + ' 명'),
+                            Text(
+                                context.watch<ScheduleClass>().travel.getUserList().length.toString()
+                                + ' 명'),
                           ],
                         ),
                         Text(
@@ -68,16 +69,27 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                       crossAxisCount: 2,
                       mainAxisSpacing: 5,
                       crossAxisSpacing: 5,
-                      children: List.generate(
-                        userList.length,
-                            (index) => userList[index],
-                      )),
+                      children: getUserList(context.watch<ScheduleClass>().travel.getUserList()),
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  List<Widget> getUserList(Map<String, User> dataList) {
+    userList.clear();
+
+    for (User user in dataList.values) {
+      userList.add(UserItem(userId: user.getUserCode(), userName: user.getName(), profileUrl: ""));
+    }
+
+    return List.generate(
+      userList.length,
+          (index) => userList[index],
     );
   }
 }
