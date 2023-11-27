@@ -200,7 +200,8 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                             filled: true,
                             //<-- SEE HERE
                             fillColor: Color.fromARGB(150, 255, 255, 255),
-                            labelText: '',
+                            labelText: context.watch<ScheduleClass>().travel.getNotice(),
+                            alignLabelWithHint: true,
                             hintText: '내용 입력',
                             labelStyle: TextStyle(color: Colors.black),
                             focusedBorder: OutlineInputBorder(
