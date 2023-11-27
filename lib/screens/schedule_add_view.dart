@@ -358,7 +358,6 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                           },
                           decoration: const InputDecoration(
                             filled: true,
-                            //<-- SEE HERE
                             fillColor: Color.fromARGB(150, 255, 255, 255),
                             labelText: '일정명',
                             hintText: '내용 입력',

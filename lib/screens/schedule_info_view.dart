@@ -277,9 +277,36 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                                   .watch<ScheduleClass>()
                                   .travel
                                   .getSchedule()),
+                              // 상세일정 디자인
+                              appointmentBuilder: (context, item) {
+                                final Appointment appointment =
+                                    item.appointments.first;
+
+                                return Container(
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          color: Color.fromARGB(255, 0, 0, 0))
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        appointment.subject,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+                                      Text(getTime(appointment.startTime, appointment.endTime)),
+                                    ],
+                                  ),
+                                );
+                              },
                               appointmentTextStyle: TextStyle(
-                                  backgroundColor: Colors.yellow,
-                                  color: Colors.red
+                                  // backgroundColor: Colors.yellow,
+                                  color: Colors.black
                               ),
                               // cellBorderColor: Colors.green,
                               backgroundColor: Colors.grey,
@@ -358,6 +385,11 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
             ),
           ],
         )));
+  }
+
+  /// 상세일정 출력용
+  String getTime(DateTime startTime, DateTime endTime) {
+    return "${startTime.hour}:${startTime.minute} ~ ${endTime.hour}:${endTime.minute}";
   }
 
   /// 테스트 데이터

@@ -73,7 +73,6 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                         enabled: context.watch<ScheduleClass>().isGuid,
                         decoration: InputDecoration(
                           filled: true,
-                          //<-- SEE HERE
                           fillColor: Color.fromARGB(150, 255, 255, 255),
                           labelText: context.watch<ScheduleClass>().travel.getTitle(),
                           hintText: '내용 입력',
@@ -198,7 +197,6 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                           expands: true,
                           decoration: InputDecoration(
                             filled: true,
-                            //<-- SEE HERE
                             fillColor: Color.fromARGB(150, 255, 255, 255),
                             labelText: context.watch<ScheduleClass>().travel.getNotice(),
                             alignLabelWithHint: true,
