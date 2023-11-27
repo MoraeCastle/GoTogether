@@ -7,6 +7,7 @@ import 'package:go_together/screens/schedule_edit_view.dart';
 import 'package:go_together/screens/schedule_info_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_together/service/routing_service.dart';
+import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:logger/logger.dart';
@@ -73,11 +74,14 @@ class _ScheduleWidget extends State<ScheduleWidget>
     listenTravelChange();
   }
 
+
+
   /// 여행 데이터 적용
   setTravelDate(Travel data) async {
     //BotToast.showText(text: "여행 데이터 로드됨");
 
     Provider.of<ScheduleClass>(context, listen: false).travel = data;
+    Provider.of<ScheduleClass>(context, listen: false).guidCheck = await NetworkUtil.isGuild(data);
   }
 
   /// 여행 데이터 변경 감지
@@ -209,7 +213,9 @@ class _ScheduleWidget extends State<ScheduleWidget>
                 ],
               ),
             ),
-            Positioned(
+            Visibility(
+              visible: context.watch<ScheduleClass>().isGuid,
+              child: Positioned(
                 right: 25,
                 bottom: 25,
                 child: SizedBox(
@@ -237,6 +243,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
                     ),
                   ),
                 )),
+            ),
           ],
         ));
   }

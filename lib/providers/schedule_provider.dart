@@ -9,9 +9,16 @@ class ScheduleClass with ChangeNotifier {
   Travel _travel = Travel();
   DateTime selectDate = DateTime.now();
   bool isDetailViewVisible = false;
+  bool isGuid = false;
 
   set detailViewVisible(bool isVisible) {
     isDetailViewVisible = isVisible;
+    notifyListeners();
+  }
+
+  /// 가이드여부
+  set guidCheck(bool isVisible) {
+    isGuid = isVisible;
     notifyListeners();
   }
 

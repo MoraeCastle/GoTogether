@@ -70,7 +70,7 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                         onChanged: (value) {
                           Provider.of<ScheduleClass>(context, listen: false).travel.setTitle(value);
                         },
-                        enabled: false,
+                        enabled: context.watch<ScheduleClass>().isGuid,
                         decoration: InputDecoration(
                           filled: true,
                           //<-- SEE HERE
@@ -190,7 +190,7 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                       child: Expanded(
                         child:  TextField(
                           maxLines: null,
-                          enabled: false,
+                          enabled: context.watch<ScheduleClass>().isGuid,
                           onChanged: (value) {
                             Provider.of<ScheduleClass>(context, listen: false).travel.setNotice(value);
                           },
