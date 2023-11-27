@@ -10,6 +10,7 @@ class Travel {
   late String guideCode; // 가이드 아이디
   late String travelCode; // 고유 그룹코드
   late String title; // 그룹명
+  late String notice;
   late Map<String, User> userList; // 유저 리스트
 
   late List<Schedule> schedule;
@@ -19,6 +20,7 @@ class Travel {
     guideCode = "";
     travelCode = "";
     title = "";
+    notice = "";
     userList = {};
     schedule = [];
   }
@@ -51,8 +53,15 @@ class Travel {
     this.title = title;
   }
 
-  getTitle() {
+  String getTitle() {
     return title;
+  }
+
+  void setNotice(String data) {
+    notice = data;
+  }
+  String getNotice() {
+    return notice;
   }
 
   void setUserList(Map<String, User> userList) {
@@ -82,6 +91,7 @@ class Travel {
     'guideCode': guideCode ?? '',
     'travelCode': travelCode ?? '',
     'title': title ?? '',
+    'notice': notice ?? '',
     'userList': userList?.map((key, value) => MapEntry(key, value.toJson())) ?? {},
     'schedule': schedule?.map((s) => s.toJson())?.toList() ?? [],
   };
@@ -92,6 +102,7 @@ class Travel {
     travel.setGuideCode(json['guideCode'] ?? "");
     travel.setTravelCode(json['travelCode'] ?? "");
     travel.setTitle(json['title'] ?? "");
+    travel.setNotice(json['notice'] ?? "");
     travel.setUserList(Map.from(json['userList'] ?? {}).map(
             (key, value) => MapEntry(key, User.fromJson(Map<String, dynamic>.from(value)))));
     var data = (json['schedule'] as List<dynamic>? ?? [])

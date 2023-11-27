@@ -55,6 +55,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
   DatabaseReference ref = FirebaseDatabase.instance.ref();
   var logger = Logger();
   Travel travelData = Travel();
+  String travelCode = "";
 
   @override
   void initState() {
@@ -82,7 +83,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
   /// 여행 데이터 변경 감지
   Future<void> listenTravelChange() async {
     SharedPreferences prefs = await _prefs;
-    String travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+    travelCode = prefs.getString(SystemData.trvelCode) ?? "";
 
     DatabaseReference ref = FirebaseDatabase.instance.ref('travel/$travelCode');
 
@@ -99,6 +100,36 @@ class _ScheduleWidget extends State<ScheduleWidget>
     });
   }
 
+  /// 여행 세부설정 저장
+  Future<void> saveDetailSetting() async {
+    if (travelCode.isEmpty) {
+      BotToast.showText(text: '여행 데이터 오류...');
+      return;
+    }
+
+    BotToast.showLoading();
+
+    var snapshot = await ref.child('travel/$travelCode').get();
+    if (snapshot.exists) {
+      var result = snapshot.value;
+      if (result != null) {
+        var travel = Travel.fromJson(result);
+
+        travel.setTitle(context.read<ScheduleClass>().travel.getTitle());
+        travel.setNotice(context.read<ScheduleClass>().travel.getNotice());
+
+        await ref.child('travel/$travelCode').set(travel.toJson()).whenComplete(() {
+          BotToast.showText(text: '저장했습니다.');
+        }).onError((error, stackTrace) {
+          BotToast.showText(text: '서버에 오류가 있습니다.');
+        });
+      }
+      BotToast.closeAllLoading();
+    } else {
+      BotToast.closeAllLoading();
+    }
+  }
+
   @override
   void dispose() {
     tabController.dispose();
@@ -112,6 +143,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
     // 탭 이동 시 기본적으로 일정 씬 내 지도 닫기.
     tabController.addListener(() {
       Provider.of<ScheduleClass>(context, listen: false).detailViewVisible = false;
+      // BotToast.showText(text: tabController.index.toString());
     });
 
     return Scaffold(
@@ -188,15 +220,19 @@ class _ScheduleWidget extends State<ScheduleWidget>
                     backgroundColor: Colors.white,
                     child: IconButton(
                       icon: Icon(
-                        Icons.add,
+                        tabController.index == 0 ? Icons.add : Icons.save_outlined,
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        SystemUtil.resetTargetPosition();
+                        if (tabController.index == 0) {
+                          SystemUtil.resetTargetPosition();
 
-                        Navigator.pushNamed(context, AddScheduleRoute,
-                            arguments: SystemUtil.changePrintDateOnlyDate(
-                                context.read<ScheduleClass>().selectDate));
+                          Navigator.pushNamed(context, AddScheduleRoute,
+                              arguments: SystemUtil.changePrintDateOnlyDate(
+                                  context.read<ScheduleClass>().selectDate));
+                        } else {
+                          saveDetailSetting();
+                        }
                       },
                     ),
                   ),

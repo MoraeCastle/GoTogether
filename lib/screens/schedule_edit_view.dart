@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/providers/schedule_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ScheduleEditView extends StatefulWidget {
   const ScheduleEditView({super.key});
@@ -28,9 +29,86 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
       child: SingleChildScrollView(
         child: Column(
           children: [
+            /// 타이틀
             Container(
               padding: EdgeInsets.all(15),
-              margin: EdgeInsets.only(top: 15, bottom: 15),
+              margin: EdgeInsets.only(top: 15, bottom: 0),
+              decoration: BoxDecoration(
+                  color: Colors.grey, borderRadius: BorderRadius.circular(15)),
+              child: Column(
+                children: [
+                  // 인원 수
+                  Container(
+                    width: double.infinity,
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.home_filled),
+                            SizedBox(width: 5),
+                            Text('여행명'),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 구분선
+                  Container(
+                      width: 500,
+                      child: Divider(color: Colors.black, thickness: 1.0)),
+                  // 인원 리스트
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child:
+                      TextField(
+                        onChanged: (value) {
+                          Provider.of<ScheduleClass>(context, listen: false).travel.setTitle(value);
+                        },
+                        enabled: false,
+                        decoration: InputDecoration(
+                          filled: true,
+                          //<-- SEE HERE
+                          fillColor: Color.fromARGB(150, 255, 255, 255),
+                          labelText: context.watch<ScheduleClass>().travel.getTitle(),
+                          hintText: '내용 입력',
+                          labelStyle: TextStyle(color: Colors.black),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                            BorderSide(width: 1, color: Colors.grey),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                            BorderSide(width: 1, color: Colors.grey),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.all(Radius.circular(10.0)),
+                          ),
+                        ),
+                        keyboardType: TextInputType.text,
+                      ),
+                    ),
+                    /*Text(
+                        context.watch<ScheduleClass>().travel.getUserList().length.toString()
+                            + ' 명'),*/
+                  ),
+                ],
+              ),
+            ),
+            /// 인원리스트
+            Container(
+              padding: EdgeInsets.all(15),
+              margin: EdgeInsets.only(top: 15, bottom: 0),
               decoration: BoxDecoration(
                   color: Colors.grey, borderRadius: BorderRadius.circular(15)),
               child: Column(
@@ -45,13 +123,12 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                           children: [
                             Icon(Icons.person),
                             SizedBox(width: 5),
-                            Text(
-                                context.watch<ScheduleClass>().travel.getUserList().length.toString()
-                                + ' 명'),
+                            Text('인원 리스트'),
                           ],
                         ),
                         Text(
-                          '꾹 눌러서 삭제',
+                          context.watch<ScheduleClass>().travel.getUserList().length.toString()
+                              + ' 명',
                           style: TextStyle(fontSize: 11),
                         ),
                       ],
@@ -70,6 +147,86 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                       mainAxisSpacing: 5,
                       crossAxisSpacing: 5,
                       children: getUserList(context.watch<ScheduleClass>().travel.getUserList()),
+                  ),
+                ],
+              ),
+            ),
+            /// 그룹 공지사항
+            Container(
+              padding: EdgeInsets.all(15),
+              margin: EdgeInsets.only(top: 15, bottom: 0),
+              decoration: BoxDecoration(
+                  color: Colors.grey, borderRadius: BorderRadius.circular(15)),
+              child: Column(
+                children: [
+                  // 인원 수
+                  Container(
+                    width: double.infinity,
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.assignment),
+                            SizedBox(width: 5),
+                            Text('공지사항'),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 구분선
+                  Container(
+                      width: 500,
+                      child: Divider(color: Colors.black, thickness: 1.0)),
+                  // 공지사항
+                  Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 350,
+                      child: Expanded(
+                        child:  TextField(
+                          maxLines: null,
+                          enabled: false,
+                          onChanged: (value) {
+                            Provider.of<ScheduleClass>(context, listen: false).travel.setNotice(value);
+                          },
+                          textAlignVertical: TextAlignVertical.top,
+                          expands: true,
+                          decoration: InputDecoration(
+                            filled: true,
+                            //<-- SEE HERE
+                            fillColor: Color.fromARGB(150, 255, 255, 255),
+                            labelText: '',
+                            hintText: '내용 입력',
+                            labelStyle: TextStyle(color: Colors.black),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(10.0)),
+                              borderSide:
+                              BorderSide(width: 1, color: Colors.grey),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(10.0)),
+                              borderSide:
+                              BorderSide(width: 1, color: Colors.grey),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(10.0)),
+                            ),
+                          ),
+                          keyboardType: TextInputType.text,
+                        ),
+                      )
+                    ),
+                    /*Text(
+                        context.watch<ScheduleClass>().travel.getUserList().length.toString()
+                            + ' 명'),*/
                   ),
                 ],
               ),
@@ -125,9 +282,21 @@ class UserItem extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CircleAvatar(
-                    radius: 15,
-                    backgroundImage: NetworkImage(profileUrl),
+                  CachedNetworkImage(
+                    imageUrl: profileUrl,
+                    imageBuilder: (context, imageProvider) => Container(
+                      width: 80.0,
+                      height: 80.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                            image: imageProvider, fit: BoxFit.cover),
+                      ),
+                    ),
+                    placeholder: (context, url) => Center(
+                      child: Icon(Icons.account_circle),
+                    ),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
                   Text(userName),
                 ],
