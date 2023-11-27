@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_google_maps_webservices/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_together/providers/data_provider.dart';
@@ -65,6 +67,47 @@ class _MapViewState extends State<MapView> {
     }
   }
 
+  /// 오류로 인한 나가기.
+  Future<bool> settingDialog(String message, VoidCallback action) async {
+    return (await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: AlertDialog(
+          title: Container(
+            alignment: Alignment.center,
+            child: const Text('안내'),
+          ),
+          content: Container(
+            alignment: Alignment.center,
+            constraints: const BoxConstraints(maxHeight: 60),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.normal),
+                ),
+              ],
+            ),
+          ),
+          icon: const Icon(Icons.info_outline_rounded),
+          actions: [
+            OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide.none,
+                ),
+                onPressed: action,
+                child: const Text('확인')),
+          ],
+        ),
+      ),
+    ));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -75,6 +118,40 @@ class _MapViewState extends State<MapView> {
     Position position;
 
     try {
+      // Test if location services are enabled.
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        settingDialog('GPS가 꺼져있습니다. 활성화 해주세요.', () async {
+          serviceEnabled = await Geolocator.openLocationSettings();
+          Navigator.pop(context);
+        },);
+        return;
+      }
+
+      /// 퍼미션 묻기
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          settingDialog('위치 권한이 있어야 정상적인 서비스 이용이 가능합니다.', () {
+            Navigator.pop(context);
+            _getCurrentLocation();
+          },);
+          return;
+        }
+      }
+
+      // 여기서부터는 설정창으로 이동해야 함.
+      if (permission == LocationPermission.deniedForever) {
+        settingDialog('위치를 계속 거부해서 앱 설정에서 권한을 허용해야 합니다.', () async {
+          SystemNavigator.pop();
+
+          AppSettings.openAppSettings();
+        },);
+        return;
+      }
+
       position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
           forceAndroidLocationManager: true,

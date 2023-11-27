@@ -6,6 +6,7 @@ import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/screens/etc_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
 import 'package:go_together/utils/string.dart';
+import 'package:go_together/utils/system_util.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -81,7 +82,8 @@ class _TabBarScreenState extends State<TabBarWidget>
                 style: OutlinedButton.styleFrom(
                   side: BorderSide.none,
                 ),
-                onPressed: () {
+                onPressed: () async {
+                  await SystemUtil.resetDeviceSetting();
                   SystemNavigator.pop();
                 },
                 child: const Text('종료')),

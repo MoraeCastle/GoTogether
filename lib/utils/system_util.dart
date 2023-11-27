@@ -51,6 +51,12 @@ class SystemUtil {
     '0'
   ];
 
+  /// 기기값 초기화.
+  static Future<void> resetDeviceSetting() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove(SystemData.userCode);
+  }
+
   /// 그룹코드 생성.
   static String generateGroupCode() {
     // 코드문자 리스트.

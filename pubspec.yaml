@@ -41,6 +41,7 @@ dependencies:
   intl: ^0.18.1
   expansion_tile_card: ^3.0.0
   cached_network_image: ^3.3.0
+  app_settings: ^5.1.1
 
 dependency_overrides:
  intl: any
