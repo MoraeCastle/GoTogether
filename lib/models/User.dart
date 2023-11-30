@@ -24,8 +24,7 @@ class User {
   void setAuthority(String authority) {
     this.authority = authority;
   }
-
-  getAuthority() {
+  String getAuthority() {
     return authority;
   }
 
@@ -41,7 +40,7 @@ class User {
     this.name = name;
   }
 
-  getName() {
+  String getName() {
     return name;
   }
 

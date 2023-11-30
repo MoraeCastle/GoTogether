@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/service/routing_service.dart';
+import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,6 +88,11 @@ class _AddUserView extends State<AddUserView> {
         await ref.child('travel/$travelCode').set(travel.toJson());
         saveUser(userItem);
 
+        if (userItem.getAuthority() == describeEnum(UserType.guide)) {
+          // 공지방 생성
+          NetworkUtil.createNoticeChatRoom(travel.getTravelCode(), userItem);
+        }
+
         Navigator.pop(context);
         Navigator.pushNamed(context, HomeViewRoute);
       } else {
@@ -99,6 +105,7 @@ class _AddUserView extends State<AddUserView> {
   Future saveUser(User data) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(SystemData.userCode, data.getUserCode());
+    await prefs.setString(SystemData.userName, data.getName());
   }
 
   @override

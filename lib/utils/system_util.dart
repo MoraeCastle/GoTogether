@@ -55,6 +55,7 @@ class SystemUtil {
   static Future<void> resetDeviceSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove(SystemData.userCode);
+    prefs.remove(SystemData.userName);
   }
 
   /// 그룹코드 생성.

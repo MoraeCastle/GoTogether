@@ -6,3 +6,4 @@ const String CreateGroupRoute = 'create';
 const String AddUserRoute = 'user';
 const String ScheduleRoute = 'schedule';
 const String AddScheduleRoute = 'addSchedule';
+const String ChatRoomRoute = 'chatRoomRoute';

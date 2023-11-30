@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_together/screens/addUser_screen.dart';
+import 'package:go_together/screens/chatRoom_screen.dart';
 import 'package:go_together/screens/createGroup_screen.dart';
 import 'package:go_together/screens/log_in_screen.dart';
 import 'package:go_together/screens/main_screen.dart';
@@ -30,6 +31,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => const AddUserView());
     case ScheduleRoute:
       return MaterialPageRoute(builder: (context) => ScheduleView());
+    case ChatRoomRoute:
+      final arg = settings.arguments as Map<String, String>;
+
+      return MaterialPageRoute(builder: (context) => ChatRoomView(arguments: arg,));
     default:
       return MaterialPageRoute(builder: (context) => HomeView());
   }

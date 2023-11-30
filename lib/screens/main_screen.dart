@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/providers/data_provider.dart';
+import 'package:go_together/screens/chat_screen.dart';
 import 'package:go_together/screens/etc_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
 import 'package:go_together/utils/string.dart';
@@ -155,7 +156,7 @@ class _TabBarScreenState extends State<TabBarWidget>
 
   final List<Widget> _widgetOptions = [
     MapView(),
-    const ChatRoomView(),
+    const ChatView(),
     const EtcView()
     // Placeholder(),
   ];
