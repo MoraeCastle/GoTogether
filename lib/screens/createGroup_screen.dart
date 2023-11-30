@@ -53,6 +53,8 @@ class _CreateGroupView extends State<CreateGroupView> {
       await ref.child(travel.travelCode).set(travel.toJson());
 
       BotToast.showText(text: '그룹을 생성합니다...');
+
+      Navigator.pop(context);
       Navigator.pushNamed(context, AddUserRoute);
     }
   }

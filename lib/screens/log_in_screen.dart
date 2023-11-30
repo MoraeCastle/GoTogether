@@ -2,6 +2,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:go_together/models/Travel.dart';
+import 'package:go_together/models/User.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
@@ -199,12 +200,47 @@ class LoginView extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         side: BorderSide.none,
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         // 데이터 저장
-                        saveTravel(travel);
+                        await SystemUtil.saveTravel(travel);
 
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, HomeViewRoute);
+                        // 인원이 없다면 내가 가이드.
+                        if (travel.getUserList().isEmpty) {
+                          // 기기 내에 데이터 저장.
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          prefs.setBool(SystemData.travelState, true);
+                        } else {
+                          // 디바이스 코드로 중복접근 확인
+                          var deviceCode = await SystemUtil.getDeviceCode();
+
+
+                          var result = travel.getUserList().values
+                              .any((element) => element.getDeviceCode() == deviceCode);
+
+                          if (result) {
+                            // 이 유저로 메인 입장.
+                            User targetUser = User();
+                            for (User user in travel.getUserList().values) {
+                              if (user.getDeviceCode() == deviceCode) {
+                                targetUser = user;
+                                break;
+                              }
+                            }
+
+                            if (targetUser.getName().isEmpty) {
+                              BotToast.showText(text: '서버에 오류가 있습니다. 잠시 후 다시 시도해주세요.');
+                            } else {
+                              await SystemUtil.saveUser(targetUser);
+
+                              Navigator.pop(context);
+                              Navigator.pushNamed(context, HomeViewRoute);
+                            }
+                          } else {
+                            // 이 그룹은 처음임.
+                            Navigator.pop(context);
+                            Navigator.pushNamed(context, AddUserRoute);
+                          }
+                        }
                       },
                       child: const Text('네')),
                   OutlinedButton(
@@ -224,12 +260,6 @@ class LoginView extends StatelessWidget {
     } else {
       BotToast.showText(text: '여행 코드를 입력해주세요...');
     }
-  }
-
-  // 기기 내에 여행정보 저장.
-  Future saveTravel(Travel data) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(SystemData.trvelCode, data.travelCode);
   }
 
   // 비회원 모드
@@ -263,9 +293,9 @@ class LoginView extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       side: BorderSide.none,
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       // 메인에서는 여행코드가 비어있다면 비회원모드로 시작해야 함.
-                      saveTravel(Travel());
+                      await SystemUtil.saveTravel(Travel());
 
                       // 데이터 저장
                       Navigator.pop(context);

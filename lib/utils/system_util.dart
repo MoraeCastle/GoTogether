@@ -1,10 +1,14 @@
 // 앱 내 주요 기능관련 클래스.
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_together/models/Travel.dart';
+import 'package:go_together/models/User.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
@@ -50,6 +54,38 @@ class SystemUtil {
     '9',
     '0'
   ];
+
+  /// 기기 고유값 가져오기
+  static Future<String?> getDeviceCode() async {
+    var deviceInfo = DeviceInfoPlugin();
+
+    if (Platform.isIOS) { // import 'dart:io'
+      var iosDeviceInfo = await deviceInfo.iosInfo;
+
+      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+    } else if(Platform.isAndroid) {
+      var androidDeviceInfo = await deviceInfo.androidInfo;
+
+      return androidDeviceInfo.id; // unique ID on Android
+    } else {
+      var webDevice = await deviceInfo.webBrowserInfo;
+
+      return webDevice.product;
+    }
+  }
+
+  // 기기 내에 여행정보 저장.
+  static Future<void> saveTravel(Travel data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SystemData.trvelCode, data.travelCode);
+  }
+
+  /// 기기 내에 유저정보 저장.
+  static Future<void> saveUser(User data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SystemData.userCode, data.getUserCode());
+    await prefs.setString(SystemData.userName, data.getName());
+  }
 
   /// 기기값 초기화.
   static Future<void> resetDeviceSetting() async {

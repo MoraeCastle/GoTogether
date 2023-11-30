@@ -14,4 +14,5 @@ class SystemData {
   static const String chatUserList = 'chatUserList';
 }
 
-enum UserType { common, guide, system }
+/// 유저 타입. common은 입장 대기임.
+enum UserType { common, guide, system, user }

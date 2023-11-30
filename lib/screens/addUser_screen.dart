@@ -50,6 +50,10 @@ class _AddUserView extends State<AddUserView> {
 
     userItem.setUserCode(SystemUtil.generateUserCode());
 
+    // 고유코드 넣기.
+    var deviceCode = await SystemUtil.getDeviceCode() ?? "";
+    userItem.setDeviceCode(deviceCode);
+
     if (travelCode.isEmpty) {
       // 여행 코드를 못 불러옴.
       BotToast.showText(text: "여행 코드 불러오기 실패...");
@@ -86,26 +90,25 @@ class _AddUserView extends State<AddUserView> {
         travel.addUser(userItem);
 
         await ref.child('travel/$travelCode').set(travel.toJson());
-        saveUser(userItem);
+        await SystemUtil.saveUser(userItem);
 
+        // 이제 씬 이동.
         if (userItem.getAuthority() == describeEnum(UserType.guide)) {
           // 공지방 생성
           NetworkUtil.createNoticeChatRoom(travel.getTravelCode(), userItem);
-        }
 
-        Navigator.pop(context);
-        Navigator.pushNamed(context, HomeViewRoute);
+          Navigator.pop(context);
+          Navigator.pushNamed(context, HomeViewRoute);
+        } else {
+          // 방장이 허용해주기 전까지 대기.
+
+          Navigator.pop(context);
+          Navigator.pushNamed(context, LoginViewRoute);
+        }
       } else {
         //
       }
     }
-  }
-
-  // 기기 내에 유저정보 저장.
-  Future saveUser(User data) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(SystemData.userCode, data.getUserCode());
-    await prefs.setString(SystemData.userName, data.getName());
   }
 
   @override
