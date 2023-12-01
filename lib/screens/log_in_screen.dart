@@ -1,5 +1,6 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
@@ -9,8 +10,17 @@ import 'package:go_together/utils/system_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 로그인 씬
-class LoginView extends StatelessWidget {
+class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _LoginView();
+}
+
+class _LoginView extends State<LoginView> {
+  bool isGroupWaiting = false;
+  String travelCode = "";
+  String userCode = "";
 
   @override
   Widget build(BuildContext context) {
@@ -38,88 +48,117 @@ class LoginView extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 50, right: 50),
                   child: Column(
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text(
-                          "여행 코드로 그룹에 참여하세요",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                          maxLines: 1,
-                        ),
-                      ),
-                      // 코드 입력
-                      Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(width: 1.0),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(10) // POINT
-                                ),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 20, right: 20),
-                            child: Row(
-                              children: [
-                                const Text(
-                                  'T -',
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: TextFormField(
-                                    inputFormatters: [UpperCaseTextFormatter()],
-                                    controller: editingController,
-                                    // textCapitalization: TextCapitalization.characters,
-                                    decoration: const InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      hintText: '코드 입력',
-                                      contentPadding: EdgeInsets.only(),
-                                      enabledBorder: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                    ),
-                                    style: const TextStyle(),
-                                  ),
-                                )
-                              ],
+                      isGroupWaiting ? Column(
+
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Text(
+                              "방장의 허가를 기다리는 중입니다...",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                              maxLines: 1,
                             ),
-                          )),
-                      const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text(
-                          "※ 재시작 시 자동로그인 됩니다.",
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            fontSize: 12,
                           ),
-                          maxLines: 1,
-                        ),
-                      ),
-                      // 입력한 코드로 로그인
-                      RowItemButton(
-                        padding: EdgeInsets.only(bottom: 10),
-                        backColor: Color.fromARGB(255, 194, 204, 255),
-                        imageName: "login_black",
-                        buttonText: "입력한 코드로 로그인",
-                        action: () {
-                          login(context, editingController.value.text);
-                          FocusManager.instance.primaryFocus?.unfocus();
-                        },
-                      ),
-                      // 새 그룹 만들기
-                      RowItemButton(
-                        padding: EdgeInsets.only(bottom: 10),
-                        backColor: Color.fromARGB(255, 158, 174, 255),
-                        imageName: "group_add_black",
-                        buttonText: "새 그룹 만들기",
-                        action: () => {
-                          // Navigator.pop(context),
-                          Navigator.pushNamed(context, CreateGroupRoute),
-                          // Navigator.pushNamed(context, AddUserRoute),
-                        },
+                          SizedBox(
+                            height: 80,
+                            child: RowItemButton(
+                              padding: EdgeInsets.only(bottom: 10),
+                              backColor: Color.fromARGB(255, 158, 174, 255),
+                              imageName: "refresh_black",
+                              buttonText: "새로고침 하기",
+                              action: checkWaiting,
+                            ),
+                          )
+                        ],
+                      ) : Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Text(
+                              "여행 코드로 그룹에 참여하세요",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                              maxLines: 1,
+                            ),
+                          ),
+                          // 코드 입력
+                          Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(width: 1.0),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(10) // POINT
+                                ),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 20, right: 20),
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      'T -',
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: TextFormField(
+                                        inputFormatters: [UpperCaseTextFormatter()],
+                                        controller: editingController,
+                                        // textCapitalization: TextCapitalization.characters,
+                                        decoration: const InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          hintText: '코드 입력',
+                                          contentPadding: EdgeInsets.only(),
+                                          enabledBorder: InputBorder.none,
+                                          focusedBorder: InputBorder.none,
+                                        ),
+                                        style: const TextStyle(),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              )),
+                          const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Text(
+                              "※ 재시작 시 자동로그인 됩니다.",
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 12,
+                              ),
+                              maxLines: 1,
+                            ),
+                          ),
+                          // 입력한 코드로 로그인
+                          RowItemButton(
+                            padding: EdgeInsets.only(bottom: 10),
+                            backColor: Color.fromARGB(255, 194, 204, 255),
+                            imageName: "login_black",
+                            buttonText: "입력한 코드로 로그인",
+                            action: () {
+                              login(context, editingController.value.text);
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
+                          ),
+                          // 새 그룹 만들기
+                          RowItemButton(
+                            padding: EdgeInsets.only(bottom: 10),
+                            backColor: Color.fromARGB(255, 158, 174, 255),
+                            imageName: "group_add_black",
+                            buttonText: "새 그룹 만들기",
+                            action: () => {
+                              Navigator.pop(context),
+                              Navigator.pushNamed(context, CreateGroupRoute),
+                              // Navigator.pushNamed(context, AddUserRoute),
+                            },
+                          ),
+                        ],
                       ),
                       // 비회원으로 접속
                       RowItemButton(
@@ -136,6 +175,75 @@ class LoginView extends StatelessWidget {
             ),
           )),
     );
+  }
+
+  @override
+  void initState() {
+    BotToast.showLoading();
+
+    super.initState();
+
+    // 무단 조작 방지
+    Future.delayed(const Duration(seconds: 1), () {
+      checkUserStatus();
+    });
+  }
+
+  /// 상태 확인
+  Future<void> checkUserStatus() async {
+    Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+    final SharedPreferences prefs = await _prefs;
+    travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+    userCode = prefs.getString(SystemData.userCode) ?? "";
+
+    // 뭔가 사용자값이 있다면 상태 체크.
+    if (travelCode.isNotEmpty && userCode.isNotEmpty) {
+      checkWaiting();
+    } else {
+      BotToast.closeAllLoading();
+    }
+  }
+
+  /// 내 상태가 common이 아닐 경우 바로 메인홈으로 진입합니다.
+  /// 이 기능은 자동 로그인과 같습니다.
+  Future<void> checkWaiting() async {
+    bool check = false;
+    User targetUser = User();
+
+    // DB 탐색
+    DatabaseReference ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('travel/$travelCode').get();
+    BotToast.closeAllLoading();
+
+    if (snapshot.exists) {
+      var result = snapshot.value;
+      if (result != null) {
+        var travel = Travel.fromJson(result);
+
+        for (User user in travel.getUserList().values) {
+          if (user.getUserCode() == userCode) {
+            check = user.getAuthority() == describeEnum(UserType.common);
+            targetUser = user;
+            break;
+          }
+        }
+      } else {
+        //
+      }
+    } else {
+      BotToast.showText(text: '조회된 여행이 없습니다...');
+    }
+
+    if (check) {
+
+      setState(() {
+        isGroupWaiting = check;
+      });
+    } else if (targetUser.getUserCode().isNotEmpty){
+      // 메인으로 이동.
+      Navigator.pop(context);
+      Navigator.pushNamed(context, HomeViewRoute);
+    }
   }
 
   // 입력된 그룹으로 접속하기
@@ -212,7 +320,6 @@ class LoginView extends StatelessWidget {
                         } else {
                           // 디바이스 코드로 중복접근 확인
                           var deviceCode = await SystemUtil.getDeviceCode();
-
 
                           var result = travel.getUserList().values
                               .any((element) => element.getDeviceCode() == deviceCode);

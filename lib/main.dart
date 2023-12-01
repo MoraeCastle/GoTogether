@@ -34,9 +34,11 @@ Future<String> checkAutoLogin() async {
 
   // 유저코드가 있으면 홈으로...
   String initScene = "";
-  prefs.getString(SystemData.userCode) != null
+  /*prefs.getString(SystemData.userCode) != null
       ? initScene = HomeViewRoute
-      : initScene = LoginViewRoute;
+      : initScene = LoginViewRoute;*/
+
+  initScene = LoginViewRoute;
 
   return initScene;
 }

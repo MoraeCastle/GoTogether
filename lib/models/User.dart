@@ -64,7 +64,7 @@ class User {
     this.userCode = userCode;
   }
 
-  getUserCode() {
+  String getUserCode() {
     return userCode;
   }
 

@@ -101,8 +101,8 @@ class _AddUserView extends State<AddUserView> {
           Navigator.pushNamed(context, HomeViewRoute);
         } else {
           // 방장이 허용해주기 전까지 대기.
-
           Navigator.pop(context);
+          Navigator.popUntil(context, ModalRoute.withName(LoginViewRoute));
           Navigator.pushNamed(context, LoginViewRoute);
         }
       } else {
