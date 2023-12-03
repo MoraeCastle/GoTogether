@@ -1,6 +1,7 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:go_together/models/Travel.dart';
+import 'package:go_together/models/User.dart';
 import 'package:go_together/providers/schedule_provider.dart';
 import 'package:go_together/screens/schedule_add_view.dart';
 import 'package:go_together/screens/schedule_edit_view.dart';
@@ -57,6 +58,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
   var logger = Logger();
   Travel travelData = Travel();
   String travelCode = "";
+  String currentUserCode = "";
 
   @override
   void initState() {
@@ -74,13 +76,11 @@ class _ScheduleWidget extends State<ScheduleWidget>
     listenTravelChange();
   }
 
-
-
   /// 여행 데이터 적용
-  setTravelDate(Travel data) async {
-    //BotToast.showText(text: "여행 데이터 로드됨");
-
+  setTravelDate(Travel data, User userData) async {
+    // BotToast.showText(text: "여행 데이터 로드됨222");
     Provider.of<ScheduleClass>(context, listen: false).travel = data;
+    Provider.of<ScheduleClass>(context, listen: false).user = userData;
     Provider.of<ScheduleClass>(context, listen: false).guidCheck = await NetworkUtil.isGuild(data);
   }
 
@@ -88,16 +88,28 @@ class _ScheduleWidget extends State<ScheduleWidget>
   Future<void> listenTravelChange() async {
     SharedPreferences prefs = await _prefs;
     travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+    currentUserCode = prefs.getString(SystemData.userCode) ?? "";
 
     DatabaseReference ref = FirebaseDatabase.instance.ref('travel/$travelCode');
 
     ref.onValue.listen((DatabaseEvent event) {
       var result = event.snapshot.value;
       if (result != null) {
-        var travel = Travel.fromJson(result);
+        Travel travel = Travel.fromJson(result);
+        User targetUser = User();
 
-        // 'travel' 객체를 사용할 수 있습니다.
-        setTravelDate(travel);
+        for (User user in travel.getUserList().values) {
+          if (user.getUserCode() == currentUserCode) {
+            targetUser = user;
+            break;
+          }
+        }
+
+        if (targetUser.getUserCode().isEmpty) {
+          BotToast.showText(text: "현재 유저를 확인할 수 없습니다.");
+        } else {
+          setTravelDate(travel, targetUser);
+        }
       } else {
         // 'result'가 null인 경우를 처리하세요.
       }
@@ -214,7 +226,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
               ),
             ),
             Visibility(
-              visible: context.watch<ScheduleClass>().isGuid,
+              visible: context.watch<ScheduleClass>().isGuide,
               child: Positioned(
                 right: 25,
                 bottom: 25,

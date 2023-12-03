@@ -1,6 +1,12 @@
+import 'package:bot_toast/bot_toast.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
+import 'package:go_together/models/data.dart';
 import 'package:go_together/providers/schedule_provider.dart';
+import 'package:go_together/utils/string.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -12,7 +18,7 @@ class ScheduleEditView extends StatefulWidget {
 }
 
 class _ScheduleInfoView extends State<ScheduleEditView> {
-  List userList = [];
+  List<Widget> userList = [];
 
   @override
   void initState() {
@@ -70,7 +76,7 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                         onChanged: (value) {
                           Provider.of<ScheduleClass>(context, listen: false).travel.setTitle(value);
                         },
-                        enabled: context.watch<ScheduleClass>().isGuid,
+                        enabled: context.watch<ScheduleClass>().isGuide,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Color.fromARGB(150, 255, 255, 255),
@@ -139,13 +145,15 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                       child: Divider(color: Colors.black, thickness: 1.0)),
                   // 인원 리스트
                   GridView.count(
-                      childAspectRatio: 3 / 1,
-                      shrinkWrap: true,
-                      physics: ScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 5,
-                      crossAxisSpacing: 5,
-                      children: getUserList(context.watch<ScheduleClass>().travel.getUserList()),
+                    childAspectRatio: 3 / 1,
+                    shrinkWrap: true,
+                    physics: ScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 5,
+                    crossAxisSpacing: 5,
+                    children: getUserItemList(
+                      context.watch<ScheduleClass>().travel.getUserList(),
+                        context.watch<ScheduleClass>().isGuide),
                   ),
                 ],
               ),
@@ -189,7 +197,7 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                       child: Expanded(
                         child:  TextField(
                           maxLines: null,
-                          enabled: context.watch<ScheduleClass>().isGuid,
+                          enabled: context.watch<ScheduleClass>().isGuide,
                           onChanged: (value) {
                             Provider.of<ScheduleClass>(context, listen: false).travel.setNotice(value);
                           },
@@ -236,70 +244,250 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
     );
   }
 
-  List<Widget> getUserList(Map<String, User> dataList) {
+  /// 상태 변경
+  Future<bool> changeAuthUser(String userCode) async {
+    var travelCode = context.read<ScheduleClass>().travel.getTravelCode();
+
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('travel/$travelCode').get();
+
+    var result = snapshot.value;
+    if (result != null) {
+      var travel = Travel.fromJson(result);
+
+      for (User user in travel.getUserList().values) {
+        if (user.getUserCode() == userCode) {
+          user.setAuthority(describeEnum(UserType.user));
+
+          break;
+        }
+      }
+
+      await ref.child('travel/$travelCode').set(travel.toJson());
+
+      userList = [];
+
+      setState(() {
+        userList = getUserItemList(travel.getUserList(), context.read<ScheduleClass>().isGuide);
+      });
+
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /// 유저상태 변경 팝업
+  Future<bool> finishDialog(User targetUser) async {
+    return (await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: AlertDialog(
+          title: Container(
+            alignment: Alignment.center,
+            child: const Text('인원 추가'),
+          ),
+          content: Container(
+            alignment: Alignment.center,
+            constraints: const BoxConstraints(maxHeight: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  targetUser.getName() + ' 님을 파티에 추가하시겠습니까?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.normal
+                  ),
+                ),
+              ],
+            ),
+          ),
+          icon: const Icon(Icons.person_add),
+          actions: [
+            OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide.none,
+                ),
+                onPressed: () async {
+                  bool result = await changeAuthUser(targetUser.getUserCode());
+
+                  if (!result) {
+                    BotToast.showText(text: '서버 오류입니다. 나중에 다시 시도해주세요...');
+                  }
+                  Navigator.pop(context);
+                },
+                child: const Text('추가')),
+            OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide.none,
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('취소')),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  List<Widget> getUserItemList(Map<String, User> dataList, bool isGuide) {
     userList.clear();
 
     for (User user in dataList.values) {
-      userList.add(UserItem(userId: user.getUserCode(), userName: user.getName(), profileUrl: ""));
+      // 가이드는 맨 첫번쨰로...
+      if (user.getAuthority() == describeEnum(UserType.guide)) {
+        userList.insert(0, UserItem(
+          user: user,
+          action: () {
+            ///
+          }, longAction: () {
+
+          },
+          isMe: user.getUserCode() == context.read<ScheduleClass>().user.getUserCode(),
+        ));
+      } else {
+        userList.add(
+          UserItem(
+            user: user,
+            action: () {
+              BotToast.showText(text: "클릭...");
+            }, longAction: () {
+              if (isGuide) {
+                finishDialog(user);
+              }
+          },
+          isMe: user.getUserCode() == context.read<ScheduleClass>().user.getUserCode(),
+        ));
+      }
     }
 
-    return List.generate(
-      userList.length,
-          (index) => userList[index],
-    );
+    return userList;
   }
 }
 
 // 인원목록 아이템
-class UserItem extends StatelessWidget {
-  final String userId;
-  final String userName;
-  final String profileUrl;
+class UserItem extends StatefulWidget {
+  final User user;
+  final VoidCallback action;
+  final VoidCallback longAction;
+  final bool isMe;
 
-  const UserItem({
-    super.key,
-    required this.userId,
-    required this.userName,
-    required this.profileUrl,
-  });
+  const UserItem(
+      {Key? key,
+    required this.user,
+    required this.action, required this.longAction, required this.isMe})
+      : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _UserItem();
+}
+
+class _UserItem extends State<UserItem> {
+  @override
   Widget build(BuildContext context) {
+    bool isGuide = widget.user.getAuthority() == describeEnum(UserType.guide);
+
     return Card(
         color: Colors.white,
         shape: RoundedRectangleBorder(
           //모서리를 둥글게 하기 위해 사용
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(10.0),
         ),
         elevation: 4.0, //그림자 깊이
-        child: SizedBox(
-          width: double.infinity,
-          height: 35,
-          child: Container(
-              padding:
-              const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: profileUrl,
-                    imageBuilder: (context, imageProvider) => Container(
-                      width: 80.0,
-                      height: 80.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                            image: imageProvider, fit: BoxFit.cover),
-                      ),
-                    ),
-                    placeholder: (context, url) => Center(
-                      child: Icon(Icons.account_circle),
-                    ),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
+        child: InkWell(
+          onTap: widget.action,
+          onLongPress: widget.longAction,
+          child: SizedBox(
+            width: double.infinity,
+            height: 35,
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: isGuide ? Colors.yellow.withAlpha(150) : Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: widget.isMe ? Border.all(
+                      color: Colors.black,
+                      width: 3,
+                    ) : null
                   ),
-                  Text(userName),
-                ],
-              )),
-        ));
+                  padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Stack(
+                        children: [
+                          Container(
+                            width: 50,
+                            child: CachedNetworkImage(
+                              imageUrl: Data.profileImage,
+                              imageBuilder: (context, imageProvider) => Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                      image: imageProvider, fit: BoxFit.contain),
+                                ),
+                              ),
+                              placeholder: (context, url) => Center(
+                                child: Icon(Icons.account_circle),
+                              ),
+                              errorWidget: (context, url, error) => Icon(Icons.error),
+                            ),
+                          ),
+                          Positioned(
+                            // top: 5,
+                              child: Visibility(
+                                visible: isGuide,
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  width: 20,
+                                  height: 20,
+                                  child: Image.asset(
+                                    'assets/images/crown_color.png',
+                                  ),
+                                ),
+                              )
+                          ),
+                        ],
+                      ),
+                      Text(
+                        widget.user.getName(),
+                        style: TextStyle(
+                            fontWeight: isGuide ? FontWeight.bold : FontWeight.normal
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Visibility(
+                    visible: context.watch<ScheduleClass>().isGuide && widget.user.getAuthority() == describeEnum(UserType.common),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.black.withAlpha(100),
+                          borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.center,
+                      width: double.infinity,
+                      height: double.infinity,
+                      child: const Text(
+                        textAlign: TextAlign.center,
+                        '꾹 탭해서 인원추가',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    )
+                ),
+              ],
+            )
+          ),
+        ),
+    );
   }
 }
