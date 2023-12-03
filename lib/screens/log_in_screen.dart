@@ -2,6 +2,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/service/routing_service.dart';
@@ -243,6 +244,49 @@ class _LoginView extends State<LoginView> {
       // 메인으로 이동.
       Navigator.pop(context);
       Navigator.pushNamed(context, HomeViewRoute);
+    } else {
+      // 인원목록에 없음 => 탈퇴된 것.
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: AlertDialog(
+          title: Container(
+            alignment: Alignment.center,
+            child: const Text('안내'),
+          ),
+          content: Container(
+            alignment: Alignment.center,
+            constraints: const BoxConstraints(maxHeight: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '입장이 거절되었습니다.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.normal
+                  ),
+                ),
+              ],
+            ),
+          ),
+          icon: const Icon(Icons.group_remove),
+          actions: [
+            OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide.none,
+                ),
+                onPressed: () async {
+                  await SystemUtil.resetDeviceSetting();
+                  SystemNavigator.pop();
+                },
+                child: const Text('확인')),
+          ],
+        ),
+      ),);
     }
   }
 

@@ -104,6 +104,8 @@ class _AddUserView extends State<AddUserView> {
           Navigator.pop(context);
           Navigator.pushNamed(context, HomeViewRoute);
         } else {
+          NetworkUtil.joinChatRoom(travel.getTravelCode(), userItem, SystemData.noticeName);
+
           // 방장이 허용해주기 전까지 대기.
           Navigator.pop(context);
           Navigator.popUntil(context, ModalRoute.withName(LoginViewRoute));

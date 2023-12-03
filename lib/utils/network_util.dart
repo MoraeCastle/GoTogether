@@ -33,6 +33,34 @@ class NetworkUtil {
     return false;
   }
 
+  /// 채팅방 입장
+  static Future<bool> joinChatRoom(String travelCode, User user, String roomName) async {
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('chat/$travelCode').get();
+
+    if (snapshot.exists) {
+      var result = snapshot.value;
+      if (result != null) {
+        var chat = Chat.fromJson(result);
+
+        for (Room room in chat.getRoomList()) {
+          if (room.getTitle() == roomName) {
+            room.getUserMap()[user.getUserCode()] = 0;
+
+            await ref.child('chat/$travelCode').set(chat.toJson());
+            return true;
+          }
+        }
+
+        return false;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
   /// 채팅방 생성(공지)
   static Future<void> createNoticeChatRoom(String travelCode, User user) async {
     Logger logger = Logger();
@@ -42,7 +70,7 @@ class NetworkUtil {
 
     Chat chat = Chat();
     Room _newRoom = Room();
-    _newRoom.setTitle("공지");
+    _newRoom.setTitle(SystemData.noticeName);
     _newRoom.setState(1);
     _newRoom.setUserMap({
       user.userCode : 0,

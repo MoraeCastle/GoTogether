@@ -12,6 +12,8 @@ class SystemData {
   static const String chatTitle = 'chatTitle';
   static const String chatUserCount = 'chatUserCount';
   static const String chatUserList = 'chatUserList';
+
+  static const String noticeName = '공지';
 }
 
 /// 유저 타입. common은 입장 대기임.
