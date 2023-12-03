@@ -89,6 +89,10 @@ class _AddUserView extends State<AddUserView> {
 
         travel.addUser(userItem);
 
+        if (userItem.getAuthority() == describeEnum(UserType.guide)) {
+          travel.setGuideCode(userItem.getUserCode());
+        }
+
         await ref.child('travel/$travelCode').set(travel.toJson());
         await SystemUtil.saveUser(userItem);
 
