@@ -40,6 +40,8 @@ class _AddUserView extends State<AddUserView> {
 
   // 저장된 여행코드로 유저 추가하기.
   insertUserData() async {
+    BotToast.showLoading();
+
     final SharedPreferences prefs = await _prefs;
     travelCode = prefs.getString(SystemData.trvelCode) ?? "";
     travelState = prefs.getBool(SystemData.travelState) ?? false;
@@ -57,6 +59,7 @@ class _AddUserView extends State<AddUserView> {
     if (travelCode.isEmpty) {
       // 여행 코드를 못 불러옴.
       BotToast.showText(text: "여행 코드 불러오기 실패...");
+      BotToast.closeAllLoading();
       Navigator.pop(context);
     } else {
       final ref = FirebaseDatabase.instance.ref();
@@ -114,6 +117,8 @@ class _AddUserView extends State<AddUserView> {
       } else {
         //
       }
+
+      BotToast.closeAllLoading();
     }
   }
 
