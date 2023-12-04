@@ -90,6 +90,7 @@ class SystemUtil {
   /// 기기값 초기화.
   static Future<void> resetDeviceSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove(SystemData.travelState);
     prefs.remove(SystemData.userCode);
     prefs.remove(SystemData.userName);
   }

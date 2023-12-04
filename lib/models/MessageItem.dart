@@ -1,4 +1,5 @@
 import 'package:chatview/chatview.dart';
+import 'package:flutter/foundation.dart';
 
 import 'Chat.dart';
 
@@ -21,8 +22,8 @@ class MessageItem {
     sendBy = "";
     reactionMap = {};
     replyMessageId = 0;
-    status = "";
-    messageType = "";
+    status = describeEnum(MessageStatus.read);
+    messageType = describeEnum(MessageType.text);
     voiceMessageDuration = 0;
   }
 
@@ -66,7 +67,9 @@ class MessageItem {
     return reactionMap;
   }
 
-  Reaction getChatReaction() {
+  Reaction? getChatReaction() {
+    if (getReactionMap().isEmpty) return null;
+
     return Reaction(
       reactions: getReactionMap().keys.toList(),
       reactedUserIds: getReactionMap().values.toList(),

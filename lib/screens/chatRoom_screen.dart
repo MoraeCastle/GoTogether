@@ -36,7 +36,7 @@ class _ChatScreenState extends State<ChatRoomView> {
   String chatTitle = "";
   int chatUserCount = 0;
   List<String> chatUserStrList = [];
-  List<ChatUser> userList = [];
+  // List<ChatUser> userList = [];
   List<Message> chatList = [];
   Room targetRoom = Room();
   late ChatController _chatController;
@@ -133,9 +133,9 @@ class _ChatScreenState extends State<ChatRoomView> {
       }
     }
 
-    userList = resultList;
+    _chatController.chatUsers = resultList;
 
-    if (userList.isNotEmpty) {
+    if (resultList.isNotEmpty) {
       getChatList();
     } else {
       finishDialog();
@@ -149,7 +149,7 @@ class _ChatScreenState extends State<ChatRoomView> {
       final result = event.snapshot.value;
       if (result != null) {
         var chat = Chat.fromJson(result);
-        logger.e(chat.roomList.length.toString() + "개의 방");
+        //logger.e(chat.roomList.length.toString() + "개의 방");
 
         // 이 채팅방인지?
         setState(() {
@@ -157,11 +157,13 @@ class _ChatScreenState extends State<ChatRoomView> {
             if (room.getTitle() == chatTitle) {
               targetRoom = room;
               chatList = room.getChatList();
-              logger.e(room.messageList.length.toString() + "개의 채팅");
-              logger.e(room.getChatList().length.toString() + "개의 찐채팅");
+              //logger.e(room.messageList.length.toString() + "개의 채팅");
+              //logger.e(room.getChatList().length.toString() + "개의 찐채팅");
 
               _chatController.initialMessageList = [];
               _chatController.loadMoreData(chatList);
+
+              //logger.e(chatList.map((e) => e.toJson().toString()));
               break;
             }
           }
@@ -188,7 +190,7 @@ class _ChatScreenState extends State<ChatRoomView> {
       // initialMessageList: Data.messageList,
       initialMessageList: chatList,
       scrollController: ScrollController(),
-      chatUsers: userList,
+      chatUsers: [],
     );
 
     super.initState();
@@ -383,7 +385,6 @@ class _ChatScreenState extends State<ChatRoomView> {
       ReplyMessage replyMessage,
       MessageType messageType,
       ) async {
-    final id = targetRoom.getMessageList().length + 1;
 
     /*Future.delayed(const Duration(milliseconds: 300), () {
       _chatController.initialMessageList.last.setStatus =

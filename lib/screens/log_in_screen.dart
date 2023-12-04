@@ -361,6 +361,9 @@ class _LoginView extends State<LoginView> {
                           // 기기 내에 데이터 저장.
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           prefs.setBool(SystemData.travelState, true);
+
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, AddUserRoute);
                         } else {
                           // 디바이스 코드로 중복접근 확인
                           var deviceCode = await SystemUtil.getDeviceCode();

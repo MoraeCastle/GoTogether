@@ -83,7 +83,8 @@ class _ScheduleWidget extends State<ScheduleWidget>
     Provider.of<ScheduleClass>(context, listen: false).user = userData;
     Provider.of<ScheduleClass>(context, listen: false).guidCheck = await NetworkUtil.isGuild(data);
 
-    if (tabController.index == 1) tabController.index = 0;;
+    /// 임시!!!
+    if (tabController.index == 1) tabController.index = 0;
   }
 
   /// 여행 데이터 변경 감지
