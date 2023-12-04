@@ -29,7 +29,7 @@ class Travel {
     this.date = date;
   }
 
-  getDate() {
+  String getDate() {
     return date;
   }
 

@@ -132,9 +132,33 @@ class _TabBarScreenState extends State<TabBarWidget>
     DatabaseReference ref =
       FirebaseDatabase.instance.ref('travel/$travelCode');
     ref.onValue.listen((DatabaseEvent event) {
-      final data = event.snapshot.value;
 
-      BotToast.showText(text: "여행 데이터 로드됨");
+      var result = event.snapshot.value;
+      if (result != null) {
+        Travel travel = Travel.fromJson(result);
+        _countProvider = Provider.of<DataClass>(context, listen: false);
+        _countProvider.travel = travel;
+
+        if (travel.getSchedule().isNotEmpty) {
+          String dayKey = "";
+          for (String day in travel.getSchedule().first.getRouteMap().keys) {
+            if (dayKey.compareTo(day) < 0) {
+              if (travel.getSchedule().first.getRouteMap()[day]!.isNotEmpty) {
+                dayKey = day;
+              }
+            }
+          }
+
+          if (dayKey.isNotEmpty) {
+            _countProvider.targetDayKey = dayKey;
+            _countProvider.targetRoute = travel.getSchedule().first.getRouteMap()[dayKey]!.first;
+          }
+        }
+
+        BotToast.showText(text: "여행 데이터 로드됨");
+      } else {
+        BotToast.showText(text: "서버에 오류가 있습니다.");
+      }
     });
   }
 

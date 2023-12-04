@@ -6,9 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_google_maps_webservices/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_together/models/RouteItem.dart';
+import 'package:go_together/models/Travel.dart';
 import 'package:go_together/providers/data_provider.dart';
+import 'package:go_together/providers/schedule_provider.dart';
 import 'package:go_together/screens/schedule_screen.dart';
 import 'package:go_together/service/routing_service.dart';
+import 'package:go_together/utils/system_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +32,7 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> {
   var logger = Logger();
 
-  late DataClass _countProvider;
+  // 지도 관련
   final Completer<GoogleMapController> _controller = Completer();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   // 현재 위치 좌표
@@ -39,7 +43,7 @@ class _MapViewState extends State<MapView> {
   TextEditingController textEditingController = TextEditingController();
 
   FocusNode textFocus = FocusNode();
-
+  
   /// 맵 컨트롤러 가져오기
   Future<GoogleMapController> getController() async {
     return await _controller.future;
@@ -111,6 +115,7 @@ class _MapViewState extends State<MapView> {
   @override
   void initState() {
     super.initState();
+
     _getCurrentLocation();
   }
 
@@ -178,8 +183,6 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
-    _countProvider = Provider.of<DataClass>(context, listen: false);
-
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomInset: false,
@@ -337,6 +340,66 @@ class _MapViewState extends State<MapView> {
                       ),
                     ),
                   ))),
+          /// 네비게이션
+          Visibility(
+            visible: context.watch<DataClass>().travel.getSchedule().isNotEmpty,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  left: 10,
+                  child: InkWell(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withAlpha(100),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      padding: EdgeInsets.only(bottom: 100, top: 100, left: 10, right: 10),
+                      child: Icon(Icons.keyboard_arrow_left, size: 25, color: Colors.white,),
+                    ),
+                    onTap: () {
+                      BotToast.showText(text: 'left');
+                    },
+                  )
+                ),
+                Positioned(
+                  right: 10,
+                  child: InkWell(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withAlpha(100),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      padding: EdgeInsets.only(bottom: 100, top: 100, left: 10, right: 10),
+                      child: Icon(Icons.keyboard_arrow_right, size: 25, color: Colors.white,),
+                    ),
+                    onTap: () {
+                      BotToast.showText(text: 'right');
+                    },
+                  )
+                ),
+                Positioned(
+                  bottom: 100,
+                  child: Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(100),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    padding: EdgeInsets.only(bottom: 10, top: 10, left: 20, right: 20),
+                    child: Text(
+                      getRouteState(),
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           /*Container(
             color: Colors.white,
             margin: EdgeInsets.all(50),
@@ -358,5 +421,31 @@ class _MapViewState extends State<MapView> {
         ],
       ),
     );
+  }
+
+  /// 현재 일정순서를 반환합니다.
+  String getRouteState() {
+    logger.e('///////////////////////');
+    logger.e(context.read<DataClass>().targetDayKey);
+    logger.e(context.read<DataClass>().targetRoute.getPosition());
+
+    if (context.read<DataClass>().travel.getSchedule().isEmpty) return "";
+    if (context.read<DataClass>().targetRoute.getPosition().isEmpty) return "";
+    if (context.read<DataClass>().targetDayKey.isEmpty) return "";
+
+    List<RouteItem>? routeList
+      = context.read<DataClass>().travel.getSchedule()
+          .first.getRouteMap()[context.read<DataClass>().targetDayKey];
+    if (routeList == null) return "";
+
+    int count = 0;
+    for (RouteItem item in routeList) {
+      ++count;
+      if (item.getPosition() == context.read<DataClass>().targetRoute.getPosition()) {
+        return "$count / ${routeList.length}";
+      }
+    }
+
+    return "";
   }
 }
