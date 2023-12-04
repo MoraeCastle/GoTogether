@@ -130,6 +130,32 @@ class SystemUtil {
     return "${startDate.toString().split(' ')[0]},${endDate.toString().split(' ')[0]}";
   }
 
+  /// 제시된 DateTime과 오늘날짜의 일수를 문자형으로 반환합니다.
+  static String getTodayStr(DateTime targetDate) {
+    final difference = DateTime.now().difference(targetDate);
+    int resultInt = difference.inDays;
+    int resultMinute = difference.inMinutes;
+
+    Logger logger = Logger();
+    logger.e(targetDate.toString());
+    logger.e(resultInt.toString() + " / " + resultMinute.toString());
+
+    if (resultMinute < 2) {
+      return "방금 전";
+    } else if (resultMinute < 10) {
+      return "$resultMinute분 전";
+    } else if (resultInt <= 0) {
+      return "오늘";
+    } else if (resultInt <= 1) {
+      return "어제";
+    } else {
+      return "${targetDate.year}"
+          "-${targetDate.month}"
+          "-${targetDate.day} "
+          "${targetDate.hour.toString().padLeft(2, '0')}:${targetDate.minute.toString().padLeft(2, '0')}";
+    }
+  }
+
   /// 날짜를 받고 차이 일수를 반환합니다.
   static int getTravelDay(String date) {
     var dataArray = date.split(',');

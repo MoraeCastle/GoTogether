@@ -6,11 +6,12 @@ import 'package:go_together/models/Room.dart';
 import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/string.dart';
+import 'package:go_together/utils/system_util.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// 채팅방 씬
+/// 채팅목록 씬
 class ChatView extends StatefulWidget {
   const ChatView({
     Key? key,
@@ -173,25 +174,40 @@ class _ChatRoomItem extends State<ChatRoomItem> {
                         ),
                         Container(height: 5),
                         Text(
-                          "${widget.roomData.getUserMap().keys.length} 명",
+                          widget.roomData.getMessageList().isEmpty ? ""
+                              : widget.roomData.getMessageList().last.getMessage(),
                           style: TextStyle(fontSize: 18),
                         )
                       ],
                     )
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 15, right: 5),
-                      child: Text(
+                Positioned(
+                  right: 0,
+                  top: 10,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
                         widget.roomData.getMessageList().isEmpty
-                            ? "새 채팅방" : widget.roomData.getMessageList().last.createdAt.toString(),
+                            ? "새 채팅방" : SystemUtil.getTodayStr(DateTime.parse(widget.roomData.getMessageList().last.createdAt)),
                         style: TextStyle(fontSize: 15),
                       ),
-                    )
-                  ],
+                    ],
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 10,
+                  child: Row(
+                    children: [
+                      Icon(Icons.person, size: 18),
+                      Text(
+                        "${widget.roomData.getUserMap().length}",
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ],
+                  ),
                 )
               ],
             ),
