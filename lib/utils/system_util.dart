@@ -170,6 +170,21 @@ class SystemUtil {
     }
   }
 
+  /// 일정 Map<String, List<RouteItem>> 구조에서 키값을 정렬해서 리스트로 받습니다.
+  static List<String> getSortedDayKeyList(Iterable<String> keys) {
+    List<String> resultList = keys.toList();
+
+    resultList.sort((a, b) {
+      if(a.compareTo(b) < 0) {
+        return -1;
+      }else{
+        return 1;
+      }
+    });
+
+    return resultList;
+  }
+
   /// 해당 날짜가 범위 안에 있는지 판별합니다.
   static bool isDateInSchedule(String dateStr, DateTime target) {
     if (dateStr.isEmpty) return false;

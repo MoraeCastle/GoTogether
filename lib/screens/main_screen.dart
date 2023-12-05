@@ -140,18 +140,23 @@ class _TabBarScreenState extends State<TabBarWidget>
         _countProvider.travel = travel;
 
         if (travel.getSchedule().isNotEmpty) {
-          String dayKey = "";
-          for (String day in travel.getSchedule().first.getRouteMap().keys) {
-            if (dayKey.compareTo(day) < 0) {
-              if (travel.getSchedule().first.getRouteMap()[day]!.isNotEmpty) {
-                dayKey = day;
+          _countProvider.sortedDayList = SystemUtil.getSortedDayKeyList(travel.getSchedule().first.getRouteMap().keys);
+
+          // 선택된 일정이 없다면 저장.
+          if (_countProvider.targetDayKey.isEmpty) {
+            String dayKey = "";
+            for (String day in travel.getSchedule().first.getRouteMap().keys) {
+              if (dayKey.compareTo(day) < 0) {
+                if (travel.getSchedule().first.getRouteMap()[day]!.isNotEmpty) {
+                  dayKey = day;
+                }
               }
             }
-          }
 
-          if (dayKey.isNotEmpty) {
-            _countProvider.targetDayKey = dayKey;
-            _countProvider.targetRoute = travel.getSchedule().first.getRouteMap()[dayKey]!.first;
+            if (dayKey.isNotEmpty) {
+              _countProvider.targetDayKey = dayKey;
+              _countProvider.targetRoute = travel.getSchedule().first.getRouteMap()[dayKey]!.first;
+            }
           }
         }
 

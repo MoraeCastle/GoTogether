@@ -43,6 +43,9 @@ class _MapViewState extends State<MapView> {
   TextEditingController textEditingController = TextEditingController();
 
   FocusNode textFocus = FocusNode();
+
+  // 현재 일정 마커
+  Set<Marker> currentMarkers = {};
   
   /// 맵 컨트롤러 가져오기
   Future<GoogleMapController> getController() async {
@@ -58,14 +61,7 @@ class _MapViewState extends State<MapView> {
     if (response.isOkay) {
       final result = response.results.first.geometry;
 
-      currentLatLng = LatLng(result.location.lat, result.location.lng);
-      GoogleMapController controller = await getController();
-
-      setState(() {
-        currentPosition = CameraPosition(target: currentLatLng, zoom: 16);
-
-        controller.moveCamera(CameraUpdate.newLatLngZoom(currentLatLng, 17));
-      });
+      await moveCamera(LatLng(result.location.lat, result.location.lng));
     } else {
       BotToast.showText(text: response.errorMessage.toString());
     }
@@ -119,6 +115,57 @@ class _MapViewState extends State<MapView> {
     _getCurrentLocation();
   }
 
+  /// 루트에 맞는 마커를 맵에 출력합니다.
+  Set<Marker> getMarkerListToDay(RouteItem target) {
+    var dataProvider = context.read<DataClass>();
+    var schedule = dataProvider.travel.getSchedule();
+    var dayKey = dataProvider.targetDayKey;
+
+    if (schedule.isEmpty || dayKey.isEmpty) return {};
+
+    if (true) {
+      // if (currentMarkers.isEmpty) {
+      currentMarkers.clear();
+      List<RouteItem> routeList = schedule.first.getRouteMap()[dayKey] ?? [];
+
+      for (RouteItem routeItem in routeList) {
+        currentMarkers.add(
+          Marker(
+            onTap: () {
+              Provider.of<DataClass>(context, listen: false).targetRoute = routeItem;
+            },
+            markerId: MarkerId(routeItem.getRouteName()),
+            position: SystemUtil.convertStringPosition(routeItem.getPosition()),
+            infoWindow: InfoWindow(
+              title: routeItem.getRouteName(),
+              snippet: "${routeItem.getStartTime()} ~ ${routeItem.getEndTime()}",
+              onTap: () {
+                ///
+              },
+            ),
+            icon: BitmapDescriptor.defaultMarker,
+          )
+        );
+      }
+    }
+
+    moveCamera(SystemUtil.convertStringPosition(target.getPosition()));
+
+    return currentMarkers;
+  }
+
+  moveCamera(LatLng position) async {
+    currentLatLng = LatLng(position.latitude, position.longitude);
+    GoogleMapController controller = await getController();
+
+    currentPosition = CameraPosition(target: currentLatLng, zoom: 16);
+
+    controller.moveCamera(CameraUpdate.newLatLngZoom(currentLatLng, 17));
+
+    logger.d(currentLatLng.toString());
+  }
+
+
   _getCurrentLocation() async {
     Position position;
 
@@ -162,16 +209,7 @@ class _MapViewState extends State<MapView> {
           forceAndroidLocationManager: true,
           timeLimit: const Duration(seconds: 15));
 
-      currentLatLng = LatLng(position.latitude, position.longitude);
-      GoogleMapController controller = await getController();
-
-      setState(() {
-        currentPosition = CameraPosition(target: currentLatLng, zoom: 16);
-
-        controller.moveCamera(CameraUpdate.newLatLngZoom(currentLatLng, 17));
-
-        logger.d(currentLatLng.toString());
-      });
+      await moveCamera(LatLng(position.latitude, position.longitude));
 
       BotToast.showText(text: '위치를 최신화 했습니다.');
     } catch (e) {
@@ -209,6 +247,9 @@ class _MapViewState extends State<MapView> {
                 textFocus.unfocus();
               });
             },
+            markers: getMarkerListToDay(
+              context.watch<DataClass>().targetRoute
+            ),
           ),
           // 검색창
           Positioned(
@@ -357,9 +398,7 @@ class _MapViewState extends State<MapView> {
                       padding: EdgeInsets.only(bottom: 100, top: 100, left: 10, right: 10),
                       child: Icon(Icons.keyboard_arrow_left, size: 25, color: Colors.white,),
                     ),
-                    onTap: () {
-                      BotToast.showText(text: 'left');
-                    },
+                    onTap: () => moveRoute(0),
                   )
                 ),
                 Positioned(
@@ -373,9 +412,7 @@ class _MapViewState extends State<MapView> {
                       padding: EdgeInsets.only(bottom: 100, top: 100, left: 10, right: 10),
                       child: Icon(Icons.keyboard_arrow_right, size: 25, color: Colors.white,),
                     ),
-                    onTap: () {
-                      BotToast.showText(text: 'right');
-                    },
+                    onTap: () => moveRoute(1),
                   )
                 ),
                 Positioned(
@@ -388,7 +425,7 @@ class _MapViewState extends State<MapView> {
                     ),
                     padding: EdgeInsets.only(bottom: 10, top: 10, left: 20, right: 20),
                     child: Text(
-                      getRouteState(),
+                      getRouteState(context.watch<DataClass>().targetRoute),
                       maxLines: 1,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -400,48 +437,51 @@ class _MapViewState extends State<MapView> {
               ],
             ),
           ),
-          /*Container(
-            color: Colors.white,
-            margin: EdgeInsets.all(50),
-            width: double.infinity,
-            height: double.infinity,
-            child: MapAutoCompleteField(
-              googleMapApiKey: 'AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts',
-              controller: textEditingController,
-              itemBuilder: (BuildContext context, suggestion) {
-                return ListTile(
-                  title: Text(suggestion.description),
-                );
-              },
-              onSuggestionSelected: (suggestion) {
-                textEditingController.text = suggestion.description;
-              },
-            ),
-          )*/
         ],
       ),
     );
   }
 
+  /// 일정 이동
+  void moveRoute(int isBack) {
+    var dataProvider = context.read<DataClass>();
+    var schedule = dataProvider.travel.getSchedule();
+    var dayKey = dataProvider.targetDayKey;
+    var targetRoute = dataProvider.targetRoute;
+
+    if (schedule.isEmpty || dayKey.isEmpty) return;
+
+    int routeIndex = schedule.first.getRouteMap()[dayKey]!.indexOf(targetRoute);
+
+    if (isBack == 0 && routeIndex == 0) {
+      BotToast.showText(text: '처음 일정입니다.');
+    } else if (isBack != 0 && routeIndex == schedule.first.getRouteMap()[dayKey]!.length - 1) {
+      BotToast.showText(text: '마지막 일정입니다.');
+    } else {
+      routeIndex = isBack == 0 ? --routeIndex : ++routeIndex;
+      var newRoute = schedule.first.getRouteMap()[dayKey]!.elementAt(routeIndex);
+
+      Provider.of<DataClass>(context, listen: false).targetRoute = newRoute;
+
+      moveCamera(SystemUtil.convertStringPosition(newRoute.getPosition()));
+
+    }
+  }
+
   /// 현재 일정순서를 반환합니다.
-  String getRouteState() {
-    logger.e('///////////////////////');
-    logger.e(context.read<DataClass>().targetDayKey);
-    logger.e(context.read<DataClass>().targetRoute.getPosition());
+  String getRouteState(RouteItem target) {
+    var dataProvider = context.read<DataClass>();
+    var schedule = dataProvider.travel.getSchedule();
+    var dayKey = dataProvider.targetDayKey;
 
-    if (context.read<DataClass>().travel.getSchedule().isEmpty) return "";
-    if (context.read<DataClass>().targetRoute.getPosition().isEmpty) return "";
-    if (context.read<DataClass>().targetDayKey.isEmpty) return "";
+    if (schedule.isEmpty || dayKey.isEmpty) return "";
 
-    List<RouteItem>? routeList
-      = context.read<DataClass>().travel.getSchedule()
-          .first.getRouteMap()[context.read<DataClass>().targetDayKey];
-    if (routeList == null) return "";
+    List<RouteItem> routeList = schedule.first.getRouteMap()[dayKey] ?? [];
 
     int count = 0;
-    for (RouteItem item in routeList) {
+    for (RouteItem routeItem in routeList) {
       ++count;
-      if (item.getPosition() == context.read<DataClass>().targetRoute.getPosition()) {
+      if (routeItem.getPosition() == target.getPosition()) {
         return "$count / ${routeList.length}";
       }
     }

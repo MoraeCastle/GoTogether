@@ -13,6 +13,9 @@ class DataClass with ChangeNotifier {
   late RouteItem _targetRoute;
   late String _targetDayKey;
 
+  // 정렬된 일차데이터 키 리스트.
+  late List<String> _sortedList;
+
   DataClass() {
     travel = Travel();
   }
@@ -22,6 +25,7 @@ class DataClass with ChangeNotifier {
   User get currentUser => _currentUser;
   RouteItem get targetRoute => _targetRoute;
   String get targetDayKey => _targetDayKey;
+  List<String> get sortedDayList => _sortedList;
 
   // 데이터 설정자(setter)
   set travel(Travel value) {
@@ -29,6 +33,7 @@ class DataClass with ChangeNotifier {
 
     targetRoute = RouteItem();
     targetDayKey = "";
+    sortedDayList = [];
 
     notifyListeners();
   }
@@ -44,6 +49,11 @@ class DataClass with ChangeNotifier {
   }
   set targetDayKey(String value) {
     _targetDayKey = value;
+    notifyListeners();
+  }
+
+  set sortedDayList(List<String> value) {
+    _sortedList = value;
     notifyListeners();
   }
 }
