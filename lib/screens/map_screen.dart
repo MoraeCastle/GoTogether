@@ -219,6 +219,110 @@ class _MapViewState extends State<MapView> {
     return true;
   }
 
+  /// 일차 이동
+  void moveDay(int isBack) {
+    var dataProvider = context.read<DataClass>();
+    var schedule = dataProvider.travel.getSchedule();
+    var dayKey = dataProvider.targetDayKey;
+    var dayList = dataProvider.sortedDayList;
+
+    if (schedule.isEmpty || dayKey.isEmpty) return;
+
+    int dayIndex = dayList.indexOf(dayKey);
+
+    /// 주의 : dayList는 모든 일차가 아닌 <데이터가 있는 일차>만 있다.
+    if (dayIndex == 0) {
+      if (isBack == 0) BotToast.showText(text: "처음 일차입니다.");
+      else {
+        if (dayList.length <= 1) {
+          BotToast.showText(text: "가져올 일정이 없습니다.");
+        } else {
+          var day = dayList[++dayIndex];
+          var newRoute = schedule.first.getRouteMap()[day]!.first;
+          Provider.of<DataClass>(context, listen: false).targetRoute = newRoute;
+          Provider.of<DataClass>(context, listen: false).targetDayKey = day;
+        }
+      }
+    } else if (dayIndex == dayList.length - 1){
+      if (isBack != 0) BotToast.showText(text: "마지막 일차입니다.");
+      else {
+        var day = dayList[--dayIndex];
+        var newRoute = schedule.first.getRouteMap()[day]!.last;
+        Provider.of<DataClass>(context, listen: false).targetRoute = newRoute;
+        Provider.of<DataClass>(context, listen: false).targetDayKey = day;
+      }
+    } else {
+      // 중간에 낀 일차일 경우.
+      if (isBack == 0) {
+        BotToast.showText(text: "처음 일차입니다.");
+      } else {
+        RouteItem? item;
+        String day = "";
+        if (isBack == 0) {
+          day = dayList[--dayIndex];
+          item = schedule.first.getRouteMap()[day]!.last;
+        } else {
+          day = dayList[++dayIndex];
+          item = schedule.first.getRouteMap()[day]!.first;
+        }
+
+        if (day.isNotEmpty) {
+          Provider.of<DataClass>(context, listen: false).targetRoute = item;
+          Provider.of<DataClass>(context, listen: false).targetDayKey = day;
+        }
+      }
+    }
+  }
+
+  /// 일정 이동
+  void moveRoute(int isBack) {
+    var dataProvider = context.read<DataClass>();
+    var schedule = dataProvider.travel.getSchedule();
+    var dayKey = dataProvider.targetDayKey;
+    var targetRoute = dataProvider.targetRoute;
+
+    if (schedule.isEmpty || dayKey.isEmpty) return;
+
+    int routeIndex = schedule.first.getRouteMap()[dayKey]!.indexOf(targetRoute);
+
+    if (isBack == 0 && routeIndex == 0) {
+      // BotToast.showText(text: '처음 일정입니다.');
+      moveDay(0);
+    } else if (isBack != 0 && routeIndex == schedule.first.getRouteMap()[dayKey]!.length - 1) {
+      // BotToast.showText(text: '마지막 일정입니다.');
+      moveDay(1);
+    } else {
+      routeIndex = isBack == 0 ? --routeIndex : ++routeIndex;
+      var newRoute = schedule.first.getRouteMap()[dayKey]!.elementAt(routeIndex);
+
+      Provider.of<DataClass>(context, listen: false).targetRoute = newRoute;
+
+      moveCamera(SystemUtil.convertStringPosition(newRoute.getPosition()));
+
+    }
+  }
+
+  /// 현재 일정순서를 반환합니다.
+  String getRouteState(RouteItem target) {
+    var dataProvider = context.read<DataClass>();
+    var schedule = dataProvider.travel.getSchedule();
+    var dayKey = dataProvider.targetDayKey;
+
+    if (schedule.isEmpty || dayKey.isEmpty) return "";
+
+    List<RouteItem> routeList = schedule.first.getRouteMap()[dayKey] ?? [];
+
+    int count = 0;
+    for (RouteItem routeItem in routeList) {
+      ++count;
+      if (routeItem.getPosition() == target.getPosition()) {
+        return "$count / ${routeList.length}";
+      }
+    }
+
+    return "";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -388,6 +492,25 @@ class _MapViewState extends State<MapView> {
               alignment: Alignment.center,
               children: [
                 Positioned(
+                  top: 120,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(100),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    padding: EdgeInsets.only(bottom: 10, top: 10, left: 40, right: 40),
+                    child: Text(
+                      context.watch<DataClass>().targetDayKey,
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
                   left: 10,
                   child: InkWell(
                     child: Container(
@@ -440,52 +563,5 @@ class _MapViewState extends State<MapView> {
         ],
       ),
     );
-  }
-
-  /// 일정 이동
-  void moveRoute(int isBack) {
-    var dataProvider = context.read<DataClass>();
-    var schedule = dataProvider.travel.getSchedule();
-    var dayKey = dataProvider.targetDayKey;
-    var targetRoute = dataProvider.targetRoute;
-
-    if (schedule.isEmpty || dayKey.isEmpty) return;
-
-    int routeIndex = schedule.first.getRouteMap()[dayKey]!.indexOf(targetRoute);
-
-    if (isBack == 0 && routeIndex == 0) {
-      BotToast.showText(text: '처음 일정입니다.');
-    } else if (isBack != 0 && routeIndex == schedule.first.getRouteMap()[dayKey]!.length - 1) {
-      BotToast.showText(text: '마지막 일정입니다.');
-    } else {
-      routeIndex = isBack == 0 ? --routeIndex : ++routeIndex;
-      var newRoute = schedule.first.getRouteMap()[dayKey]!.elementAt(routeIndex);
-
-      Provider.of<DataClass>(context, listen: false).targetRoute = newRoute;
-
-      moveCamera(SystemUtil.convertStringPosition(newRoute.getPosition()));
-
-    }
-  }
-
-  /// 현재 일정순서를 반환합니다.
-  String getRouteState(RouteItem target) {
-    var dataProvider = context.read<DataClass>();
-    var schedule = dataProvider.travel.getSchedule();
-    var dayKey = dataProvider.targetDayKey;
-
-    if (schedule.isEmpty || dayKey.isEmpty) return "";
-
-    List<RouteItem> routeList = schedule.first.getRouteMap()[dayKey] ?? [];
-
-    int count = 0;
-    for (RouteItem routeItem in routeList) {
-      ++count;
-      if (routeItem.getPosition() == target.getPosition()) {
-        return "$count / ${routeList.length}";
-      }
-    }
-
-    return "";
   }
 }
