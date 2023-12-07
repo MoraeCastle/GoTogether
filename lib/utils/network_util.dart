@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_together/models/Chat.dart';
@@ -25,7 +26,7 @@ class NetworkUtil {
     var userStr = prefs.getString(SystemData.userCode) ?? "";
 
     for (String userItem in travel.getUserList().keys) {
-      if (userItem == userStr) {
+      if (userItem == userStr && travel.getUserList()[userItem]!.getAuthority() == describeEnum(UserType.guide)) {
         return true;
       }
     }
