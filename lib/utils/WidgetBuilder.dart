@@ -79,6 +79,9 @@ class CustomDialog {
           WillPopScope(
             onWillPop: () async => !isLockBack,
             child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
               title: Container(
                 alignment: Alignment.center,
                 child: Text(title),

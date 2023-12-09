@@ -14,6 +14,9 @@ class SystemData {
   static const String chatUserList = 'chatUserList';
 
   static const String noticeName = '공지';
+
+  static const String naverClientID = 'BGwhW2W9uwbQALukaWDH';
+  static const String naverSecretID = 'rfGxmb4r9Q';
 }
 
 /// 유저 타입. common은 입장 대기임.

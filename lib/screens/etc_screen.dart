@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/providers/data_provider.dart';
+import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:go_together/utils/network_util.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +25,7 @@ class _EtcViewState extends State<EtcView> {
   Widget build(BuildContext context) {
     Travel travel = context.watch<DataClass>().travel;
     User targetUser = context.watch<DataClass>().currentUser;
+    userNameController.text = "";
 
     return SafeArea(
       child: Column(
@@ -68,7 +70,7 @@ class _EtcViewState extends State<EtcView> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            BotToast.showText(text: 'text');
+                            // BotToast.showText(text: 'text');
                             CustomDialog.doubleButton(
                               context, Icons.edit, '이름 변경', "이름을 변경하려면 아래 내용을 입력해주세요.",
                               Container(
@@ -185,7 +187,8 @@ class _EtcViewState extends State<EtcView> {
                               icon: Icons.translate,
                               title: '번역기',
                               action: () {
-                                BotToast.showText(text: '미구현 기능입니다...');
+                                // BotToast.showText(text: '미구현 기능입니다...');
+                                Navigator.pushNamed(context, TranslatorViewRoute);
                               }),
                           EtcMenuItem(
                               icon: Icons.travel_explore,

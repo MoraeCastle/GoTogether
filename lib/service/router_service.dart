@@ -8,6 +8,7 @@ import 'package:go_together/screens/map_screen.dart';
 import 'package:go_together/screens/map_select_screen.dart';
 import 'package:go_together/screens/schedule_add_view.dart';
 import 'package:go_together/screens/schedule_screen.dart';
+import 'package:go_together/screens/translator_screen.dart';
 import 'package:go_together/service/routing_service.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
@@ -35,6 +36,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       final arg = settings.arguments as Map<String, String>;
 
       return MaterialPageRoute(builder: (context) => ChatRoomView(arguments: arg,));
+    case TranslatorViewRoute:
+      return MaterialPageRoute(builder: (context) => TranslatorView());
     default:
       return MaterialPageRoute(builder: (context) => HomeView());
   }
