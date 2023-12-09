@@ -1,12 +1,30 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:go_together/models/Travel.dart';
+import 'package:go_together/models/User.dart';
+import 'package:go_together/providers/data_provider.dart';
+import 'package:go_together/utils/WidgetBuilder.dart';
+import 'package:go_together/utils/network_util.dart';
+import 'package:provider/provider.dart';
 
 /// 채팅방 씬
-class EtcView extends StatelessWidget {
+class EtcView extends StatefulWidget {
   const EtcView({Key? key}) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _EtcViewState();
+
+}
+
+class _EtcViewState extends State<EtcView> {
+  TextEditingController userNameController = TextEditingController();
+  bool profileRadioState = false;
+
+  @override
   Widget build(BuildContext context) {
+    Travel travel = context.watch<DataClass>().travel;
+    User targetUser = context.watch<DataClass>().currentUser;
+
     return SafeArea(
       child: Column(
         children: [
@@ -34,7 +52,7 @@ class EtcView extends StatelessWidget {
                     // 프로필
                     Container(
                         width: double.infinity,
-                        height: 100,
+                        height: 120,
                         margin: const EdgeInsets.all(5),
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -48,46 +66,109 @@ class EtcView extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              child: Text('프로필'),
-                            ),
-                            Expanded(
-                                child: Padding(
-                              padding: EdgeInsets.only(left: 10, right: 10),
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                      flex: 10,
-                                      child: Row(
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 25,
-                                            backgroundImage: const AssetImage(
-                                                'assets/images/profile_back.png'),
-                                            backgroundColor: Colors.grey[200],
-                                          ),
-                                          Container(width: 10),
-                                          Text(
-                                            '...',
-                                            style: TextStyle(fontSize: 20),
-                                          )
-                                        ],
-                                      )),
-                                  Flexible(
-                                      flex: 2,
-                                      child: Container(
-                                        child: Switch(
-                                          value: false,
-                                          onChanged: (value) {},
-                                        ),
-                                      )),
-                                ],
+                        child: InkWell(
+                          onTap: () {
+                            BotToast.showText(text: 'text');
+                            CustomDialog.doubleButton(
+                              context, Icons.edit, '이름 변경', "이름을 변경하려면 아래 내용을 입력해주세요.",
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: TextField(
+                                  controller: userNameController,
+                                  /*onChanged: (value) {
+                                    userItem.setName(value);
+
+                                    setState(() {
+                                      isNameEdited = value.isNotEmpty;
+                                    });
+                                  },*/
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    hintText: targetUser.getName(),
+                                    contentPadding: EdgeInsets.only(
+                                        left: 14.0, bottom: 8.0, top: 8.0),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.black, width: 1),
+                                      borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.black, width: 1.0),
+                                      borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                    ),
+                                  ),
+                                  style: const TextStyle(),
+                                ),
+                              ), '저장', () {
+                                // 입력 액션
+                                if (userNameController.text.isNotEmpty && userNameController.text != targetUser.getName()) {
+                                  // 유저 이름 저장 처리...
+                                  NetworkUtil.changeUserName(
+                                      travel.getTravelCode(), targetUser.getUserCode(), userNameController.text);
+                                }
+                                Navigator.pop(context);
+                              },
+                              '취소', () {
+                                Navigator.pop(context);
+                            }, false);
+                          },
+                          child: Column(
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                child: Text('프로필'),
                               ),
-                            ))
-                          ],
+                              Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(left: 10, right: 10),
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                            flex: 10,
+                                            child: Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 25,
+                                                  backgroundImage: const AssetImage(
+                                                      'assets/images/profile_back.png'),
+                                                  backgroundColor: Colors.grey[200],
+                                                ),
+                                                Container(width: 10),
+                                                Text(
+                                                  !profileRadioState ? targetUser.getName() : targetUser.getUserCode(),
+                                                  style: TextStyle(fontSize: 20),
+                                                )
+                                              ],
+                                            )),
+                                        Flexible(
+                                            flex: 2,
+                                            child: Container(
+                                              child: Column(
+                                                children: [
+                                                  Text(
+                                                    '고유 코드',
+                                                    style: TextStyle(fontSize: 11),
+                                                  ),
+                                                  Switch(
+                                                    value: profileRadioState,
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        profileRadioState = value;
+                                                      });
+                                                    },
+                                                  ),
+                                                ],
+                                              ) 
+                                            )),
+                                      ],
+                                    ),
+                                  ))
+                            ],
+                          ),
                         )),
                     GridView.count(
                         crossAxisCount: 2,

@@ -81,4 +81,28 @@ class NetworkUtil {
 
     await ref.child('chat/$travelCode').set(chat.toJson());
   }
+
+  /// 유저 이름 변경
+  static Future<bool> changeUserName(String travelCode, String userCode, String newCode) async {
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('travel/$travelCode').get();
+
+    var result = snapshot.value;
+    if (result != null) {
+      var travel = Travel.fromJson(result);
+
+      for (User user in travel.getUserList().values) {
+        if (user.getUserCode() == userCode) {
+          user.setName(newCode);
+          break;
+        }
+      }
+
+      await ref.child('travel/$travelCode').set(travel.toJson());
+
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

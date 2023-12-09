@@ -98,6 +98,7 @@ class _TabBarScreenState extends State<TabBarWidget>
   setTravelDate() async {
     SharedPreferences prefs = await _prefs;
     String travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+    String userCode = prefs.getString(SystemData.userCode) ?? "";
 
     BotToast.closeAllLoading();
 
@@ -113,7 +114,7 @@ class _TabBarScreenState extends State<TabBarWidget>
           _countProvider = Provider.of<DataClass>(context, listen: false);
           _countProvider.travel = travel;
 
-          listenTravelChange(travelCode);
+          listenTravelChange(travelCode, userCode);
         } else {
           // 데이터가 null이라면 처리할 로직을 여기에 추가하세요.
           BotToast.showText(text: "여행 데이터 불러오기 오류...");
@@ -128,7 +129,7 @@ class _TabBarScreenState extends State<TabBarWidget>
   }
 
   /// 여행 데이터 변경 감지
-  void listenTravelChange(String travelCode) {
+  void listenTravelChange(String travelCode, String userCode) {
     DatabaseReference ref =
       FirebaseDatabase.instance.ref('travel/$travelCode');
     ref.onValue.listen((DatabaseEvent event) {
@@ -138,6 +139,10 @@ class _TabBarScreenState extends State<TabBarWidget>
         Travel travel = Travel.fromJson(result);
         _countProvider = Provider.of<DataClass>(context, listen: false);
         _countProvider.travel = travel;
+
+        if (travel.getUserList().keys.contains(userCode)) {
+          _countProvider.currentUser = travel.getUserList()[userCode]!;
+        }
 
         if (travel.getSchedule().isNotEmpty) {
           _countProvider.sortedDayList = SystemUtil.getSortedDayKeyList(travel.getSchedule().first.getRouteMap().keys);
