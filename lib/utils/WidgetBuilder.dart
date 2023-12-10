@@ -4,6 +4,48 @@ import 'package:flutter/services.dart';
 import 'package:go_together/utils/system_util.dart';
 
 class CustomDialog {
+  /// 버튼없음
+  static noButton(BuildContext context,
+    String title,
+    Widget? content,
+  ) {
+    showDialog(context: context, builder: (context) {
+      return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Container(
+              padding: EdgeInsets.all(15),
+              margin: EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5),
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: Text(
+                          title ?? '',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                      child: content ?? Container(),
+                  ),
+                ],
+              )
+          )
+      );
+    });
+  }
+
   /// 공지.
   static oneButton(
       BuildContext context,

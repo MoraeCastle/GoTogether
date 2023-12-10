@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_together/screens/schedule_screen.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/Translate_util.dart';
+import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:map_autocomplete_field/map_autocomplete_field.dart';
@@ -30,6 +31,8 @@ class _TranslatorViewState extends State<TranslatorView> {
 
   TextEditingController textEditingController = TextEditingController();
   String resultStr = "";
+  String startLangTxt = "한국어";
+  String endLangeTxt = "영어";
 
   @override
   void initState() {
@@ -85,10 +88,13 @@ class _TranslatorViewState extends State<TranslatorView> {
                         },
                         onSubmitted: (value) async {
                           if (textEditingController.text.isNotEmpty) {
-                            resultStr = await TranslateUtil.translateText('ko', 'en', textEditingController.text);
+                            var list = TranslateUtil.countryCode;
+
+                            resultStr = await TranslateUtil.translateText(
+                                list[startLangTxt]!, list[endLangeTxt]!, textEditingController.text);
 
                             setState(() {
-                              BotToast.showText(text: resultStr);
+                              // BotToast.showText(text: resultStr);
                             });
                           }
                         },
@@ -141,6 +147,7 @@ class _TranslatorViewState extends State<TranslatorView> {
                             resultStr,
                             style: TextStyle(
                               color: Colors.black,
+                              fontSize: 17
                             ),
                           ),
                         ),
@@ -169,14 +176,41 @@ class _TranslatorViewState extends State<TranslatorView> {
                             flex: 4,
                             child: TextButton(
                               onPressed: () {
-                                BotToast.showText(text: 'start');
+                                CustomDialog.noButton(
+                                  context,
+                                  '언어를 선택하세요',
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    padding: EdgeInsets.all(10),
+                                    child: GridView.count(
+                                      childAspectRatio: 5 / 1,
+                                      shrinkWrap: true,
+                                      physics: ScrollPhysics(),
+                                      crossAxisCount: 1,
+                                      mainAxisSpacing: 5,
+                                      crossAxisSpacing: 5,
+                                      children: getCountryItemList(
+                                        0,
+                                        startLangTxt,
+                                      ),
+                                    ),
+                                  ),
+                                );
                               },
-                              child: Text('시작어'),
                               style: TextButton.styleFrom(
                                 shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.all(Radius.circular(15)),
                                 ),
                                 backgroundColor: Colors.white
+                              ),
+                              child: Text(
+                                startLangTxt,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
@@ -185,7 +219,11 @@ class _TranslatorViewState extends State<TranslatorView> {
                             flex: 1,
                             child: InkWell(
                               onTap: () {
-
+                                setState(() {
+                                  var temp = startLangTxt;
+                                  startLangTxt = endLangeTxt;
+                                  endLangeTxt = temp;
+                                });
                               },
                               child: Container(
                                 padding: EdgeInsets.all(5),
@@ -212,9 +250,36 @@ class _TranslatorViewState extends State<TranslatorView> {
                             flex: 4,
                             child: TextButton(
                               onPressed: () {
-                                BotToast.showText(text: 'end');
+                                CustomDialog.noButton(
+                                  context,
+                                  '언어를 선택하세요',
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    padding: EdgeInsets.all(10),
+                                    child: GridView.count(
+                                      childAspectRatio: 5 / 1,
+                                      shrinkWrap: true,
+                                      physics: ScrollPhysics(),
+                                      crossAxisCount: 1,
+                                      mainAxisSpacing: 5,
+                                      crossAxisSpacing: 5,
+                                      children: getCountryItemList(
+                                        1,
+                                        endLangeTxt,
+                                      ),
+                                    ),
+                                  ),
+                                );
                               },
-                              child: Text('도착어'),
+                              child: Text(
+                                endLangeTxt,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                              ),
                               style: TextButton.styleFrom(
                                   shape: const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -232,6 +297,88 @@ class _TranslatorViewState extends State<TranslatorView> {
             ],
           )
         ),
+      ),
+    );
+  }
+
+  List<Widget> getCountryItemList(int index, String block) {
+    List<Widget> widgetList = [];
+
+    for (String country in TranslateUtil.countryCode.keys) {
+      widgetList.add(
+        CountryItem(
+          countryName: country, action: () {
+            // 반대편 언어 선택 시.
+            if (country == startLangTxt) {
+              var temp = endLangeTxt;
+              endLangeTxt = country;
+              startLangTxt = temp;
+            } else if (country == endLangeTxt) {
+              var temp = startLangTxt;
+              startLangTxt = country;
+              endLangeTxt = temp;
+            } else {
+              if (index == 0) {
+                startLangTxt = country;
+              } else {
+                endLangeTxt = country;
+              }
+            }
+
+            setState(() {
+              Navigator.pop(context);
+            });
+
+          },
+          isSelected: country == block,
+        )
+      );
+    }
+
+    return widgetList;
+  }
+}
+
+/// 나라 아이템
+class CountryItem extends StatefulWidget {
+  final String countryName;
+  final VoidCallback action;
+  final bool isSelected;
+
+  const CountryItem(
+      {Key? key,
+        required this.countryName,
+        required this.action, required this.isSelected})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _CountryItem();
+}
+
+class _CountryItem extends State<CountryItem> {
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: widget.isSelected ? null : widget.action,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: widget.isSelected ? Colors.black.withAlpha(200) : Colors.grey,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        height: 35,
+        child: Padding(
+          padding: EdgeInsets.all(5),
+          child: Center(
+            child: Text(
+              widget.countryName,
+              style: TextStyle(
+                color: widget.isSelected ? Colors.grey : Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        )
       ),
     );
   }
