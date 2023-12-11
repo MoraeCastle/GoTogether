@@ -8,3 +8,4 @@ const String ScheduleRoute = 'schedule';
 const String AddScheduleRoute = 'addSchedule';
 const String ChatRoomRoute = 'chatRoomRoute';
 const String TranslatorViewRoute = 'translatorViewRoute';
+const String NoticeListViewRoute = 'noticeListViewRoute';

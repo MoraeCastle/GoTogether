@@ -179,8 +179,10 @@ class _EtcViewState extends State<EtcView> {
                           EtcMenuItem(
                             icon: Icons.assignment,
                             title: '공지사항',
-                            action: () {
-                              BotToast.showText(text: '미구현 기능입니다...');
+                            action: () async {
+                              var noticeMap = await NetworkUtil.getNoticeList();
+
+                              Navigator.pushNamed(context, NoticeListViewRoute, arguments: noticeMap);
                             },
                           ),
                           EtcMenuItem(
@@ -254,7 +256,7 @@ class _EtcMenuItem extends State<EtcMenuItem> {
             Icon(
               widget.icon,
               size: 55,
-              color: Colors.black.withAlpha(150),
+              color: Colors.black.withAlpha(200),
             ),
             Container(height: 15),
             Text(

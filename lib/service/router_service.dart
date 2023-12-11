@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_together/models/Notice.dart';
 import 'package:go_together/screens/addUser_screen.dart';
 import 'package:go_together/screens/chatRoom_screen.dart';
 import 'package:go_together/screens/createGroup_screen.dart';
@@ -6,6 +7,7 @@ import 'package:go_together/screens/log_in_screen.dart';
 import 'package:go_together/screens/main_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
 import 'package:go_together/screens/map_select_screen.dart';
+import 'package:go_together/screens/notice_list_screen.dart';
 import 'package:go_together/screens/schedule_add_view.dart';
 import 'package:go_together/screens/schedule_screen.dart';
 import 'package:go_together/screens/translator_screen.dart';
@@ -38,6 +40,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => ChatRoomView(arguments: arg,));
     case TranslatorViewRoute:
       return MaterialPageRoute(builder: (context) => TranslatorView());
+    case NoticeListViewRoute:
+      try {
+        final arg = settings.arguments as Map<String, Notice>;
+        return MaterialPageRoute(builder: (context) => NoticeListView(arguments: arg));
+
+      } catch(error) {
+        return MaterialPageRoute(builder: (context) => NoticeListView(arguments: {}));
+      }
     default:
       return MaterialPageRoute(builder: (context) => HomeView());
   }

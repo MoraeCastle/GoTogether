@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_together/models/Chat.dart';
+import 'package:go_together/models/Notice.dart';
 import 'package:go_together/models/Room.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
@@ -103,6 +104,71 @@ class NetworkUtil {
       return true;
     } else {
       return false;
+    }
+  }
+
+  /// 공지 쓰기
+  static Future<void> writeNotice(
+      String noticeCode, String title, String url, String writeTime, String limit
+      ) async {
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('chat/').get();
+    var noticeItem = Notice();
+
+    var result = snapshot.value;
+    if (result != null) {
+      Logger logger = Logger();
+      logger.e(result.toString());
+
+      noticeItem.setNoticeCode(noticeCode);
+      noticeItem.setTitle(title);
+      noticeItem.setUrl(url);
+      noticeItem.setUpdateTime(writeTime);
+      noticeItem.setTimeLimit(limit);
+
+      /*var travel = Notice.fromJson(result);
+
+      for (User user in travel.getUserList().values) {
+        if (user.getUserCode() == userCode) {
+          user.setName(newCode);
+          break;
+        }
+      }
+*/
+      await ref.child('notice/').child(noticeItem.getNoticeCode()).set(noticeItem.toJson());
+    } else {
+    }
+  }
+
+  /// 공지 가져오기
+  static Future<Map<String, Notice>> getNoticeList() async {
+    Map<String, Notice> noticeMap = {};
+
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('notice/').get();
+
+    var result = snapshot.value as Map?;
+    if (result != null) {
+      // Logger logger = Logger();
+
+      for (String code in result.keys) {
+        noticeMap[code] = Notice.fromJson(result[code]);
+      }
+
+      /*var travel = Notice.fromJson(result);
+
+      for (User user in travel.getUserList().values) {
+        if (user.getUserCode() == userCode) {
+          user.setName(newCode);
+          break;
+        }
+      }
+
+      await ref.child('travel/$travelCode').set(travel.toJson());*/
+
+      return noticeMap;
+    } else {
+      return {};
     }
   }
 }

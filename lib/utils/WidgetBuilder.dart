@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_together/utils/system_util.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class CustomDialog {
   /// 버튼없음
@@ -166,6 +166,47 @@ class CustomDialog {
               ],
             ),
           ),);
+  }
+
+  static WebViewController _controller = WebViewController();
+  static showNotice(
+      BuildContext context,
+      String url,
+      ) {
+    showDialog(context: context, builder: (context) {
+      _controller.loadRequest(Uri.parse(url));
+      _controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+
+      return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Container(
+              padding: EdgeInsets.all(15),
+              margin: EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: WebViewWidget(controller: _controller),
+                  ),
+                  const SizedBox(height: 15),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: Icon(Icons.close)
+                    ),
+                  )
+                ],
+              )
+          )
+      );
+    });
   }
 }
 /*class Form extends StatelessWidget {
