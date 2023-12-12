@@ -1,5 +1,3 @@
-import 'package:countries_world_map/countries_world_map.dart';
-import 'package:countries_world_map/data/maps/world_map.dart';
 import 'package:flutter/material.dart';
 import 'package:go_together/models/Notice.dart';
 import 'package:go_together/utils/WidgetBuilder.dart';
@@ -96,7 +94,7 @@ class _CountryInfoViewState extends State<CountryInfoView> {
                         ],
                       ),
                       // Actual widget from the Countries_world_map package.
-                      child: SimpleMap(
+                      /*child: SimpleMap(
                         instructions: SMapWorld.instructions,
                         // If the color of a country is not specified it will take in a default color.
                         defaultColor: Colors.white,
@@ -108,7 +106,7 @@ class _CountryInfoViewState extends State<CountryInfoView> {
                         colors: SMapWorldColors(
                           kR: Colors.green,
                         ).toMap(),
-                      ),
+                      ),*/
                     ),
                   ],
                 ),
