@@ -1,5 +1,6 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:go_together/models/RouteItem.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/providers/data_provider.dart';
@@ -164,7 +165,7 @@ class _EtcViewState extends State<EtcView> {
                                                     },
                                                   ),
                                                 ],
-                                              ) 
+                                              )
                                             )),
                                       ],
                                     ),
@@ -196,7 +197,20 @@ class _EtcViewState extends State<EtcView> {
                               icon: Icons.travel_explore,
                               title: '국가정보',
                               action: () {
-                                BotToast.showText(text: '미구현 기능입니다...');
+                                // 일정이 비어있을경우 미조회.
+                                var scheduleList = context.read<DataClass>().travel.getSchedule();
+                                if (scheduleList.isEmpty) {
+                                  CustomDialog.oneButton(
+                                    context, Icons.info_outline_rounded, '안내', '아직 여행지가 추가되지 않았습니다.'
+                                      , null, '확인', () {
+                                      Navigator.pop(context);
+                                    }, false
+                                  );
+                                } else {
+                                  Navigator.pushNamed(context, CountryInfoViewRoute, arguments: {
+
+                                  });
+                                }
                               }),
                           EtcMenuItem(
                               icon: Icons.settings,

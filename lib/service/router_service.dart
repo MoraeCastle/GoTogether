@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_together/models/Notice.dart';
 import 'package:go_together/screens/addUser_screen.dart';
 import 'package:go_together/screens/chatRoom_screen.dart';
+import 'package:go_together/screens/country_info.dart';
 import 'package:go_together/screens/createGroup_screen.dart';
 import 'package:go_together/screens/log_in_screen.dart';
 import 'package:go_together/screens/main_screen.dart';
@@ -47,6 +48,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
       } catch(error) {
         return MaterialPageRoute(builder: (context) => NoticeListView(arguments: {}));
+      }
+    case CountryInfoViewRoute:
+      try {
+        final arg = settings.arguments as Map<String, String>;
+
+        return MaterialPageRoute(builder: (context) => CountryInfoView(arguments: arg));
+      } catch(e) {
+        return MaterialPageRoute(builder: (context) => CountryInfoView(arguments: {}));
       }
     default:
       return MaterialPageRoute(builder: (context) => HomeView());
