@@ -67,17 +67,7 @@ class _NoticeListViewState extends State<NoticeListView> {
           padding: EdgeInsets.only(top: 15, left: 15, right: 15),
           width: double.infinity,
           height: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.black.withAlpha(200),
-            borderRadius: BorderRadius.circular(5),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.grey,
-                offset: Offset(0.0, 3.0), //(x,y)
-                blurRadius: 3.0,
-              ),
-            ],
-          ),
+          color: Colors.black.withAlpha(200),
           child: Container(
             margin: EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(

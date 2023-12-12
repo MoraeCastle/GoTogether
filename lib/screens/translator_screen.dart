@@ -134,23 +134,48 @@ class _TranslatorViewState extends State<TranslatorView> {
                       visible: textEditingController.text.isNotEmpty,
                       child: Expanded(
                         flex: 1,
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          width: double.infinity,
-                          height: double.infinity,
-                          margin: EdgeInsets.only(top: 10),
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(150, 255, 255, 255),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Text(
-                            resultStr,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 17
+                        child: Stack(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(15),
+                              width: double.infinity,
+                              height: double.infinity,
+                              margin: EdgeInsets.only(top: 10),
+                              decoration: BoxDecoration(
+                                color: Color.fromARGB(150, 255, 255, 255),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Text(
+                                resultStr,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 17
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                            /*Positioned(
+                              right: 10,
+                              bottom: 10,
+                              child: InkWell(
+                                onTap: () {
+
+                                },
+                                child: const SizedBox(
+                                  width: 50,
+                                  height: 50,
+                                  child: CircleAvatar(
+                                    backgroundColor: Colors.black,
+                                    child: Icon(
+                                      Icons.volume_up,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                  ),
+                                )
+                              ),
+                            )*/
+                          ],
+                        )
                       ),
                     ),
                   ],
