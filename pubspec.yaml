@@ -47,6 +47,8 @@ dependencies:
   dio: ^5.4.0
   webview_flutter: ^4.4.2
   country_code_picker: ^3.0.0
+  country_pickers: ^2.0.0
+  xml: ^6.5.0
 
 dependency_overrides:
  intl: any

@@ -211,7 +211,159 @@ class CustomDialog {
       );
     });
   }
+
+  static showSimpleDialogTxt(
+      BuildContext context,
+      String title,
+      String content,
+      ) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+        AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          title: Container(
+            alignment: Alignment.center,
+            child: Text(title),
+          ),
+          content: IntrinsicHeight(
+            child: Container(
+              constraints: const BoxConstraints(
+                maxHeight: 500,
+              ),
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.grey.withAlpha(70),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              alignment: Alignment.center,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      content,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ),
+          ),
+          icon: null,
+        ),
+    );
+  }
+
+  static showSimpleDialogImg(
+      BuildContext context,
+      String title,
+      String url,
+      ) {
+    showDialog(context: context, builder: (context) {
+      return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.grey.withAlpha(70),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.network(
+                  url,
+                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child;
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                              : null,
+                        ),
+                      );
+                    }
+                  },
+                  errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                    return Text('Error loading image: $error');
+                  },
+                ),
+                const SizedBox(height: 15),
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: Icon(Icons.close)
+                  ),
+                )
+              ],
+            ),
+          ),
+      );
+    });
+  }
+
+  static showSimpleDialog(
+      BuildContext context,
+      String title,
+      Widget content,
+      ) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            title: Container(
+              alignment: Alignment.center,
+              child: Text(title),
+            ),
+            content: IntrinsicHeight(
+              child: Container(
+                  constraints: const BoxConstraints(
+                    maxHeight: 500,
+                  ),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withAlpha(70),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  alignment: Alignment.center,
+                  child: SingleChildScrollView(
+                    child: content
+                  )
+              ),
+            ),
+            icon: null,
+          ),
+    );
+  }
 }
+
+/*
+*
+* */
+
+
+
 /*class Form extends StatelessWidget {
   const Form({
     Key? key,

@@ -1,14 +1,22 @@
+import 'dart:async';
+
+import 'package:bot_toast/bot_toast.dart';
+import 'package:chatview/chatview.dart';
+import 'package:country_pickers/country.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_google_maps_webservices/geocoding.dart';
 import 'package:go_together/models/Notice.dart';
 import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:go_together/utils/network_util.dart';
+import 'package:go_together/utils/open_data_util.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 /// 여행지 정보 목록 씬
 class CountryInfoView extends StatefulWidget {
   const CountryInfoView({Key? key, required this.arguments}) : super(key: key);
-  final Map<String, String> arguments;
+  final String arguments;
 
   @override
   State<StatefulWidget> createState() => _CountryInfoViewState();
@@ -16,10 +24,123 @@ class CountryInfoView extends StatefulWidget {
 
 class _CountryInfoViewState extends State<CountryInfoView> {
   var logger = Logger();
+  String targetCountry = "KR";
+  // 검색용...
+  String searchCode = "";
+
+  Completer<GoogleMapController> _controller = Completer();
+  Set<Circle> _circles = Set();
+  late Country countryData;
+
+  CountryNormalInfo? normalInfo;
+  WarningContentItem? warningContent;
+  List<SafeItem> safeNoticeList = [];
+  List<Widget> safeItemList = [];
+
+  bool dataSet = false;
+  LatLng countryLocation = LatLng(0, 0);
 
   @override
   void initState() {
     super.initState();
+    targetCountry = widget.arguments;
+    searchCode = targetCountry[0].toLowerCase() + targetCountry[1];
+
+    searchCountry(targetCountry);
+  }
+
+  /// 맵 컨트롤러 가져오기
+  Future<GoogleMapController> getController() async {
+    return await _controller.future;
+  }
+
+  /// 국가를 조회합니다.
+  /// 조회내용: 기본정보
+  Future<void> searchCountry(String code) async {
+    // 지도 최신화.
+    countryData = OpenDataUtil.getCountryData(code);
+
+    var location = await OpenDataUtil.getLocationToName(countryData);
+    GoogleMapController controller = await getController();
+    controller.moveCamera(CameraUpdate.newLatLngZoom(LatLng(location.latitude, location.longitude), 3));
+
+    _addCircle(LatLng(location.latitude, location.longitude));
+
+    // 기본정보 가져오기
+    normalInfo = await OpenDataUtil.getDefaultInfo(countryData);
+    warningContent = await OpenDataUtil.getWarningInfo(countryData);
+    safeNoticeList = await OpenDataUtil.getSafeInfo(normalInfo!.countryName);
+    for (SafeItem item in safeNoticeList) {
+      safeItemList.add(
+        SafeItemWidget(
+          item: item,
+          onTap: () {
+            CustomDialog.showSimpleDialog(
+              context,
+              '안전 정보',
+              Column(
+                children: [
+                  Visibility(
+                    visible: item.fileUrl.isNotEmpty,
+                    child: Column(
+                      children: [
+                        Image.network(
+                          item.fileUrl,
+                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                      : null,
+                                ),
+                              );
+                            }
+                          },
+                          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                            return Text('Error loading image: $error');
+                          },
+                        ),
+                        const SizedBox(height: 15),
+                      ],
+                    )
+                  ),
+                  Text(
+                    item.content,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        )
+      );
+    }
+
+    dataSet = true;
+
+    setState(() {
+
+    });
+  }
+
+  void _addCircle(LatLng position) {
+    setState(() {
+      _circles.add(Circle(
+        circleId: CircleId('korea_circle'),
+        center: position, // Seoul, South Korea (you can set your desired location)
+        radius: 500000, // Set the radius as per your requirement
+        fillColor: Colors.blue.withOpacity(0.2), // Set your desired fill color
+        strokeColor: Colors.blue,
+        strokeWidth: 2,
+      ));
+    });
   }
 
   @override
@@ -45,7 +166,10 @@ class _CountryInfoViewState extends State<CountryInfoView> {
                   }, false
                 );
               },
-              icon: const Icon(Icons.info_outline_rounded),
+              icon: const Icon(
+                  Icons.info_outline_rounded,
+                color: Colors.white,
+              ),
             ),
           ],
           shadowColor: Colors.transparent,
@@ -73,45 +197,198 @@ class _CountryInfoViewState extends State<CountryInfoView> {
                 ),
               ],
             ),
-            child: Container(
-              width: double.infinity,
-              height: 500,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.all(10),
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black87,
-                            offset: Offset(0.0, 1.0),
-                            blurRadius: 3.0,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // 내부 스크롤......
+                          Container(
+                            width: double.infinity,
+                            height: 200,
+                            margin: EdgeInsets.all(10),
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black87,
+                                  offset: Offset(0.0, 1.0),
+                                  blurRadius: 3.0,
+                                ),
+                              ],
+                            ),
+                            child: Stack(
+                              children: [
+                                GoogleMap(
+                                  zoomControlsEnabled: false,
+                                  zoomGesturesEnabled: false,
+                                  circles: _circles,
+                                  onMapCreated: (controller) {
+                                    if (!_controller.isCompleted) _controller.complete(controller);
+                                  },
+                                  initialCameraPosition: CameraPosition(
+                                    target: LatLng(37.5665, 126.9780), // Seoul, South Korea (you can set your desired location)
+                                    zoom: 3.0,
+                                  ),
+                                ),
+                                Positioned(
+                                  right: 5,
+                                  top: 5,
+                                  child: Visibility(
+                                    visible: dataSet,
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        CustomDialog.showSimpleDialogImg(
+                                          context,
+                                          '위험경보 지역',
+                                          warningContent!.dangMapDownloadUrl,
+                                        );
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                          backgroundColor: Colors.black.withAlpha(200),
+                                          padding: EdgeInsets.only(left: 12, right: 12)
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.warning_rounded,
+                                            color: Colors.white,
+                                            size: 15,
+                                          ),
+                                          SizedBox(width: 5),
+                                          Text(
+                                            '여행경보',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 13
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12.0), // 테두리의 둥근 정도를 조절
+                                  child: Image.network(
+                                    normalInfo?.imgUrl ?? '',
+                                    height: 100,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 3,
+                                child: Container(
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withAlpha(180),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  margin: EdgeInsets.only(right: 15),
+                                  // color: Colors.black,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        normalInfo?.countryName ?? '',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        normalInfo?.countryEnName ?? '',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(15),
+                            child: Column(
+                              children: [
+                                CountryViewItem(
+                                  icon: Icons.info_outline,
+                                  backColor: Colors.white.withAlpha(100),
+                                  title: '기본 정보',
+                                  onTap: () {
+                                    CustomDialog.showSimpleDialogTxt(
+                                      context, '기본 정보', normalInfo!.basicContent);
+                                  },
+                                ),
+                                CountryViewItem(
+                                  icon: Icons.info_outline,
+                                  backColor: Colors.white.withAlpha(100),
+                                  title: '주의 사항',
+                                  onTap: () {
+                                    CustomDialog.showSimpleDialogTxt(
+                                        context, '주의 사항', warningContent!.news);
+                                  },
+                                ),
+                                // 안전정보
+                                Container(
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withAlpha(100),
+                                    border: Border.all(
+                                        color: Colors.grey,
+                                        width: 3
+                                    ),
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '안전 정보',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text('최근 10개의 안전정보입니다.'),
+                                        ],
+                                      ),
+                                      Column(
+                                          children: safeItemList
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                      // Actual widget from the Countries_world_map package.
-                      /*child: SimpleMap(
-                        instructions: SMapWorld.instructions,
-                        // If the color of a country is not specified it will take in a default color.
-                        defaultColor: Colors.white,
-                        // CountryColors takes in 250 different colors that will color each country the color you want. In this example it generates a random color each time SetState({}) is called.
-                        callback: (id, name, tapdetails) {
-                          // goToCountry(id);
-                        },
-                        countryBorder: CountryBorder(color: Colors.grey),
-                        colors: SMapWorldColors(
-                          kR: Colors.green,
-                        ).toMap(),
-                      ),*/
-                    ),
-                  ],
-                ),
-              )
-            ),
+                    )
+                  ),
+                ],
+              ),
+            )
           )
         ),
       ),
@@ -121,11 +398,13 @@ class _CountryInfoViewState extends State<CountryInfoView> {
 
 /// 공지 아이템
 class CountryViewItem extends StatefulWidget {
-  final Notice item;
-  final bool isRead;
+  final IconData icon;
+  final String title;
+  final Color backColor;
+  final VoidCallback onTap;
 
   const CountryViewItem({
-    Key? key, required this.item, required this.isRead
+    Key? key, required this.icon, required this.title, required this.onTap, required this.backColor
   }) : super(key: key);
 
   @override
@@ -135,77 +414,94 @@ class CountryViewItem extends StatefulWidget {
 class _CountryViewItem extends State<CountryViewItem> {
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        CustomDialog.showNotice(context, widget.item.url);
-      },
-      child: Container(
-        margin: EdgeInsets.all(10),
-        width: double.infinity,
-        height: 35,
-        decoration: BoxDecoration(
-          color: widget.isRead ? Colors.black.withAlpha(200) : Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: const [
-            BoxShadow(
+    return Container(
+      margin: EdgeInsets.only(bottom: 10),
+      width: double.infinity,
+      height: 80,
+      child: OutlinedButton(
+        onPressed: widget.onTap,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: widget.backColor,
+          elevation: 10,
+          side: const BorderSide(
               color: Colors.grey,
-              offset: Offset(0.0, 1.0), //(x,y)
-              blurRadius: 3.0,
+              width: 3
+          ),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Text(
+                widget.title,
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned(
-              top: 8,
-              left: 8,
-              child: Container(
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(15),
+      ),
+    );
+  }
+}
+
+class SafeItemWidget extends StatelessWidget {
+  final SafeItem item;
+  final VoidCallBack onTap;
+
+  SafeItemWidget({required this.item, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        side: const BorderSide(
+          color: Colors.grey,
+          width: 1,
+        ),
+      ),
+      elevation: 1.0, //그림자 깊이
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.all(5),
+          width: double.infinity,
+          margin: const EdgeInsets.all(5),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.title,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
                 ),
-                child: Text(
-                  widget.item.getNoticeCode(),
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                overflow: TextOverflow.ellipsis, // 또는 TextOverflow.clip
+                maxLines: 1, // 개행을 방지하기 위해 1줄로 제한
               ),
-            ),
-            Positioned(
-              top: 10,
-              right: 10,
-              child: Container(
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.edit_square,
-                      size: 15,
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      widget.item.getUpdateTime(),
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ],
-                )
-              ),
-            ),
-            Text(
-              widget.item.getTitle(),
-              style: TextStyle(
-                color: widget.isRead ? Colors.grey : Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+              Container(height: 5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    item.wrtDt,
+                    style: TextStyle(fontSize: 15),
+                  )
+                ],
+              )
+            ],
+          )
         ),
       ),
     );

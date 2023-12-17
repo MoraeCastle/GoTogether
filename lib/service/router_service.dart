@@ -51,11 +51,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       }
     case CountryInfoViewRoute:
       try {
-        final arg = settings.arguments as Map<String, String>;
+        String? argument = settings.arguments as String?;
 
-        return MaterialPageRoute(builder: (context) => CountryInfoView(arguments: arg));
+        return MaterialPageRoute(builder: (context) => CountryInfoView(arguments: argument ?? ''));
       } catch(e) {
-        return MaterialPageRoute(builder: (context) => CountryInfoView(arguments: {}));
+        return MaterialPageRoute(builder: (context) => CountryInfoView(arguments: ''));
       }
     default:
       return MaterialPageRoute(builder: (context) => HomeView());

@@ -198,8 +198,8 @@ class _EtcViewState extends State<EtcView> {
                               title: '국가정보',
                               action: () {
                                 // 일정이 비어있을경우 미조회.
-                                var scheduleList = context.read<DataClass>().travel.getSchedule();
-                                if (scheduleList.isEmpty) {
+                                var country = context.read<DataClass>().travel.getCountry();
+                                if (country.isEmpty) {
                                   CustomDialog.oneButton(
                                     context, Icons.info_outline_rounded, '안내', '아직 여행지가 추가되지 않았습니다.'
                                       , null, '확인', () {
@@ -207,9 +207,7 @@ class _EtcViewState extends State<EtcView> {
                                     }, false
                                   );
                                 } else {
-                                  Navigator.pushNamed(context, CountryInfoViewRoute, arguments: {
-
-                                  });
+                                  Navigator.pushNamed(context, CountryInfoViewRoute, arguments: country);
                                 }
                               }),
                           EtcMenuItem(
