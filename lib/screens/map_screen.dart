@@ -72,8 +72,12 @@ class _MapViewState extends State<MapView> {
     return (await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => WillPopScope(
-        onWillPop: () async => false,
+      builder: (context) => PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          Navigator.pop(context);
+        },
         child: AlertDialog(
           title: Container(
             alignment: Alignment.center,

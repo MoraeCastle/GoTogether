@@ -256,6 +256,7 @@ class _EtcMenuItem extends State<EtcMenuItem> {
         onPressed: widget.action,
         style: ElevatedButton.styleFrom(
           elevation: 5,
+          surfaceTintColor: Colors.white,
           backgroundColor: Colors.white,
           foregroundColor: Colors.grey,
           shape: RoundedRectangleBorder(

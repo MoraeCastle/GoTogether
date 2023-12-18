@@ -166,7 +166,6 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                   color: Colors.grey, borderRadius: BorderRadius.circular(15)),
               child: Column(
                 children: [
-                  // 인원 수
                   Container(
                     width: double.infinity,
                     child: const Row(
@@ -194,42 +193,40 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                     child: SizedBox(
                       width: double.infinity,
                       height: 350,
-                      child: Expanded(
-                        child:  TextField(
-                          maxLines: null,
-                          enabled: context.watch<ScheduleClass>().isGuide,
-                          onChanged: (value) {
-                            Provider.of<ScheduleClass>(context, listen: false).travel.setNotice(value);
-                          },
-                          textAlignVertical: TextAlignVertical.top,
-                          expands: true,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Color.fromARGB(150, 255, 255, 255),
-                            labelText: context.watch<ScheduleClass>().travel.getNotice(),
-                            alignLabelWithHint: true,
-                            hintText: '내용 입력',
-                            labelStyle: TextStyle(color: Colors.black),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius:
-                              BorderRadius.all(Radius.circular(10.0)),
-                              borderSide:
-                              BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius:
-                              BorderRadius.all(Radius.circular(10.0)),
-                              borderSide:
-                              BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                              BorderRadius.all(Radius.circular(10.0)),
-                            ),
+                      child: TextField(
+                        maxLines: null,
+                        enabled: context.watch<ScheduleClass>().isGuide,
+                        onChanged: (value) {
+                          Provider.of<ScheduleClass>(context, listen: false).travel.setNotice(value);
+                        },
+                        textAlignVertical: TextAlignVertical.top,
+                        expands: true,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Color.fromARGB(150, 255, 255, 255),
+                          labelText: context.watch<ScheduleClass>().travel.getNotice(),
+                          alignLabelWithHint: true,
+                          hintText: '내용 입력',
+                          labelStyle: TextStyle(color: Colors.black),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                            BorderSide(width: 1, color: Colors.grey),
                           ),
-                          keyboardType: TextInputType.text,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                            BorderSide(width: 1, color: Colors.grey),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.all(Radius.circular(10.0)),
+                          ),
                         ),
-                      )
+                        keyboardType: TextInputType.text,
+                      ),
                     ),
                     /*Text(
                         context.watch<ScheduleClass>().travel.getUserList().length.toString()
@@ -282,8 +279,12 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
     return (await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => WillPopScope(
-        onWillPop: () async => false,
+      builder: (context) => PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          Navigator.pop(context);
+        },
         child: AlertDialog(
           title: Container(
             alignment: Alignment.center,

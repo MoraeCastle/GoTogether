@@ -170,7 +170,6 @@ class _ScheduleWidget extends State<ScheduleWidget>
           backgroundColor: Colors.black.withAlpha(200),
           leading: IconButton(
             onPressed: () {
-              BotToast.showText(text: "토글 선택....");
               Navigator.pop(context);
             },
             icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -216,50 +215,59 @@ class _ScheduleWidget extends State<ScheduleWidget>
             );
           }),
         ),
-        body: Stack(
-          children: [
-            DefaultTabController(
-              length: 2,
-              child: TabBarView(
-                controller: tabController,
-                children: const [
-                  ScheduleInfoView(),
-                  ScheduleEditView(),
-                ],
+        body: PopScope(
+          canPop: false,
+          onPopInvoked: (bool didPop) {
+            if (didPop) {
+              return;
+            }
+            Navigator.pop(context);
+          },
+          child: Stack(
+            children: [
+              DefaultTabController(
+                length: 2,
+                child: TabBarView(
+                  controller: tabController,
+                  children: const [
+                    ScheduleInfoView(),
+                    ScheduleEditView(),
+                  ],
+                ),
               ),
-            ),
-            Visibility(
-              visible: context.watch<ScheduleClass>().isGuide,
-              child: Positioned(
-                right: 25,
-                bottom: 25,
-                child: SizedBox(
-                  width: 65,
-                  height: 65,
-                  child: CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.white,
-                    child: IconButton(
-                      icon: Icon(
-                        tabController.index == 0 ? Icons.add : Icons.save_outlined,
-                        color: Colors.black,
-                      ),
-                      onPressed: () {
-                        if (tabController.index == 0) {
-                          SystemUtil.resetTargetPosition();
+              Visibility(
+                visible: context.watch<ScheduleClass>().isGuide,
+                child: Positioned(
+                    right: 25,
+                    bottom: 25,
+                    child: SizedBox(
+                      width: 65,
+                      height: 65,
+                      child: CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.white,
+                        child: IconButton(
+                          icon: Icon(
+                            tabController.index == 0 ? Icons.add : Icons.save_outlined,
+                            color: Colors.black,
+                          ),
+                          onPressed: () {
+                            if (tabController.index == 0) {
+                              SystemUtil.resetTargetPosition();
 
-                          Navigator.pushNamed(context, AddScheduleRoute,
-                              arguments: SystemUtil.changePrintDateOnlyDate(
-                                  context.read<ScheduleClass>().selectDate));
-                        } else {
-                          saveDetailSetting();
-                        }
-                      },
-                    ),
-                  ),
-                )),
-            ),
-          ],
-        ));
+                              Navigator.pushNamed(context, AddScheduleRoute,
+                                  arguments: SystemUtil.changePrintDateOnlyDate(
+                                      context.read<ScheduleClass>().selectDate));
+                            } else {
+                              saveDetailSetting();
+                            }
+                          },
+                        ),
+                      ),
+                    )),
+              ),
+            ],
+          )),
+        );
   }
 }

@@ -61,8 +61,12 @@ class CustomDialog {
       context: context,
       barrierDismissible: !isLockBack,
       builder: (context) =>
-          WillPopScope(
-            onWillPop: () async => !isLockBack,
+          PopScope(
+            canPop: false,
+            onPopInvoked: (didPop) {
+              if (didPop) return;
+              !isLockBack;
+            },
             child: AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
@@ -121,8 +125,12 @@ class CustomDialog {
       context: context,
       barrierDismissible: !isLockBack,
       builder: (context) =>
-          WillPopScope(
-            onWillPop: () async => !isLockBack,
+          PopScope(
+            canPop: false,
+            onPopInvoked: (didPop) {
+              if (didPop) return;
+              !isLockBack;
+            },
             child: AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),

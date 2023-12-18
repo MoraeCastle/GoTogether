@@ -41,8 +41,12 @@ class _TranslatorViewState extends State<TranslatorView> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        Navigator.pop(context);
+      },
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black.withAlpha(200),
@@ -53,12 +57,15 @@ class _TranslatorViewState extends State<TranslatorView> {
             icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
           actions: [
-            IconButton(
+            /*IconButton(
               onPressed: () async {
                 //
               },
-              icon: const Icon(Icons.info_outline_rounded),
-            ),
+              icon: const Icon(
+                Icons.info_outline_rounded,
+                color: Colors.white,
+              ),
+            ),*/
           ],
           shadowColor: Colors.transparent,
           centerTitle: true,

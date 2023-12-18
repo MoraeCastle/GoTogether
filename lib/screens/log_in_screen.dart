@@ -247,10 +247,14 @@ class _LoginView extends State<LoginView> {
     } else {
       // 인원목록에 없음 => 탈퇴된 것.
       showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => WillPopScope(
-        onWillPop: () async => false,
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => PopScope(
+          canPop: false,
+          onPopInvoked: (didPop) {
+            if (didPop) return;
+            Navigator.pop(context);
+          },
         child: AlertDialog(
           title: Container(
             alignment: Alignment.center,

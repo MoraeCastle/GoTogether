@@ -6,6 +6,7 @@ import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/screens/chat_screen.dart';
 import 'package:go_together/screens/etc_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
+import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:provider/provider.dart';
@@ -23,8 +24,25 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => DataClass(), // DataClass 인스턴스를 생성하여 제공
-      child: const Scaffold(
-        body: TabBarWidget(),
+      child: Scaffold(
+        // body: TabBarWidget(),
+        body: PopScope(
+          canPop: false,
+          onPopInvoked: (bool didPop) {
+            if (didPop) {
+              return;
+            }
+            CustomDialog.doubleButton(
+              context, Icons.exit_to_app, '나가기',
+                '앱을 종료하시겠습니까?', null, '네', () {
+                    SystemNavigator.pop();
+              }, '아니오', () {
+                    Navigator.pop(context);
+              }, true
+            );
+          },
+          child: TabBarWidget()
+        ),
       ),
     );
   }
@@ -55,8 +73,12 @@ class _TabBarScreenState extends State<TabBarWidget>
     return (await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => WillPopScope(
-        onWillPop: () async => false,
+      builder: (context) => PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          Navigator.pop(context);
+        },
         child: AlertDialog(
           title: Container(
             alignment: Alignment.center,

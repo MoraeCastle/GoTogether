@@ -177,8 +177,12 @@ class _ScheduleAddView extends State<ScheduleAddView> {
   Widget build(BuildContext context) {
     /*Logger logger = Logger();
     logger.e("add 신 실행됨....");*/
-    return WillPopScope(
-      onWillPop: () => backPress(),
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        backPress();
+      },
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black.withAlpha(200),
