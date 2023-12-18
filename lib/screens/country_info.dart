@@ -197,197 +197,221 @@ class _CountryInfoViewState extends State<CountryInfoView> {
                 ),
               ],
             ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          // 내부 스크롤......
-                          Container(
-                            width: double.infinity,
-                            height: 200,
-                            margin: EdgeInsets.all(10),
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.grey,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black87,
-                                  offset: Offset(0.0, 1.0),
-                                  blurRadius: 3.0,
-                                ),
-                              ],
-                            ),
-                            child: Stack(
-                              children: [
-                                GoogleMap(
-                                  zoomControlsEnabled: false,
-                                  zoomGesturesEnabled: false,
-                                  circles: _circles,
-                                  onMapCreated: (controller) {
-                                    if (!_controller.isCompleted) _controller.complete(controller);
-                                  },
-                                  initialCameraPosition: CameraPosition(
-                                    target: LatLng(37.5665, 126.9780), // Seoul, South Korea (you can set your desired location)
-                                    zoom: 3.0,
-                                  ),
-                                ),
-                                Positioned(
-                                  right: 5,
-                                  top: 5,
-                                  child: Visibility(
-                                    visible: dataSet,
-                                    child: OutlinedButton(
-                                      onPressed: () {
-                                        CustomDialog.showSimpleDialogImg(
-                                          context,
-                                          '위험경보 지역',
-                                          warningContent!.dangMapDownloadUrl,
-                                        );
-                                      },
-                                      style: OutlinedButton.styleFrom(
-                                          backgroundColor: Colors.black.withAlpha(200),
-                                          padding: EdgeInsets.only(left: 12, right: 12)
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.warning_rounded,
-                                            color: Colors.white,
-                                            size: 15,
-                                          ),
-                                          SizedBox(width: 5),
-                                          Text(
-                                            '여행경보',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 13
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(12.0), // 테두리의 둥근 정도를 조절
-                                  child: Image.network(
-                                    normalInfo?.imgUrl ?? '',
-                                    height: 100,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: Container(
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withAlpha(180),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  margin: EdgeInsets.only(right: 15),
-                                  // color: Colors.black,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        normalInfo?.countryName ?? '',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        normalInfo?.countryEnName ?? '',
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              ),
-                            ],
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(15),
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Container(
+                          width: double.infinity,
+                          child: SingleChildScrollView(
                             child: Column(
                               children: [
-                                CountryViewItem(
-                                  icon: Icons.info_outline,
-                                  backColor: Colors.white.withAlpha(100),
-                                  title: '기본 정보',
-                                  onTap: () {
-                                    CustomDialog.showSimpleDialogTxt(
-                                      context, '기본 정보', normalInfo!.basicContent);
-                                  },
-                                ),
-                                CountryViewItem(
-                                  icon: Icons.info_outline,
-                                  backColor: Colors.white.withAlpha(100),
-                                  title: '주의 사항',
-                                  onTap: () {
-                                    CustomDialog.showSimpleDialogTxt(
-                                        context, '주의 사항', warningContent!.news);
-                                  },
-                                ),
-                                // 안전정보
+                                // 내부 스크롤......
                                 Container(
-                                  padding: EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withAlpha(100),
-                                    border: Border.all(
-                                        color: Colors.grey,
-                                        width: 3
+                                    width: double.infinity,
+                                    height: 200,
+                                    margin: EdgeInsets.all(10),
+                                    padding: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey,
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black87,
+                                          offset: Offset(0.0, 1.0),
+                                          blurRadius: 3.0,
+                                        ),
+                                      ],
                                     ),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        '안전 정보',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
+                                    child: Stack(
+                                      children: [
+                                        GoogleMap(
+                                          zoomControlsEnabled: false,
+                                          zoomGesturesEnabled: false,
+                                          circles: _circles,
+                                          onMapCreated: (controller) {
+                                            if (!_controller.isCompleted) _controller.complete(controller);
+                                          },
+                                          initialCameraPosition: CameraPosition(
+                                            target: LatLng(37.5665, 126.9780), // Seoul, South Korea (you can set your desired location)
+                                            zoom: 3.0,
+                                          ),
+                                        ),
+                                        Positioned(
+                                          right: 5,
+                                          top: 5,
+                                          child: Visibility(
+                                            visible: dataSet,
+                                            child: OutlinedButton(
+                                              onPressed: () {
+                                                CustomDialog.showSimpleDialogImg(
+                                                  context,
+                                                  '위험경보 지역',
+                                                  warningContent!.dangMapDownloadUrl,
+                                                );
+                                              },
+                                              style: OutlinedButton.styleFrom(
+                                                  backgroundColor: Colors.black.withAlpha(200),
+                                                  padding: EdgeInsets.only(left: 12, right: 12)
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                    Icons.warning_rounded,
+                                                    color: Colors.white,
+                                                    size: 15,
+                                                  ),
+                                                  SizedBox(width: 5),
+                                                  Text(
+                                                    '여행경보',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 13
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12.0), // 테두리의 둥근 정도를 조절
+                                        child: Image.network(
+                                          normalInfo?.imgUrl ?? '',
+                                          height: 100,
+                                          fit: BoxFit.contain,
                                         ),
                                       ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          Text('최근 10개의 안전정보입니다.'),
-                                        ],
+                                    ),
+                                    Expanded(
+                                        flex: 3,
+                                        child: Container(
+                                          height: 100,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withAlpha(180),
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          margin: EdgeInsets.only(right: 15),
+                                          // color: Colors.black,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                normalInfo?.countryName ?? '',
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                normalInfo?.countryEnName ?? '',
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                    ),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(15),
+                                  child: Column(
+                                    children: [
+                                      CountryViewItem(
+                                        icon: Icons.info_outline,
+                                        backColor: Colors.white.withAlpha(100),
+                                        title: '기본 정보',
+                                        onTap: () {
+                                          CustomDialog.showSimpleDialogTxt(
+                                              context, '기본 정보', normalInfo!.basicContent);
+                                        },
                                       ),
-                                      Column(
-                                          children: safeItemList
+                                      CountryViewItem(
+                                        icon: Icons.info_outline,
+                                        backColor: Colors.white.withAlpha(100),
+                                        title: '주의 사항',
+                                        onTap: () {
+                                          CustomDialog.showSimpleDialogTxt(
+                                              context, '주의 사항', warningContent!.news);
+                                        },
+                                      ),
+                                      // 안전정보
+                                      Container(
+                                        padding: EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withAlpha(100),
+                                          border: Border.all(
+                                              color: Colors.grey,
+                                              width: 3
+                                          ),
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              '안전 정보',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                Text('최근 10개의 안전정보입니다.'),
+                                              ],
+                                            ),
+                                            Column(
+                                                children: safeItemList
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
+                          )
+                      ),
+                    ],
+                  ),
+                ),
+                Visibility(
+                  visible: !dataSet,
+                  child: Container(
+                    color: Colors.white,
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 10),
+                          Text(
+                            '데이터를 불러오고 있습니다...'
                           ),
                         ],
                       ),
-                    )
-                  ),
-                ],
-              ),
+                    ),
+                  )
+                ),
+              ],
             )
           )
         ),
