@@ -81,8 +81,14 @@ class _CreateGroupView extends State<CreateGroupView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 234, 242, 255),
-        body: Stack(
+      backgroundColor: const Color.fromARGB(255, 234, 242, 255),
+      body: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          Navigator.pop(context);
+        },
+        child: Stack(
           children: [
             Column(
               children: [
@@ -189,21 +195,22 @@ class _CreateGroupView extends State<CreateGroupView> {
                                     children: [
                                       Container(
                                         // height: 70,
-                                        alignment: Alignment.center,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.black,
-                                                width: 1
+                                          alignment: Alignment.center,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.black,
+                                                  width: 1
+                                              ),
                                             ),
-                                          ),
-                                          child: Image.asset(
-                                            width: 100,
-                                            CC!.flagUri ?? "",
-                                            package: 'country_code_picker',
-                                            fit: BoxFit.contain,
-                                          ),
-                                        )
+                                            child: Image.asset(
+                                              width: 100,
+                                              CC!.flagUri ?? "",
+                                              package: 'country_code_picker',
+                                              fit: BoxFit.contain,
+                                              scale: 2.0,
+                                            ),
+                                          )
                                       ),
                                       SizedBox(
                                         height: 10,
@@ -307,10 +314,10 @@ class _CreateGroupView extends State<CreateGroupView> {
                                     dateController.selectedRange!.endDate));
 
                                 isDateCheck =
-                                    (dateController.selectedRange!.startDate !=
-                                            null &&
-                                        dateController.selectedRange!.endDate !=
-                                            null);
+                                (dateController.selectedRange!.startDate !=
+                                    null &&
+                                    dateController.selectedRange!.endDate !=
+                                        null);
                                 setAllTypeState();
                               },
                               selectionMode: DateRangePickerSelectionMode.range,
@@ -400,15 +407,15 @@ class _CreateGroupView extends State<CreateGroupView> {
                                     left: 14.0, bottom: 8.0, top: 8.0),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide:
-                                      BorderSide(color: Colors.grey, width: .5),
+                                  BorderSide(color: Colors.grey, width: .5),
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
+                                  BorderRadius.all(Radius.circular(10)),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide:
-                                      BorderSide(color: Colors.grey, width: .5),
+                                  BorderSide(color: Colors.grey, width: .5),
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
+                                  BorderRadius.all(Radius.circular(10)),
                                 ),
                               ),
                               style: const TextStyle(),
@@ -537,12 +544,12 @@ class _CreateGroupView extends State<CreateGroupView> {
                             child: ElevatedButton(
                                 onPressed: isAllTyped
                                     ? () {
-                                        insertGroup(travelItem);
-                                      }
+                                  insertGroup(travelItem);
+                                }
                                     : null,
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor:
-                                        const Color.fromARGB(255, 139, 174, 255),
+                                    const Color.fromARGB(255, 139, 174, 255),
                                     elevation: 5),
                                 child: const Text(
                                   '그룹 생성',
@@ -558,6 +565,8 @@ class _CreateGroupView extends State<CreateGroupView> {
               ],
             ),
           ],
-        ));
+        ),
+      )
+    );
   }
 }

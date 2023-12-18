@@ -11,37 +11,37 @@ class CustomDialog {
   ) {
     showDialog(context: context, builder: (context) {
       return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Container(
-              padding: EdgeInsets.all(15),
-              margin: EdgeInsets.all(20),
-              child: Column(
+        backgroundColor: Colors.transparent,
+        body: Container(
+          padding: EdgeInsets.all(15),
+          margin: EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5),
-                        margin: EdgeInsets.only(bottom: 20),
-                        child: Text(
-                          title ?? '',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold
-                          ),
-                        ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5),
+                    margin: EdgeInsets.only(bottom: 20),
+                    child: Text(
+                      title ?? '',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold
                       ),
-                    ],
-                  ),
-                  Expanded(
-                      child: content ?? Container(),
+                    ),
                   ),
                 ],
-              )
+              ),
+              Expanded(
+                  child: content ?? Container(),
+              ),
+            ],
           )
+        )
       );
     });
   }
@@ -61,52 +61,54 @@ class CustomDialog {
       context: context,
       barrierDismissible: !isLockBack,
       builder: (context) =>
-          PopScope(
-            canPop: false,
-            onPopInvoked: (didPop) {
-              if (didPop) return;
-              !isLockBack;
-            },
-            child: AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              title: Container(
-                alignment: Alignment.center,
-                child: Text(title),
-              ),
-              content: Wrap(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          subTitle,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.normal
-                          ),
+        PopScope(
+          canPop: !isLockBack,
+          onPopInvoked: (didPop) {
+            if (didPop) return;
+            if (isLockBack) return;
+            Navigator.pop(context);
+          },
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            title: Container(
+              alignment: Alignment.center,
+              child: Text(title),
+            ),
+            content: Wrap(
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        subTitle,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.normal
                         ),
-                        content ?? SizedBox(),
-                      ],
-                    ),
+                      ),
+                      content ?? SizedBox(),
+                    ],
                   ),
-                ],
-              ),
-              icon: Icon(icon),
-              actions: [
-                OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide.none,
-                    ),
-                    onPressed: action,
-                    child: Text(buttonTxt)),
+                ),
               ],
             ),
-          ),);
+            icon: Icon(icon),
+            actions: [
+              OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide.none,
+                  ),
+                  onPressed: action,
+                  child: Text(buttonTxt)),
+            ],
+          ),
+        ),
+    );
   }
 
   static doubleButton(
@@ -125,58 +127,60 @@ class CustomDialog {
       context: context,
       barrierDismissible: !isLockBack,
       builder: (context) =>
-          PopScope(
-            canPop: false,
-            onPopInvoked: (didPop) {
-              if (didPop) return;
-              !isLockBack;
-            },
-            child: AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              title: Container(
-                alignment: Alignment.center,
-                child: Text(title),
-              ),
-              content: Wrap(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          subTitle,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.normal
-                          ),
+        PopScope(
+          canPop: !isLockBack,
+          onPopInvoked: (didPop) {
+            if (didPop) return;
+            if (isLockBack) return;
+            Navigator.pop(context);
+          },
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            title: Container(
+              alignment: Alignment.center,
+              child: Text(title),
+            ),
+            content: Wrap(
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        subTitle,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.normal
                         ),
-                        content ?? SizedBox(),
-                      ],
-                    ),
+                      ),
+                      content ?? SizedBox(),
+                    ],
                   ),
-                ],
-              ),
-              icon: Icon(icon),
-              actions: [
-                OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide.none,
-                    ),
-                    onPressed: okAction,
-                    child: Text(okButtonTxt)),
-                OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide.none,
-                    ),
-                    onPressed: cancelAction,
-                    child: Text(cancelButtonTxt)),
+                ),
               ],
             ),
-          ),);
+            icon: Icon(icon),
+            actions: [
+              OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide.none,
+                  ),
+                  onPressed: okAction,
+                  child: Text(okButtonTxt)),
+              OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide.none,
+                  ),
+                  onPressed: cancelAction,
+                  child: Text(cancelButtonTxt)),
+            ],
+          ),
+        ),
+    );
   }
 
   static WebViewController _controller = WebViewController();
@@ -189,33 +193,33 @@ class CustomDialog {
       _controller.setJavaScriptMode(JavaScriptMode.unrestricted);
 
       return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Container(
-              padding: EdgeInsets.all(15),
-              margin: EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: WebViewWidget(controller: _controller),
+        backgroundColor: Colors.transparent,
+        body: Container(
+          padding: EdgeInsets.all(15),
+          margin: EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Expanded(
+                child: WebViewWidget(controller: _controller),
+              ),
+              const SizedBox(height: 15),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  const SizedBox(height: 15),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-                      margin: EdgeInsets.only(bottom: 10),
-                      child: Icon(Icons.close)
-                    ),
-                  )
-                ],
+                  padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                  margin: EdgeInsets.only(bottom: 10),
+                  child: Icon(Icons.close)
+                ),
               )
+            ],
           )
+        )
       );
     });
   }
@@ -276,54 +280,54 @@ class CustomDialog {
       ) {
     showDialog(context: context, builder: (context) {
       return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.grey.withAlpha(70),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.network(
-                  url,
-                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    } else {
-                      return Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
-                              : null,
-                        ),
-                      );
-                    }
-                  },
-                  errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-                    return Text('Error loading image: $error');
-                  },
-                ),
-                const SizedBox(height: 15),
-                InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-                      margin: EdgeInsets.only(bottom: 10),
-                      child: Icon(Icons.close)
-                  ),
-                )
-              ],
-            ),
+        backgroundColor: Colors.transparent,
+        body: Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.grey.withAlpha(70),
+            borderRadius: BorderRadius.circular(10),
           ),
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.network(
+                url,
+                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                            : null,
+                      ),
+                    );
+                  }
+                },
+                errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                  return Text('Error loading image: $error');
+                },
+              ),
+              const SizedBox(height: 15),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                    margin: EdgeInsets.only(bottom: 10),
+                    child: Icon(Icons.close)
+                ),
+              )
+            ],
+          ),
+        ),
       );
     });
   }
@@ -336,32 +340,32 @@ class CustomDialog {
     showDialog(
       context: context,
       builder: (context) =>
-          AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            title: Container(
-              alignment: Alignment.center,
-              child: Text(title),
-            ),
-            content: IntrinsicHeight(
-              child: Container(
-                  constraints: const BoxConstraints(
-                    maxHeight: 500,
-                  ),
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withAlpha(70),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  alignment: Alignment.center,
-                  child: SingleChildScrollView(
-                    child: content
-                  )
-              ),
-            ),
-            icon: null,
+        AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
           ),
+          title: Container(
+            alignment: Alignment.center,
+            child: Text(title),
+          ),
+          content: IntrinsicHeight(
+            child: Container(
+                constraints: const BoxConstraints(
+                  maxHeight: 500,
+                ),
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withAlpha(70),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                alignment: Alignment.center,
+                child: SingleChildScrollView(
+                  child: content
+                )
+            ),
+          ),
+          icon: null,
+        ),
     );
   }
 }
