@@ -71,6 +71,9 @@ class _CountryInfoViewState extends State<CountryInfoView> {
     warningContent = await OpenDataUtil.getWarningInfo(countryData);
     safeNoticeList = await OpenDataUtil.getSafeInfo(normalInfo!.countryName);
     for (SafeItem item in safeNoticeList) {
+      // 빈 항목들은 제외.
+      if (item.content.length < 10) continue;
+
       safeItemList.add(
         SafeItemWidget(
           item: item,

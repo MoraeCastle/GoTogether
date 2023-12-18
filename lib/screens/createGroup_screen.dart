@@ -230,6 +230,7 @@ class _CreateGroupView extends State<CreateGroupView> {
                               showCountryOnly: true,
                               showOnlyCountryWhenClosed: true,
                               alignLeft: false,
+
                             ),
                           ),
                           // 기간
