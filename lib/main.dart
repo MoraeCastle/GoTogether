@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:bot_toast/bot_toast.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -8,10 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_together/service/router_service.dart' as router;
 import 'package:go_together/service/routing_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:go_together/utils/string.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'firebase_options.dart';
 
 String route = LoginViewRoute;
@@ -40,6 +36,7 @@ Future<String> checkAutoLogin() async {
       : initScene = LoginViewRoute;*/
 
   initScene = LoginViewRoute;
+  // initScene = IntroViewRoute;
 
   return initScene;
 }

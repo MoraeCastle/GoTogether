@@ -49,6 +49,8 @@ dependencies:
   country_code_picker: ^3.0.0
   country_pickers: ^2.0.0
   xml: ^6.5.0
+  flutter_native_splash: ^2.3.8
+  flutter_launcher_icons: ^0.13.1
 
 dependency_overrides:
  intl: any
@@ -63,5 +65,3 @@ flutter:
   assets:
     - assets/config/.env
     - assets/images/
-
- 
