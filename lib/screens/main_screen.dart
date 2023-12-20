@@ -119,7 +119,7 @@ class _TabBarScreenState extends State<TabBarWidget>
   /// 여행 데이터 불러오기...
   setTravelDate() async {
     SharedPreferences prefs = await _prefs;
-    String travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+    String travelCode = prefs.getString(SystemData.travelCode) ?? "";
     String userCode = prefs.getString(SystemData.userCode) ?? "";
 
     BotToast.closeAllLoading();

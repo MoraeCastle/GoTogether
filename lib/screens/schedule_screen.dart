@@ -90,7 +90,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
   /// 여행 데이터 변경 감지
   Future<void> listenTravelChange() async {
     SharedPreferences prefs = await _prefs;
-    travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+    travelCode = prefs.getString(SystemData.travelCode) ?? "";
     currentUserCode = prefs.getString(SystemData.userCode) ?? "";
 
     DatabaseReference ref = FirebaseDatabase.instance.ref('travel/$travelCode');

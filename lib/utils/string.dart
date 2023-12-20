@@ -1,6 +1,7 @@
 // 기기 내 공유변수 저장용 문자열 데이터.
 class SystemData {
-  static const String trvelCode = 'travelCode';
+  static const String introCheck = 'introCheck';
+  static const String travelCode = 'travelCode';
   static const String userCode = 'userCode';
   static const String userName = 'userName';
   // 여행그룹이 새로 생성중인 건지? true일경우 새로 생성.

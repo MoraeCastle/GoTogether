@@ -77,7 +77,7 @@ class SystemUtil {
   // 기기 내에 여행정보 저장.
   static Future<void> saveTravel(Travel data) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(SystemData.trvelCode, data.travelCode);
+    await prefs.setString(SystemData.travelCode, data.travelCode);
   }
 
   /// 기기 내에 유저정보 저장.

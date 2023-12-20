@@ -38,7 +38,7 @@ class _ChatView extends State<ChatView> {
   Future<void> getDeviceData() async {
     Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     final SharedPreferences prefs = await _prefs;
-    travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+    travelCode = prefs.getString(SystemData.travelCode) ?? "";
   }
 
   /// 여행 데이터 변경 감지

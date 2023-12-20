@@ -131,7 +131,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
     } else {
       // 일정 저장.
       final SharedPreferences prefs = await _prefs;
-      var travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+      var travelCode = prefs.getString(SystemData.travelCode) ?? "";
       var selectDate = widget.arguments;
 
       // 생성된 그룹 코드를 DB에 조회...

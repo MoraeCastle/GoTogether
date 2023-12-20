@@ -49,7 +49,7 @@ class _CreateGroupView extends State<CreateGroupView> {
     } else {
       // 기기 내에 데이터 저장.
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(SystemData.trvelCode, travelItem.travelCode);
+      await prefs.setString(SystemData.travelCode, travelItem.travelCode);
       await prefs.setBool(SystemData.travelState, true);
 
       await ref.child(travel.travelCode).set(travel.toJson());

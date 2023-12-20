@@ -94,7 +94,7 @@ class _ChatScreenState extends State<ChatRoomView> {
   /// 기기 데이터 불러오기
   Future<void> getDeviceData() async {
     SharedPreferences prefs = await _prefs;
-    travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+    travelCode = prefs.getString(SystemData.travelCode) ?? "";
     userCode = prefs.getString(SystemData.userCode) ?? "";
     chatTitle = prefs.getString(SystemData.chatTitle) ?? "";
     chatUserCount = prefs.getInt(SystemData.chatUserCount) ?? 0;

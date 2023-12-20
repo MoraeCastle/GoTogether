@@ -210,7 +210,7 @@ class _LoginView extends State<LoginView> {
   Future<void> checkUserStatus() async {
     Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     final SharedPreferences prefs = await _prefs;
-    travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+    travelCode = prefs.getString(SystemData.travelCode) ?? "";
     userCode = prefs.getString(SystemData.userCode) ?? "";
 
     // 뭔가 사용자값이 있다면 상태 체크.

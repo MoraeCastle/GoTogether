@@ -43,7 +43,7 @@ class _AddUserView extends State<AddUserView> {
     BotToast.showLoading();
 
     final SharedPreferences prefs = await _prefs;
-    travelCode = prefs.getString(SystemData.trvelCode) ?? "";
+    travelCode = prefs.getString(SystemData.travelCode) ?? "";
     travelState = prefs.getBool(SystemData.travelState) ?? false;
 
     userItem.setAuthority(travelState

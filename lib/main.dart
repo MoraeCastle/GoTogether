@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_together/service/router_service.dart' as router;
 import 'package:go_together/service/routing_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_together/utils/string.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
@@ -28,6 +29,7 @@ void main() async {
 /// 자동로그인 체크
 Future<String> checkAutoLogin() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
+  var introCheck = prefs.getBool(SystemData.introCheck) ?? false;
 
   // 유저코드가 있으면 홈으로...
   String initScene = "";
@@ -35,8 +37,9 @@ Future<String> checkAutoLogin() async {
       ? initScene = HomeViewRoute
       : initScene = LoginViewRoute;*/
 
-  initScene = LoginViewRoute;
-  // initScene = IntroViewRoute;
+  // initScene = LoginViewRoute;
+
+  initScene = introCheck ? LoginViewRoute : IntroViewRoute;
 
   return initScene;
 }

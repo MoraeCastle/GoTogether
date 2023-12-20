@@ -4,7 +4,7 @@ import 'package:go_together/screens/addUser_screen.dart';
 import 'package:go_together/screens/chatRoom_screen.dart';
 import 'package:go_together/screens/country_info.dart';
 import 'package:go_together/screens/createGroup_screen.dart';
-import 'package:go_together/screens/intro_screen.dart';
+import 'package:go_together/screens/introduction_screen.dart';
 import 'package:go_together/screens/log_in_screen.dart';
 import 'package:go_together/screens/main_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
@@ -20,7 +20,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case HomeViewRoute:
       return MaterialPageRoute(builder: (context) => HomeView());
     case IntroViewRoute:
-      return MaterialPageRoute(builder: (context) => const IntroView());
+      return MaterialPageRoute(builder: (context) => const IntroductionView());
     case LoginViewRoute:
       return MaterialPageRoute(builder: (context) => const LoginView());
     case MapViewRoute:
