@@ -24,7 +24,7 @@ class _IntroductionViewState extends State<IntroductionView> {
     Navigator.pushNamed(context, LoginViewRoute);
   }
 
-  Widget _buildImage(String assetName, [double width = 350]) {
+  Widget _buildImage(String assetName, [double width = 250]) {
     return Image.asset('assets/$assetName', width: width);
   }
 
@@ -54,21 +54,21 @@ class _IntroductionViewState extends State<IntroductionView> {
           title: "지도",
           body:
           "현재 일정과 팀원 위치를 확인하세요.",
-          image: _buildImage('images/cute_cat.jpg'),
+          image: _buildImage('images/intro_1.png'),
           decoration: pageDecoration,
         ),
         PageViewModel(
           title: "채팅 & 번역기능",
           body:
           "팀원 혹은 외국인과 편하게 대화하세요.",
-          image: _buildImage('images/sad_cat.jpg'),
+          image: _buildImage('images/intro_2.png'),
           decoration: pageDecoration,
         ),
         PageViewModel(
           title: "여행국가 정보",
           body:
           "여행가는 곳의 사건사고 소식을 확인하세요.",
-          image: _buildImage('images/sad_cat.jpg'),
+          image: _buildImage('images/intro_3.png'),
           decoration: pageDecoration,
         ),
       ],
@@ -80,9 +80,9 @@ class _IntroductionViewState extends State<IntroductionView> {
       showBackButton: false,
       //rtl: true, // Display as right-to-left
       back: const Icon(Icons.arrow_back),
-      skip: const Text('Skip', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black)),
+      skip: const Text('건너뛰기', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black)),
       next: const Icon(Icons.arrow_forward),
-      done: const Text('Done', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black)),
+      done: const Text('확인', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black)),
       curve: Curves.fastLinearToSlowEaseIn,
       controlsMargin: const EdgeInsets.all(16),
       controlsPadding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
