@@ -258,6 +258,10 @@ class _ChatScreenState extends State<ChatRoomView> {
             backgroundColor: theme.backgroundColor,
           ),
           sendMessageConfig: SendMessageConfiguration(
+            // 미디어 전송은 미구현.
+            enableCameraImagePicker: false,
+            enableGalleryImagePicker: false,
+            allowRecordingVoice: false,
             imagePickerIconsConfig: ImagePickerIconsConfiguration(
               cameraIconColor: theme.cameraIconColor,
               galleryIconColor: theme.galleryIconColor,

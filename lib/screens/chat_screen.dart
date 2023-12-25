@@ -157,34 +157,44 @@ class _ChatRoomItem extends State<ChatRoomItem> {
               children: [
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundImage:
-                          const AssetImage('assets/images/profile_back.png'),
-                      backgroundColor: Colors.grey[200],
+                    Expanded(
+                      flex: 1,
+                      child: CircleAvatar(
+                        radius: 25,
+                        backgroundImage:
+                        const AssetImage('assets/images/profile_back.png'),
+                        backgroundColor: Colors.grey[200],
+                      ),
                     ),
                     Container(width: 15),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.roomData.getTitle(),
-                          style: TextStyle(fontSize: 25, color: Colors.black),
-                        ),
-                        Container(height: 5),
-                        Text(
-                          widget.roomData.getMessageList().isEmpty ? ""
-                              : widget.roomData.getMessageList().last.getMessage(),
-                          style: TextStyle(fontSize: 18),
-                        )
-                      ],
-                    )
+                    Expanded(
+                      flex: 5,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.roomData.getTitle() + "dscfsfsdfdsfdsfdsfdsfsfdsffsf",
+                            style: TextStyle(fontSize: 25, color: Colors.black),
+                            overflow: TextOverflow.ellipsis, //
+                            maxLines: 1,
+                          ),
+                          Container(height: 5),
+                          Text(
+                            widget.roomData.getMessageList().isEmpty ? ""
+                                : widget.roomData.getMessageList().last.getMessage(),
+                            style: TextStyle(fontSize: 18),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          )
+                        ],
+                      )
+                    ),
                   ],
                 ),
                 Positioned(
                   right: 0,
-                  top: 10,
+                  top: 3,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
