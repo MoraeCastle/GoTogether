@@ -10,6 +10,7 @@ import 'package:go_together/screens/main_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
 import 'package:go_together/screens/map_select_screen.dart';
 import 'package:go_together/screens/notice_list_screen.dart';
+import 'package:go_together/screens/permission_screen.dart';
 import 'package:go_together/screens/schedule_add_view.dart';
 import 'package:go_together/screens/schedule_screen.dart';
 import 'package:go_together/screens/translator_screen.dart';
@@ -21,6 +22,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => HomeView());
     case IntroViewRoute:
       return MaterialPageRoute(builder: (context) => const IntroductionView());
+    case PermissionViewRoute:
+      return MaterialPageRoute(builder: (context) => const PermissionView());
     case LoginViewRoute:
       return MaterialPageRoute(builder: (context) => const LoginView());
     case MapViewRoute:

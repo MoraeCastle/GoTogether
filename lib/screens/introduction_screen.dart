@@ -21,7 +21,7 @@ class _IntroductionViewState extends State<IntroductionView> {
     prefs.setBool(SystemData.introCheck, true);
 
     Navigator.pop(context);
-    Navigator.pushNamed(context, LoginViewRoute);
+    Navigator.pushNamed(context, PermissionViewRoute);
   }
 
   Widget _buildImage(String assetName, [double width = 250]) {

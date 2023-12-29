@@ -29,6 +29,7 @@ void main() async {
 /// 자동로그인 체크
 Future<String> checkAutoLogin() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
+  // 권한은 일단 인트로만 넘어가면 패스되도록...
   var introCheck = prefs.getBool(SystemData.introCheck) ?? false;
 
   // 유저코드가 있으면 홈으로...

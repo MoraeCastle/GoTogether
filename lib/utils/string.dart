@@ -1,6 +1,7 @@
 // 기기 내 공유변수 저장용 문자열 데이터.
 class SystemData {
   static const String introCheck = 'introCheck';
+  static const String permissionCheck = 'permissionCheck';
   static const String travelCode = 'travelCode';
   static const String userCode = 'userCode';
   static const String userName = 'userName';

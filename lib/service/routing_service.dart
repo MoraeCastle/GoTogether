@@ -1,5 +1,6 @@
 const String HomeViewRoute = '/';
 const String IntroViewRoute = 'intro';
+const String PermissionViewRoute = 'permission';
 const String LoginViewRoute = 'login';
 const String MapViewRoute = 'map';
 const String MapSelectViewRoute = 'mapSelect';
