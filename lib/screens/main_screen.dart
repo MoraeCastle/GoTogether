@@ -144,7 +144,7 @@ class _TabBarScreenState extends State<TabBarWidget>
         }
       } else {
         // 여행 데이터 불러오기 오류...
-        BotToast.showText(text: "???");
+        // BotToast.showText(text: "???");
         finishDialog();
       }
     }

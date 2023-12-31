@@ -63,7 +63,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
 
     selectPosition = SystemUtil.convertStringPosition(targetPosition);
 
-    BotToast.showText(text: selectPosition.toString());
+    // BotToast.showText(text: selectPosition.toString());
 
     // 초기화.
     await prefs.remove(SystemData.selectPosition);

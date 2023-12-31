@@ -174,7 +174,7 @@ class _ChatRoomItem extends State<ChatRoomItem> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.roomData.getTitle() + "dscfsfsdfdsfdsfdsfdsfsfdsffsf",
+                            widget.roomData.getTitle(),
                             style: TextStyle(fontSize: 25, color: Colors.black),
                             overflow: TextOverflow.ellipsis, //
                             maxLines: 1,

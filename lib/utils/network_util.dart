@@ -65,8 +65,8 @@ class NetworkUtil {
 
   /// 채팅방 생성(공지)
   static Future<void> createNoticeChatRoom(String travelCode, User user) async {
-    Logger logger = Logger();
-    logger.e("채팅방 생성");
+    /*Logger logger = Logger();
+    logger.e("채팅방 생성");*/
 
     final ref = FirebaseDatabase.instance.ref();
 
@@ -117,8 +117,8 @@ class NetworkUtil {
 
     var result = snapshot.value;
     if (result != null) {
-      Logger logger = Logger();
-      logger.e(result.toString());
+      /*Logger logger = Logger();
+      logger.e(result.toString());*/
 
       noticeItem.setNoticeCode(noticeCode);
       noticeItem.setTitle(title);

@@ -63,7 +63,8 @@ class _MapViewState extends State<MapView> {
 
       await moveCamera(LatLng(result.location.lat, result.location.lng));
     } else {
-      BotToast.showText(text: response.errorMessage.toString());
+      // BotToast.showText(text: response.errorMessage.toString());
+      BotToast.showText(text: "위치 조회 실패");
     }
   }
 

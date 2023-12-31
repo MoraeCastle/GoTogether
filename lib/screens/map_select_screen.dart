@@ -75,7 +75,8 @@ class _MapSelectViewState extends State<MapSelectView> {
         controller.moveCamera(CameraUpdate.newLatLngZoom(currentLatLng, 17));
       });
     } else {
-      BotToast.showText(text: response.errorMessage.toString());
+      // BotToast.showText(text: response.errorMessage.toString());
+      BotToast.showText(text: '위치 조회 실패');
     }
   }
 

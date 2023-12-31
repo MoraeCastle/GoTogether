@@ -69,7 +69,7 @@ class _AddUserView extends State<AddUserView> {
       //   Travel travelData = Travel.fromJson(snapshot.value);
       var result = snapshot.value;
 
-      BotToast.showText(text: result.toString());
+      // BotToast.showText(text: result.toString());
 
       if (result != null) {
         var travel = Travel.fromJson(result);

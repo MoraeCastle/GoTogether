@@ -254,7 +254,7 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                                   // I want to access the appointment details like eventName, from, to, background, isAllDay etc. if I tap over an event
 
                                   final Appointment appointmentDetails = details.appointments![0];
-                                  BotToast.showText(text: appointmentDetails.startTime.toString());
+                                  // BotToast.showText(text: appointmentDetails.startTime.toString());
 
                                   // 같은 데이터인 경우 하단 구글맵 위치 최신화.
                                   for (Schedule schedule in context.read<ScheduleClass>().travel.getSchedule()) {

@@ -136,9 +136,9 @@ class SystemUtil {
     int resultInt = difference.inDays;
     int resultMinute = difference.inMinutes;
 
-    Logger logger = Logger();
+    /*Logger logger = Logger();
     logger.e(targetDate.toString());
-    logger.e(resultInt.toString() + " / " + resultMinute.toString());
+    logger.e(resultInt.toString() + " / " + resultMinute.toString());*/
 
     if (resultMinute < 2) {
       return "방금 전";
