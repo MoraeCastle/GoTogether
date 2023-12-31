@@ -386,6 +386,7 @@ class _MapViewState extends State<MapView> {
                       child: IconButton(
                           padding: const EdgeInsets.all(0),
                           onPressed: () {
+                            if (context.read<DataClass>().travel.getTravelCode().isEmpty) return;
                             // _scaffoldKey.currentState!.openDrawer();
                             // BotToast.showText(text: "text");
 
