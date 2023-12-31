@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +10,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:time_range_picker/time_range_picker.dart';
-
 import '../utils/string.dart';
 import '../utils/system_util.dart';
-// import 'package:google_maps_place_picker_mb/google_maps_place_picker.dart';
 
 /// 일정추가 씬
 class ScheduleAddView extends StatefulWidget {
@@ -195,7 +191,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
               onPressed: () {
                 saveSchedule();
               },
-              icon: const Icon(Icons.save),
+              icon: const Icon(Icons.save, color: Colors.white),
             ),
           ],
           shadowColor: Colors.transparent,
@@ -238,33 +234,31 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                           child: Divider(
                               color: Color.fromARGB(100, 0, 0, 0),
                               thickness: 1.0)),
-                      SizedBox(
-                        width: double.infinity,
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20, right: 20, top: 5, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 30,
-                                        right: 30,
-                                        top: 10,
-                                        bottom: 10),
+                      Column(
+                        children: [
+                          Container(
+                            height: 95,
+                            padding: const EdgeInsets.only(
+                                left: 20, right: 20, top: 5, bottom: 5),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
                                     decoration: BoxDecoration(
                                         color: Colors.white.withAlpha(230),
                                         borderRadius:
-                                            BorderRadius.circular(15)),
+                                        BorderRadius.circular(15)),
                                     child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           '시작',
                                           style: TextStyle(
                                               color:
-                                                  Colors.black.withAlpha(150),
+                                              Colors.black.withAlpha(150),
                                               fontSize: 13),
                                         ),
                                         Text(
@@ -276,24 +270,24 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                                       ],
                                     ),
                                   ),
-                                  const Icon(Icons.arrow_right),
-                                  Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 30,
-                                        right: 30,
-                                        top: 10,
-                                        bottom: 10),
+                                ),
+                                const Icon(Icons.arrow_right),
+                                Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
                                     decoration: BoxDecoration(
                                         color: Colors.white.withAlpha(230),
                                         borderRadius:
-                                            BorderRadius.circular(15)),
+                                        BorderRadius.circular(15)),
                                     child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           '종료',
                                           style: TextStyle(
                                               color:
-                                                  Colors.black.withAlpha(150),
+                                              Colors.black.withAlpha(150),
                                               fontSize: 13),
                                         ),
                                         Text(
@@ -305,53 +299,53 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                                       ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            // 시간 선택기
-                            TimeRangePicker(
-                              hideButtons: true,
-                              hideTimes: true,
-                              rotateLabels: false,
-                              paintingStyle: PaintingStyle.fill,
-                              backgroundColor: Colors.black.withAlpha(50),
-                              toText: '종료',
-                              fromText: '시작',
-                              labels: [
-                                "12 AM",
-                                "3",
-                                "6 AM",
-                                "9",
-                                "12 PM",
-                                "3",
-                                "6 PM",
-                                "9"
-                              ].asMap().entries.map((e) {
-                                return ClockLabel.fromIndex(
-                                    idx: e.key, length: 8, text: e.value);
-                              }).toList(),
-                              start: _startTime,
-                              end: _endTime,
-                              ticks: 10,
-                              strokeColor: Theme.of(context)
-                                  .primaryColor
-                                  .withOpacity(0.5),
-                              ticksColor: Theme.of(context).primaryColor,
-                              labelOffset: 20,
-                              padding: 60,
-                              onStartChange: (start) {
-                                setState(() {
-                                  _startTime = start;
-                                });
-                              },
-                              onEndChange: (end) {
-                                setState(() {
-                                  _endTime = end;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                          ),
+                          // 시간 선택기
+                          TimeRangePicker(
+                            hideButtons: true,
+                            hideTimes: true,
+                            rotateLabels: false,
+                            paintingStyle: PaintingStyle.fill,
+                            backgroundColor: Colors.black.withAlpha(50),
+                            toText: '종료',
+                            fromText: '시작',
+                            labels: [
+                              "12 AM",
+                              "3",
+                              "6 AM",
+                              "9",
+                              "12 PM",
+                              "3",
+                              "6 PM",
+                              "9"
+                            ].asMap().entries.map((e) {
+                              return ClockLabel.fromIndex(
+                                  idx: e.key, length: 8, text: e.value);
+                            }).toList(),
+                            start: _startTime,
+                            end: _endTime,
+                            ticks: 10,
+                            strokeColor: Theme.of(context)
+                                .primaryColor
+                                .withOpacity(0.5),
+                            ticksColor: Theme.of(context).primaryColor,
+                            labelOffset: 20,
+                            padding: 60,
+                            onStartChange: (start) {
+                              setState(() {
+                                _startTime = start;
+                              });
+                            },
+                            onEndChange: (end) {
+                              setState(() {
+                                _endTime = end;
+                              });
+                            },
+                          ),
+                        ],
                       ),
                       SizedBox(
                         width: double.infinity,

@@ -85,10 +85,10 @@ class _PermissionViewState extends State<PermissionView> {
             children: [
               Container(
                 padding: EdgeInsets.all(15),
-                margin: EdgeInsets.only(bottom: 10),
+                margin: EdgeInsets.only(bottom: 25),
                 decoration: BoxDecoration(
                   color: Color.fromARGB(255, 159, 195, 255),
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: BorderRadius.circular(15),
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.grey,
@@ -113,6 +113,7 @@ class _PermissionViewState extends State<PermissionView> {
                                 fontWeight: FontWeight.bold
                             ),
                           ),
+                          SizedBox(height: 5),
                           Text(
                             '지금 거부해도 이후 이용 시 다시 권한을 묻습니다.\n거부 시 일부 서비스 이용에 문제가 있을 수 있습니다.',
                             style: TextStyle(
@@ -154,10 +155,10 @@ class _PermissionViewState extends State<PermissionView> {
                       elevation: 10,
                       side: const BorderSide(
                           color: Colors.grey,
-                          // width: 0.5
+                          width: 2
                       ),
                       shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                     onPressed: () async => checkPermission(),
@@ -199,7 +200,7 @@ class PermissionItemWidget extends StatelessWidget {
         ),
         elevation: 1.0, //그림자 깊이
         child: Container(
-          padding: EdgeInsets.all(5),
+          padding: EdgeInsets.all(8),
           width: double.infinity,
           margin: const EdgeInsets.all(5),
           child: Row(
@@ -216,7 +217,7 @@ class PermissionItemWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 5),
+              SizedBox(width: 8),
               Expanded(
                 flex: 10,
                 child: Column(
