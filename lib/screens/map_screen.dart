@@ -459,37 +459,37 @@ class _MapViewState extends State<MapView> {
           ),
           // GPS
           Positioned(
-              right: 25,
-              bottom: 100,
-              child: SizedBox(
-                  width: 65,
-                  height: 65,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                            offset: const Offset(3, 3),
-                            blurRadius: 10,
-                            color: Colors.black.withAlpha(50),
-                            spreadRadius: 1)
-                      ],
-                    ),
-                    child: CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.white,
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.my_location,
-                          color: Colors.black,
-                        ),
-                        onPressed: () async {
-                          _getCurrentLocation();
-                        },
+            right: 25,
+            bottom: context.watch<DataClass>().travel.getTravelCode().isNotEmpty ? 100 : 30,
+            child: SizedBox(
+                width: 65,
+                height: 65,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                          offset: const Offset(3, 3),
+                          blurRadius: 10,
+                          color: Colors.black.withAlpha(50),
+                          spreadRadius: 1)
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.my_location,
+                        color: Colors.black,
                       ),
+                      onPressed: () async {
+                        _getCurrentLocation();
+                      },
                     ),
-                  ))),
+                  ),
+                ))),
           /// 네비게이션
           Visibility(
             visible: context.watch<DataClass>().travel.getSchedule().isNotEmpty,

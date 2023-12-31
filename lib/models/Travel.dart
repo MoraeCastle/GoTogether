@@ -47,7 +47,7 @@ class Travel {
     this.travelCode = travelCode;
   }
 
-  getTravelCode() {
+  String getTravelCode() {
     return travelCode;
   }
 

@@ -59,6 +59,7 @@ class _TabBarScreenState extends State<TabBarWidget>
     with SingleTickerProviderStateMixin {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late DataClass _countProvider;
+  bool isTravel = false;
 
   @override
   void initState() {
@@ -148,6 +149,10 @@ class _TabBarScreenState extends State<TabBarWidget>
         finishDialog();
       }
     }
+
+    setState(() {
+      isTravel = travelCode.isNotEmpty;
+    });
   }
 
   /// 여행 데이터 변경 감지
@@ -235,7 +240,7 @@ class _TabBarScreenState extends State<TabBarWidget>
       // 하단 탭까지 바디를 늘릴것인지?
       extendBody: true,
       resizeToAvoidBottomInset: false,
-      bottomNavigationBar: _tabBar(),
+      bottomNavigationBar: isTravel ? _tabBar() : null,
       body: TabBarView(
         physics: const NeverScrollableScrollPhysics(),
         controller: tabController,
