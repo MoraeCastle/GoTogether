@@ -10,6 +10,7 @@ import 'package:go_together/models/User.dart';
 import 'package:go_together/models/data.dart';
 import 'package:go_together/models/theme.dart';
 import 'package:go_together/utils/string.dart';
+import 'package:go_together/utils/system_util.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -243,7 +244,7 @@ class _ChatScreenState extends State<ChatRoomView> {
               letterSpacing: 0.25,
             ),
             userStatus: targetRoom.getMessageList().isEmpty
-                ? "새 채팅방" : targetRoom.getMessageList().last.createdAt.toString(),
+                ? "새 채팅방" : SystemUtil.getTodayStr(DateTime.parse(targetRoom.getMessageList().last.createdAt)),
             userStatusTextStyle: const TextStyle(color: Colors.grey),
           ),
           chatBackgroundConfig: ChatBackgroundConfiguration(
