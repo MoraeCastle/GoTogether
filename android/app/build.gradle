@@ -44,7 +44,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.example.go_together"
+        applicationId "com.sandcastle.go_together"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
         // minSdkVersion flutter.minSdkVersion
@@ -54,9 +54,19 @@ android {
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            storeFile file('C:/Users/Jeong/travel_keystore.jks')
+            storePassword 'z94llh'
+            keyAlias 'flutter'
+            keyPassword 'z94llh'
+        }
+    }
+
+
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             shrinkResources false
             minifyEnabled false
         }

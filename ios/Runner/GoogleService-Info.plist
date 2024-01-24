@@ -2,18 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>80250456205-2ckl161mlq9ain36masap40depmjsoh1.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.80250456205-2ckl161mlq9ain36masap40depmjsoh1</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>80250456205-kh502blqmspohtugkdekdo8ni8rid6le.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyD9pEqWcgdjmvGeV40fMB834Fw3u_4vs0c</string>
+	<string>AIzaSyDiOvYFYY-bz2NhsmQHAFX4gk0jWhwV2t8</string>
 	<key>GCM_SENDER_ID</key>
 	<string>80250456205</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.goTogether</string>
+	<string>io.flutter.flutter.app</string>
 	<key>PROJECT_ID</key>
 	<string>gotogetherforflutter</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +27,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:80250456205:ios:1209545c6998841e3c7ac4</string>
+	<string>1:80250456205:ios:250920af2352b7193c7ac4</string>
 	<key>DATABASE_URL</key>
 	<string>https://gotogetherforflutter-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
