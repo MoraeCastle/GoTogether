@@ -42,7 +42,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>갤러리에 접근하기 위해 사진 라이브러리 사용 권한이 필요합니다.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Speech synthesis is used to read text aloud.</string>
+	<string>번역기 내 음성인식을 사용하려면 '허용' 버튼을 탭하세요.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

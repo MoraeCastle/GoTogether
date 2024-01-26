@@ -1,4 +1,4 @@
-# 앱이 아이콘 구성.
+# 앱 아이콘 구성.
 # flutter pub run flutter_launcher_icons:main
 flutter_launcher_icons:
   ios: true
@@ -6,6 +6,9 @@ flutter_launcher_icons:
   image_path: "assets/images/suitcase.png"
   remove_alpha_ios: true
   adaptive_icon_background: "assets/images/app_background.png"
+
+  # for IOS...
+  image_path_ios: "assets/images/app_icon.png"
 #  adaptive_icon_foreground: "assets/images/app_icon_square.png"
 #
 #  android: "launcher_icon"
