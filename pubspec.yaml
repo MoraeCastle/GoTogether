@@ -55,6 +55,7 @@ dependencies:
   speech_to_text: ^6.5.1
   flutter_tts: ^3.8.5
   permission_handler: ^11.1.0
+  volume_control: ^0.1.5
 
 dependency_overrides:
  intl: any
@@ -69,3 +70,6 @@ flutter:
   assets:
     - assets/config/.env
     - assets/images/
+    - assets/sounds/speech_to_text_listening.m4r
+    - assets/sounds/speech_to_text_cancel.m4r
+    - assets/sounds/speech_to_text_stop.m4r

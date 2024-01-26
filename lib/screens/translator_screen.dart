@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -7,6 +8,7 @@ import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:volume_control/volume_control.dart';
 
 /// 번역기 씬
 class TranslatorView extends StatefulWidget {
@@ -26,19 +28,29 @@ class _TranslatorViewState extends State<TranslatorView> {
   String startLangTxt = "한국어";
   String endLangeTxt = "영어";
 
-  FlutterTts flutterTts = FlutterTts();
+  late FlutterTts flutterTts;
 
   late stt.SpeechToText _speech;
 
   // 음성인식 상태.
   bool isRecord = false;
   bool isRecordPermission = false;
+  bool isSTTInit = false;
+
+  List<stt.LocaleName> localeList = [];
 
   @override
   void initState() {
     super.initState();
     _initializeTts();
     _initializeStt();
+  }
+
+  @override
+  void dispose() {
+    _speech.stop();
+
+    super.dispose();
   }
 
   Future _initializeStt() async {
@@ -48,7 +60,35 @@ class _TranslatorViewState extends State<TranslatorView> {
 
   Future<void> _checkPermissionAndInitialize() async {
     if (await _checkPermission()) {
-      await _speech.initialize();
+      isSTTInit = await _speech.initialize(
+        onStatus: (status) {
+          logger.e('status: ' + status);
+          if (status.contains('done')) {
+            _speech.stop();
+  
+            BotToast.showText(text: '음성인식이 종료되었습니다.');
+
+            setState(() {
+              isRecord = false;
+            });
+          }
+        },
+        onError: (errorNotification) {
+          logger.e('error: ' + errorNotification.toString());
+
+          _speech.stop();
+
+          BotToast.showText(text: '인식 실패... 다시 시도해주세요.');
+          setState(() {
+            isRecord = false;
+          });
+
+        },
+      );
+
+      if (isSTTInit) {
+        localeList = await _speech.locales();
+      }
     } else {
       await _requestPermission();
     }
@@ -58,7 +98,7 @@ class _TranslatorViewState extends State<TranslatorView> {
     final PermissionStatus status = await Permission.microphone.request();
     isRecordPermission = status.isGranted;
     if (isRecordPermission) {
-      await _speech.initialize();
+      await _checkPermissionAndInitialize();
     } else {
       // 권한이 거부되었을 때의 처리를 수행합니다.
       print('Permission denied');
@@ -74,11 +114,29 @@ class _TranslatorViewState extends State<TranslatorView> {
   }
 
   Future _initializeTts() async {
-    await flutterTts.getEngines;
+    flutterTts = FlutterTts();
+
+    // 플랫폼 구분
+    if (Platform.isAndroid) {
+      await flutterTts.getEngines;
+    } else {
+      await flutterTts.setSharedInstance(true);
+    } 
+
     // await flutterTts.getDefaultVoice;
     await flutterTts.setLanguage("en-US"); // 언어 설정 (예: 영어)
     await flutterTts.setPitch(1.0); // 피치 설정 (기본값: 1.0)
     await flutterTts.setSpeechRate(0.5); // 읽는 속도 설정 (기본값: 1.0)
+
+    // 기기의 미디어 음량에 맞게 설정 (0.0 ~ 1.0)
+    double deviceVolume = await VolumeControl.volume;
+    await flutterTts.setVolume(deviceVolume);
+
+    if (Platform.isIOS) {
+      await flutterTts.setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [
+        IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
+      ]);
+    }
 
     List<dynamic> test = await flutterTts.getLanguages;
 
@@ -110,24 +168,57 @@ class _TranslatorViewState extends State<TranslatorView> {
     }
   }
 
+  // STT 전용 localeId 얻기.
+  String _getLocaleId(String countryName) {
+    String resultId = '';
+
+    var isoCode = '';
+    isoCode = TranslateUtil.countryCode[countryName] ?? 'en';
+
+    for (stt.LocaleName data in localeList) {
+      if (data.localeId.contains(isoCode)) {
+        resultId = data.localeId;
+        break;
+      }
+    }
+
+    return resultId;
+  }
+
   /// 음성 인식...
   Future _record() async {
+    BotToast.showText(text: '음성인식 중입니다.');
+
     if (!isRecordPermission) {
       BotToast.showText(text: '권한이 거부되었습니다. 앱 설정에서 권한을 허용해 주세요.');
       return;
     }
 
-    setState(() {
-      isRecord = true;
-    });
-    _speech.listen(
-      onResult: (result) {
-        isRecord = false;
+    if (isSTTInit) {
+      var inputLocaleId = _getLocaleId(startLangTxt);
 
-        textEditingController.text = result.recognizedWords;
-        _translate();
-      },
-    );
+      if (inputLocaleId.isEmpty) {
+        var systemLocale = await _speech.systemLocale();
+        inputLocaleId = systemLocale!.localeId;
+      }
+
+      _speech.listen(
+        localeId: inputLocaleId,
+        onDevice: false,
+        listenMode: stt.ListenMode.dictation,
+        listenFor: Duration(seconds: 10),
+        pauseFor: Duration(seconds: 9),
+        onResult: (result) {
+          textEditingController.text = result.recognizedWords;
+          _translate();
+        },
+        // cancelOnError: true,
+      );
+
+      setState(() {
+        isRecord = true;
+      });
+    }
   }
 
   @override
@@ -381,6 +472,12 @@ class _TranslatorViewState extends State<TranslatorView> {
                                     flex: 1,
                                     child: InkWell(
                                         onTap: () {
+                                          if (textEditingController.text.isNotEmpty) {
+                                            var temp = textEditingController.text;
+                                            textEditingController.text = resultStr;
+                                            resultStr = temp;
+                                          }
+
                                           _initializeTts();
 
                                           setState(() {
@@ -462,35 +559,61 @@ class _TranslatorViewState extends State<TranslatorView> {
               ),
               Visibility(
                 visible: isRecord,
-                child: Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withAlpha(100),
-                      borderRadius:
-                      BorderRadius.circular(10)),
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.keyboard_voice_rounded,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          SizedBox(height: 15),
-                          Text(
-                            '음성 인식 중입니다...',
-                            style: TextStyle(
-                              color: Colors.white
-                            ),
-                          ),
-                        ],
-                      )
-                    ),
-                  ),
-                )
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withAlpha(100),
+                          borderRadius:
+                          BorderRadius.circular(10)),
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.keyboard_voice_rounded,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                              SizedBox(height: 15),
+                              Text(
+                                '음성 인식 중입니다...',
+                                style: TextStyle(
+                                  color: Colors.white
+                                ),
+                              ),
+                              SizedBox(height: 15),
+                              TextButton(
+                                onPressed: () {
+                                  _speech.stop();
+
+                                  setState(() {
+                                    isRecord = false;
+                                  });
+                                },
+                                child: Text(
+                                  '확인',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                style: TextButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                                  ),
+                                  backgroundColor: Colors.white,
+                                ),
+                              ),
+                            ],
+                          )
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ],
           )
