@@ -76,100 +76,107 @@ class _PermissionViewState extends State<PermissionView> {
             }, true
           );        },
         child: Container(
-          padding: EdgeInsets.all(40),
+          padding: EdgeInsets.all(15),
           width: double.infinity,
           height: double.infinity,
           alignment: Alignment.center,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: EdgeInsets.all(15),
-                margin: EdgeInsets.only(bottom: 25),
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 159, 195, 255),
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.grey,
-                      offset: Offset(0.0, 3.0), //(x,y)
-                      blurRadius: 3.0,
-                    ),
-                  ],
-                ),
-                width: double.infinity,
-                child: const Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(15),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '권한 허용',
-                            style: TextStyle(
+              Expanded(
+                flex: 10,
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.all(15),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              '권한 허용',
+                              style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 17,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            '지금 거부해도 이후 이용 시 다시 권한을 묻습니다.\n거부 시 일부 서비스 이용에 문제가 있을 수 있습니다.',
-                            style: TextStyle(
-                              color: Color.fromARGB(150, 0, 0, 0),
-                              fontSize: 11
+                            Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Divider(
+                                color: Colors.grey,
+                                height: 1,
+                              ),
                             ),
-                          ),
-                        ],
+                            Text(
+                              textAlign: TextAlign.center,
+                              '지금 거부해도 이후 이용 시 다시 권한을 묻습니다.\n거부 시 일부 서비스 이용에 문제가 있을 수 있습니다.',
+                              style: TextStyle(
+                                color: Color.fromARGB(200, 0, 0, 0),
+                                fontSize: 15
+                              ),
+                            ),
+                          ],
+                        )
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                          children: [
+                            PermissionItemWidget(
+                              icon: Icons.my_location_rounded, title: '위치',
+                              content: '사용자의 위치를 지도에 표시합니다.',
+                            ),
+                            PermissionItemWidget(
+                              icon: Icons.keyboard_voice_rounded, title: '녹음',
+                              content: '번역기의 음성인식을 위해 마이크를 사용합니다.',
+                            ),
+                            PermissionItemWidget(
+                              icon: Icons.folder_open_rounded, title: '저장소',
+                              content: '사용자 프로필 및 채팅 내 미디어 파일을 올립니다.',
+                            ),
+                          ],
+                        )
                       )
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                        children: [
-                          PermissionItemWidget(
-                            icon: Icons.my_location_rounded, title: '위치',
-                            content: '사용자의 위치를 지도에 표시합니다.',
-                          ),
-                          PermissionItemWidget(
-                            icon: Icons.keyboard_voice_rounded, title: '녹음',
-                            content: '번역기의 음성인식을 위해 마이크를 사용합니다.',
-                          ),
-                          PermissionItemWidget(
-                            icon: Icons.folder_open_rounded, title: '저장소',
-                            content: '사용자 프로필 및 채팅 내 미디어 파일을 올립니다.',
-                          ),
-                        ],
-                      )
-                    )
-                  ],
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      elevation: 10,
-                      side: const BorderSide(
-                          color: Colors.grey,
-                          width: 2
-                      ),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+              Expanded(
+                flex: 1,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 57,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Color.fromARGB(255, 159, 195, 255),
+                          elevation: 10,
+                          side: const BorderSide(
+                              color: Colors.grey,
+                              width: 0
+                          ),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                        onPressed: () async => checkPermission(),
+                        child: const Text(
+                          '확인',
+                          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
+                        ),
                       ),
                     ),
-                    onPressed: () async => checkPermission(),
-                    child: const Text(
-                      '확인',
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                ),
-              )
+                  ],
+                )
+              ),
             ],
           )
         ),
@@ -193,15 +200,11 @@ class PermissionItemWidget extends StatelessWidget {
         color: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
-          side: const BorderSide(
-            color: Colors.grey,
-            width: 0.5,
-          ),
         ),
         elevation: 1.0, //그림자 깊이
         child: Container(
-          padding: EdgeInsets.all(8),
           width: double.infinity,
+          padding: EdgeInsets.all(8),
           margin: const EdgeInsets.all(5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -209,9 +212,10 @@ class PermissionItemWidget extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: Material(
-                  borderRadius: BorderRadius.circular(20),
+                  shape: CircleBorder(),
                   elevation: 2,
                   child: CircleAvatar(
+                    radius: 25,
                     backgroundColor: Colors.white,
                     child: Icon(icon),
                   ),
