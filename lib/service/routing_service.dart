@@ -12,3 +12,5 @@ const String ChatRoomRoute = 'chatRoomRoute';
 const String TranslatorViewRoute = 'translatorViewRoute';
 const String NoticeListViewRoute = 'noticeListViewRoute';
 const String CountryInfoViewRoute = 'countryInfoViewRoute';
+const String SettingViewRoute = 'settingViewRoute';
+

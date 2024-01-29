@@ -134,13 +134,18 @@ class _AddUserView extends State<AddUserView> {
                     margin: const EdgeInsets.only(top: 30),
                     width: double.infinity,
                     height: 50,
-                    alignment: Alignment.bottomLeft,
+                    // alignment: Alignment.bottomLeft,
                     child: const Padding(
                       padding: EdgeInsets.only(left: 15, bottom: 5),
-                      child: Text(
-                        '당신은 누구인가요?',
-                        style: TextStyle(
-                            fontSize: 25, fontWeight: FontWeight.bold),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '당신은 누구인가요?',
+                            style: TextStyle(
+                                fontSize: 25, fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
                     )),
                 Expanded(

@@ -96,14 +96,33 @@ class _CreateGroupView extends State<CreateGroupView> {
                     margin: const EdgeInsets.only(top: 30),
                     width: double.infinity,
                     height: 50,
-                    alignment: Alignment.bottomLeft,
-                    child: const Padding(
+                    // alignment: Alignment.bottomLeft,
+                    child: Padding(
                       padding: EdgeInsets.only(left: 15, bottom: 5),
-                      child: Text(
-                        '그룹을 생성합니다',
-                        style: TextStyle(
-                            fontSize: 25, fontWeight: FontWeight.bold),
-                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '그룹을 생성합니다',
+                            style: TextStyle(
+                                fontSize: 25, fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              if (!isDateCheck) {
+                                BotToast.showText(text: '2. 날짜를 선택해 주세요.');
+                              } else if (!groupNameController.value.text.isNotEmpty) {
+                                BotToast.showText(text: '3. 그룹명을 입력해주세요.');
+                              } else if (!isGeneratedCode) {
+                                BotToast.showText(text: '4. 그룹코드를 탭 해서 생성해주세요.');
+                              } else {
+                                BotToast.showText(text: '그룹생성 버튼을 누르세요.');
+                              }
+                            }, 
+                            icon: Icon(Icons.help_outline_outlined),
+                          ),
+                        ],
+                      )
                     )),
                 Expanded(
                   child: Container(

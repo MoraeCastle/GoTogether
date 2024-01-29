@@ -109,7 +109,8 @@ class _ScheduleWidget extends State<ScheduleWidget>
         }
 
         if (targetUser.getUserCode().isEmpty) {
-          BotToast.showText(text: "현재 유저를 확인할 수 없습니다.");
+          // BotToast.showText(text: "현재 유저를 확인할 수 없습니다.");
+          Navigator.pop(context);
         } else {
           setTravelDate(travel, targetUser);
         }

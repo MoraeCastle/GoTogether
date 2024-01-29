@@ -214,7 +214,11 @@ class _EtcViewState extends State<EtcView> {
                               icon: Icons.settings,
                               title: '설정',
                               action: () {
-                                BotToast.showText(text: '미구현 기능입니다...');
+                                Navigator.pushNamed(context, SettingViewRoute,
+                                    arguments: {
+                                      'state' : targetUser.getAuthority(),
+                                      'userCount' : travel.getUserList().length.toString(),
+                                    });
                               }),
                         ]),
                   ],

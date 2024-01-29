@@ -3,6 +3,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -73,8 +74,10 @@ Future<bool> travelCheck(String travelCode, String userCode) async {
       var travel = Travel.fromJson(result);
 
       for (User user in travel.getUserList().values) {
+        // 유저코드가 존재하거나, 입장 가능한 상태인경우.
         if (user.getUserCode() == userCode) {
-          answer = true;
+          answer = user.getAuthority() == describeEnum(UserType.user) || user.getAuthority() == describeEnum(UserType.guide);
+
           break;
         }
       }

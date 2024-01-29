@@ -65,19 +65,24 @@ class _LoginView extends State<LoginView> {
                     child: Column(
                       children: [
                         isGroupWaiting ? Column(
-
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.all(10),
-                              child: Text(
-                                "방장의 허가를 기다리는 중입니다...",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                                maxLines: 1,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    "방장의 허가를 기다리는 중입니다...",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                    overflow: TextOverflow.visible,
+                                    maxLines: 1,
+                                  ),
+                                )
+                              ],
                             ),
+                            SizedBox(height: 5),
                             SizedBox(
                               height: 80,
                               child: RowItemButton(
@@ -252,6 +257,7 @@ class _LoginView extends State<LoginView> {
     }
 
     if (check) {
+      BotToast.showText(text: '방장이 허락하지 않은 상태입니다.');
 
       setState(() {
         isGroupWaiting = check;

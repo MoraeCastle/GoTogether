@@ -77,6 +77,11 @@ class Travel {
     this.userList = userList;
   }
 
+  /// 유저 삭제
+  void deleteUser(String userCode) {
+    this.userList.removeWhere((key, value) => key == userCode);
+  }
+
   // 키에는 특수문자가 포함되면 안됨.
   void addUser(User user) {
     userList.addAll({user.getUserCode(): user});

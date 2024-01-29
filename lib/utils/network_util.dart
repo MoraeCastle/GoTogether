@@ -171,4 +171,53 @@ class NetworkUtil {
       return {};
     }
   }
+
+  /// 로그아웃(탈퇴)
+  static Future<bool> logout(String travelCode, String userCode) async {
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('travel/$travelCode').get();
+
+    var result = snapshot.value;
+    if (result != null) {
+      var travel = Travel.fromJson(result);
+      travel.deleteUser(userCode);
+
+      await ref.child('travel/$travelCode').set(travel.toJson());
+
+      // 채팅목록에서 제외하기.
+      bool chatState = false;
+      chatState = await exitALLChatRoom(travelCode, userCode);
+
+      return chatState;
+    } else {
+      return false;
+    }
+  }
+
+  /// 모든 채팅방 나가기
+  /// 규칙: 채팅 내용은 남겨져 있음. 인원만 삭제
+  static Future<bool> exitALLChatRoom(String travelCode, String userCode) async {
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('chat/$travelCode').get();
+
+    if (snapshot.exists) {
+      var result = snapshot.value;
+      if (result != null) {
+        var chat = Chat.fromJson(result);
+
+        for (Room room in chat.getRoomList()) {
+          if (room.getUserMap().keys.contains(userCode)) {
+            room.deleteUser(userCode);
+          }
+        }
+
+        await ref.child('chat/$travelCode').set(chat.toJson());
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
 }

@@ -13,6 +13,7 @@ import 'package:go_together/screens/notice_list_screen.dart';
 import 'package:go_together/screens/permission_screen.dart';
 import 'package:go_together/screens/schedule_add_view.dart';
 import 'package:go_together/screens/schedule_screen.dart';
+import 'package:go_together/screens/setting_view.dart';
 import 'package:go_together/screens/translator_screen.dart';
 import 'package:go_together/service/routing_service.dart';
 
@@ -63,6 +64,9 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       } catch(e) {
         return MaterialPageRoute(builder: (context) => CountryInfoView(arguments: ''));
       }
+    case SettingViewRoute:
+      final arg = settings.arguments as Map<String, String>;
+      return MaterialPageRoute(builder: (context) => SettingView(arguments: arg));
     default:
       return MaterialPageRoute(builder: (context) => HomeView());
   }

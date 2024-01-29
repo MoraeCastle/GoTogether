@@ -151,14 +151,14 @@ class _MapSelectViewState extends State<MapSelectView> {
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomInset: false,
-      drawer: Drawer(
+      /*drawer: Drawer(
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
               topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
         ),
         child: Container(),
       ),
-      drawerEdgeDragWidth: 10,
+      drawerEdgeDragWidth: 10,*/
       body: Stack(
         alignment: Alignment.center,
         children: [

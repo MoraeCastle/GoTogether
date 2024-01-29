@@ -37,6 +37,9 @@ class Room {
   Map<String, int> getUserMap() {
     return userMap;
   }
+  void deleteUser(String userCode) {
+    userMap.removeWhere((key, value) => key == userCode);
+  }
 
   void setMessageList(List<MessageItem> data) {
     this.messageList = data;
