@@ -70,6 +70,7 @@ class _CountryInfoViewState extends State<CountryInfoView> {
     normalInfo = await OpenDataUtil.getDefaultInfo(countryData);
     warningContent = await OpenDataUtil.getWarningInfo(countryData);
     safeNoticeList = await OpenDataUtil.getSafeInfo(normalInfo!.countryName);
+
     for (SafeItem item in safeNoticeList) {
       // 빈 항목들은 제외.
       if (item.content.length < 10) continue;
@@ -322,6 +323,7 @@ class _CountryInfoViewState extends State<CountryInfoView> {
                                               ),
                                               Text(
                                                 normalInfo?.countryEnName ?? '',
+                                                textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                   fontSize: 15,
                                                   color: Colors.grey,

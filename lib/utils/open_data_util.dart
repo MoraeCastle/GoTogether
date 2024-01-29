@@ -72,12 +72,28 @@ class OpenDataUtil {
           '${data.isoCode}',
       // '${data.isoCode}&returnType=XML',
     );
+    
+    try {
+      Map<String, dynamic> json = response.data;
 
-    Map<String, dynamic> json = response.data;
-
-    if (response.statusCode == 200) {
-      return WarningContentItem.fromJson(json['data'][0]);
-    } else {
+      if (response.statusCode == 200) {
+        return WarningContentItem.fromJson(json['data'][0]);
+      } else {
+        return WarningContentItem(
+          wrtDt: '',
+          continentCd: '',
+          continentEngNm: '',
+          continentNm: '',
+          countryEngNm: '',
+          countryIsoAlp2: '',
+          countryNm: '',
+          dangMapDownloadUrl: '',
+          flagDownloadUrl: '',
+          mapDownloadUrl: '',
+          news: '',
+        );
+      }
+    } catch(e) {
       return WarningContentItem(
         wrtDt: '',
         continentCd: '',
