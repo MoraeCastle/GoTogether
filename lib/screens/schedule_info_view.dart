@@ -7,6 +7,7 @@ import 'package:go_together/models/RouteItem.dart';
 import 'package:go_together/models/Schedule.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -299,14 +300,13 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                                 final Appointment appointment =
                                     item.appointments.first;
 
-                                return Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: Color.fromARGB(255, 0, 0, 0))
+                                return Card(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    //모서리를 둥글게 하기 위해 사용
+                                    borderRadius: BorderRadius.circular(5.0),
                                   ),
+                                  elevation: 2.0,
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -316,7 +316,18 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                                           fontWeight: FontWeight.bold
                                         ),
                                       ),
-                                      Text(getTime(appointment.startTime, appointment.endTime)),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.schedule,
+                                            size: 15,
+                                          ),
+                                          SizedBox(width: 5),
+                                          Text(getTime(appointment.startTime, appointment.endTime)),
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 );
@@ -420,7 +431,15 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
 
   /// 상세일정 출력용
   String getTime(DateTime startTime, DateTime endTime) {
-    return "${startTime.hour}:${startTime.minute} ~ ${endTime.hour}:${endTime.minute}";
+    return "${
+      DateFormat('hh').format(startTime)
+      }:${
+        DateFormat('mm').format(startTime)
+        } ~ ${
+          DateFormat('hh').format(endTime)
+          }:${
+            DateFormat('mm').format(endTime)
+            }";
   }
 
   /// 테스트 데이터
