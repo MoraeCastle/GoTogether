@@ -13,6 +13,13 @@ class ScheduleClass with ChangeNotifier {
   bool isDetailViewVisible = false;
   bool isGuide = false;
 
+  bool isTileOpen = false;
+
+  set tileCheck(bool value) {
+    isTileOpen = value;
+    notifyListeners();
+  }
+
   set detailViewVisible(bool isVisible) {
     isDetailViewVisible = isVisible;
     notifyListeners();

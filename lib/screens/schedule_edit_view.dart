@@ -28,8 +28,8 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     noticeController.dispose();
+    super.dispose();
   }
 
   @override

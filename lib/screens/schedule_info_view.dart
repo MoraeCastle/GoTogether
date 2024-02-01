@@ -34,6 +34,7 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
   Set<Marker> markers = {};
 
   CalendarController calendarController = CalendarController();
+  ScrollController scrollController = ScrollController();
 
   /// 맵 컨트롤러 가져오기
   Future<GoogleMapController> getController() async {
@@ -78,6 +79,12 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   void setState(VoidCallback fn) {
     // TODO: implement setState
     super.setState(fn);
@@ -92,12 +99,13 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
     );
 
     return Container(
-        padding: EdgeInsets.all(15),
-        width: double.infinity,
-        height: double.infinity,
-        color: Colors.black.withAlpha(200),
-        child: SingleChildScrollView(
-            child: Column(
+      padding: EdgeInsets.all(15),
+      width: double.infinity,
+      height: double.infinity,
+      color: Colors.black.withAlpha(200),
+      child: SingleChildScrollView(
+        controller: scrollController,
+        child: Column(
           children: [
             Container(
               padding: EdgeInsets.all(15),
@@ -180,6 +188,8 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
               child:
               ExpansionTileCard(
                 onExpansionChanged: (value) {
+                  Provider.of<ScheduleClass>(context, listen: false).tileCheck = value;
+
                   if (value) {
                     calendarController.displayDate = context.read<ScheduleClass>().selectDate;
                   }
@@ -239,7 +249,7 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                                 border: Border.all(
                                     color: Color.fromARGB(100, 0, 0, 0))),
                             child: SfCalendar(
-                              view: CalendarView.day,
+                              view: CalendarView.schedule,
                               controller: calendarController,
                               onSelectionChanged: (calendarSelectionDetails) {
                                 //BotToast.showText(text: calendarSelectionDetails.date.toString());
@@ -268,6 +278,13 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                                       }
                                     }
                                   }
+
+                                  // 스크를 맨 밑으로.
+                                  scrollController.animateTo(
+                                    scrollController.position.maxScrollExtent, 
+                                    duration: Duration(milliseconds: 500), 
+                                    curve: Curves.easeInOut,
+                                  );
                                 }
                                 // 그냥 창 클릭 시
                                 //BotToast.showText(text: calendarTapDetails.date.toString());
@@ -323,31 +340,42 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                               minDate: DateTime(2023, 1, 1, 0, 1),
                               maxDate: DateTime(2052, 12, 31, 23, 59),
                               scheduleViewSettings: const ScheduleViewSettings(
+                                // 일정이 없는 날은 삭제
+                                hideEmptyScheduleWeek: true,
+                                // 아이템 높이 및 텍스트 세팅.
+                                appointmentItemHeight: 70,
+                                // appointmentTextStyle: TextStyle(),
+                                // 날짜 디자인
                                 dayHeaderSettings: DayHeaderSettings(
-                                    dayFormat: 'EEEE',
-                                    width: 70,
-                                    dayTextStyle: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w300,
-                                      color: Colors.black,
-                                    ),
-                                    dateTextStyle: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w300,
-                                      color: Colors.red,
-                                    )),
+                                  dayFormat: 'EEEE',
+                                  width: 70,
+                                  dayTextStyle: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.black,
+                                  ),
+                                  dateTextStyle: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  )
+                                ),
+                                monthHeaderSettings: MonthHeaderSettings(
+                                  height: 0,
+                                )
                               ),
                               viewHeaderHeight: 0,
                               headerHeight: 0,
                               headerStyle: const CalendarHeaderStyle(
-                                  backgroundColor: Color.fromARGB(70, 0, 0, 0),
-                                  textAlign: TextAlign.center,
-                                  textStyle: TextStyle(
-                                      color: Color.fromARGB(225, 255, 255, 255),
-                                      fontWeight: FontWeight.bold)),
+                                backgroundColor: Color.fromARGB(70, 0, 0, 0),
+                                textAlign: TextAlign.center,
+                                textStyle: TextStyle(
+                                  color: Color.fromARGB(225, 255, 255, 255),
+                                  fontWeight: FontWeight.bold,
+                                )
+                              ),
                               todayHighlightColor: Colors.black,
-                              todayTextStyle:
-                              const TextStyle(color: Colors.white),
+                              todayTextStyle:const TextStyle(color: Colors.white),
                             ),
                           )
                         ],
@@ -385,7 +413,9 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
               ),
             ),
           ],
-        )));
+        )
+      )
+    );
   }
 
   /// 상세일정 출력용
