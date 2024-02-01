@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:go_together/models/RouteItem.dart';
 import 'package:go_together/models/Schedule.dart';
+import 'package:go_together/utils/WidgetBuilder.dart';
+import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
@@ -254,6 +256,47 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                               controller: calendarController,
                               onSelectionChanged: (calendarSelectionDetails) {
                                 //BotToast.showText(text: calendarSelectionDetails.date.toString());
+                              },
+                              // 삭제 제스처
+                              // 가이드만 가능
+                              onLongPress: (selectItem) {
+                                if (!context.read<ScheduleClass>().isGuide) return;
+
+                                final Appointment appointment =
+                                    selectItem.appointments!.first;
+                                    
+                                CustomDialog.doubleButton(
+                                  context, Icons.delete, '일정 삭제', '이 일정을 삭제하겠습니까?'
+                                  , null, '삭제', () async {
+                                    BotToast.showLoading();
+
+                                    bool answer = false;
+                                    answer = await NetworkUtil.removeSchedule(
+                                      context.read<ScheduleClass>().travel.getTravelCode()
+                                      , SystemUtil.changePrintDateOnlyDate(context.read<ScheduleClass>().selectDate)
+                                      , appointment.subject
+                                      , SystemUtil.getClock(appointment.startTime)
+                                      , SystemUtil.getClock(appointment.endTime)
+                                    );
+
+                                    BotToast.closeAllLoading();
+                                    Navigator.pop(context);
+
+                                    CustomDialog.oneButton(
+                                      context
+                                      , Icons.info_outline_rounded
+                                      , '안내'
+                                      , answer ? '삭제되었습니다.' : '삭제에 실패했습니다. 다시 시도해 주세요.'
+                                      , null
+                                      , '확인'
+                                      , () {
+                                        Navigator.pop(context);
+                                      }
+                                      , false
+                                    );
+                                  }, '취소', () {
+                                    Navigator.pop(context);
+                                  }, false);
                               },
                               onTap: (details) {
                                 // 지도 출력여부.

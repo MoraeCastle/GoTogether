@@ -243,6 +243,15 @@ class SystemUtil {
     return result;
   }
 
+  /// DateTime에서 시, 분을 가져옵니다. (HH:MM)
+  /// 루트 내 시간 비교용 데이터.
+  static String getClock(DateTime date) {
+    String result = date.hour.toString().padLeft(2, '0') + ":"
+        + date.minute.toString().padLeft(2, '0');
+
+    return result;
+  }
+
   /// HH:MM 날짜 비교
   static bool isDateSame(DateTime time, String timeStr) {
     return timeStr

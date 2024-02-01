@@ -7,9 +7,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_together/main.dart';
 import 'package:go_together/models/Chat.dart';
 import 'package:go_together/models/Notice.dart';
 import 'package:go_together/models/Room.dart';
+import 'package:go_together/models/RouteItem.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/utils/string.dart';
@@ -219,5 +221,52 @@ class NetworkUtil {
     } else {
       return false;
     }
+  }
+
+  /// 일정 관련 메소드
+  /// 
+  /// 
+  /// 
+  /// 일정 삭제
+  static Future<bool> removeSchedule(String travelCode, String day, String title, String startTime, String endTime) async {
+    bool answer = false;
+    
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('travel/$travelCode').get();
+
+    var result = snapshot.value;
+    if (result != null) {
+      var travel = Travel.fromJson(result);
+
+      var schedule = travel.getSchedule();
+
+      if (schedule.isNotEmpty) {
+        Map<String, List<RouteItem>> routeMap = schedule.first.getRouteMap();
+
+        if (routeMap.containsKey(day)) {
+          if (routeMap[day] != null) {
+            RouteItem? target;
+            for (RouteItem data in routeMap[day]!) {
+              if (data.getRouteName() == title) {
+                if (data.getStartTime() == startTime && data.getEndTime() == endTime) {
+                  target = data;
+                  break;
+                }
+              }
+            }
+
+            if (target != null && target.position.isNotEmpty) {
+              routeMap[day]!.remove(target);
+
+              await ref.child('travel/$travelCode').set(travel.toJson());
+              
+              answer = true;
+            }
+          }
+        }
+      }
+    }
+
+    return answer;
   }
 }
