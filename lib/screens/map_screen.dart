@@ -345,6 +345,7 @@ class _MapViewState extends State<MapView> {
         alignment: Alignment.center,
         children: [
           GoogleMap(
+            myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             mapType: MapType.normal,
             initialCameraPosition: currentPosition,

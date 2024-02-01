@@ -420,6 +420,7 @@ class _ScheduleAddView extends State<ScheduleAddView> {
                             child: Stack(
                               children: [
                                 GoogleMap(
+                                  myLocationButtonEnabled: false,
                                   zoomControlsEnabled: false,
                                   mapType: MapType.normal,
                                   initialCameraPosition:

@@ -235,6 +235,7 @@ class _CountryInfoViewState extends State<CountryInfoView> {
                                     child: Stack(
                                       children: [
                                         GoogleMap(
+                                          myLocationButtonEnabled: false,
                                           zoomControlsEnabled: false,
                                           zoomGesturesEnabled: false,
                                           circles: _circles,

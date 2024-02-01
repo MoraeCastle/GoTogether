@@ -370,6 +370,7 @@ class _ScheduleInfoView extends State<ScheduleInfoView> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: GoogleMap(
+                      myLocationButtonEnabled: false,
                       zoomControlsEnabled: false,
                       mapType: MapType.normal,
                       initialCameraPosition:
