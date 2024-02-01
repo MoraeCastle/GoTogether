@@ -7,6 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_together/screens/schedule_screen.dart';
 import 'package:go_together/service/routing_service.dart';
+import 'package:go_together/utils/system_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:map_autocomplete_field/map_autocomplete_field.dart';
@@ -59,7 +60,7 @@ class _MapSelectViewState extends State<MapSelectView> {
 
   /// PlaceId의 위치로 이동하기
   _findAddressForPlace(String placeId) async {
-    final geocoding = GoogleMapsGeocoding(apiKey: "AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts");
+    final geocoding = GoogleMapsGeocoding(apiKey: SystemUtil.getWebKey);
     final response =
         await geocoding.searchByPlaceId(placeId);
 
@@ -243,8 +244,7 @@ class _MapSelectViewState extends State<MapSelectView> {
                                   BorderRadius.all(Radius.circular(10)),
                                 ),
                               ),
-                              googleMapApiKey:
-                              'AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts',
+                              googleMapApiKey: SystemUtil.getGoogleKey(),
                               // locale: 'kr',
                               focusNode: textFocus,
                               controller: textEditingController,

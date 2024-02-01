@@ -122,6 +122,8 @@ class _TabBarScreenState extends State<TabBarWidget>
     SharedPreferences prefs = await _prefs;
     String travelCode = prefs.getString(SystemData.travelCode) ?? "";
     String userCode = prefs.getString(SystemData.userCode) ?? "";
+    
+    _countProvider = Provider.of<DataClass>(context, listen: false);
 
     BotToast.closeAllLoading();
 
@@ -134,7 +136,6 @@ class _TabBarScreenState extends State<TabBarWidget>
         if (result != null) {
           var travel = Travel.fromJson(result);
 
-          _countProvider = Provider.of<DataClass>(context, listen: false);
           _countProvider.travel = travel;
 
           listenTravelChange(travelCode, userCode);

@@ -55,6 +55,17 @@ class SystemUtil {
     '0'
   ];
 
+  static String getWebKey = 'AIzaSyDkKqENNJPsn0b06Ocdca40hMYjf3CnmOI';
+
+  /// 구글 api 키
+  static String getGoogleKey() {
+    if(Platform.isAndroid) {
+      return "AIzaSyAMY7K4jHaK9RUlMc43jhf_-YxM1WLBfv0";
+    } else {
+      return "AIzaSyDiOvYFYY-bz2NhsmQHAFX4gk0jWhwV2t8";
+    }
+  }
+
   /// 기기 고유값 가져오기
   static Future<String?> getDeviceCode() async {
     var deviceInfo = DeviceInfoPlugin();

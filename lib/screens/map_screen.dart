@@ -54,7 +54,7 @@ class _MapViewState extends State<MapView> {
 
   /// PlaceId의 위치로 이동하기
   findAddressForPlace(String placeId) async {
-    final geocoding = GoogleMapsGeocoding(apiKey: "AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts");
+    final geocoding = GoogleMapsGeocoding(apiKey: SystemUtil.getWebKey);
     final response =
         await geocoding.searchByPlaceId(placeId);
 
@@ -422,8 +422,7 @@ class _MapViewState extends State<MapView> {
                                       BorderRadius.all(Radius.circular(10)),
                                     ),
                                   ),
-                                  googleMapApiKey:
-                                  'AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts',
+                                  googleMapApiKey: SystemUtil.getGoogleKey(),
                                   // locale: 'kr',
                                   focusNode: textFocus,
                                   controller: textEditingController,
