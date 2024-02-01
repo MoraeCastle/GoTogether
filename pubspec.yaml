@@ -57,6 +57,7 @@ dependencies:
   permission_handler: ^11.1.0
   volume_control: ^0.1.5
   url_launcher: ^6.2.4
+  keyboard_service: ^2.0.2
 
 dependency_overrides:
  intl: any

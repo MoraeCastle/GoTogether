@@ -11,6 +11,7 @@ import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
+import 'package:keyboard_service/keyboard_service.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -164,9 +165,12 @@ class _ScheduleWidget extends State<ScheduleWidget>
     tabController.addListener(() {
       Provider.of<ScheduleClass>(context, listen: false).detailViewVisible = false;
       // BotToast.showText(text: tabController.index.toString());
+
+      KeyboardService.dismiss();
     });
 
-    return Scaffold(
+    return KeyboardAutoDismiss(
+      scaffold: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black.withAlpha(200),
           leading: IconButton(
@@ -269,6 +273,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
               ),
             ],
           )),
-        );
+        ),
+    );
   }
 }

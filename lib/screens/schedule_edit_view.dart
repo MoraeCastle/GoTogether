@@ -19,6 +19,7 @@ class ScheduleEditView extends StatefulWidget {
 
 class _ScheduleInfoView extends State<ScheduleEditView> {
   List<Widget> userList = [];
+  TextEditingController noticeController = TextEditingController();
 
   @override
   void initState() {
@@ -26,7 +27,15 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    noticeController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    noticeController.text = context.watch<ScheduleClass>().travel.getNotice();
+    
     return Container(
       padding: const EdgeInsets.all(15),
       width: double.infinity,
@@ -80,10 +89,10 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Color.fromARGB(150, 255, 255, 255),
-                          labelText: context.watch<ScheduleClass>().travel.getTitle(),
-                          hintText: '내용 입력',
+                          // labelText: context.watch<ScheduleClass>().travel.getTitle(),
+                          hintText: context.watch<ScheduleClass>().travel.getTitle(),
                           labelStyle: TextStyle(color: Colors.black),
-                          focusedBorder: OutlineInputBorder(
+                          focusedBorder: const OutlineInputBorder(
                             borderRadius:
                             BorderRadius.all(Radius.circular(10.0)),
                             borderSide:
@@ -195,16 +204,17 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                       height: 350,
                       child: TextField(
                         maxLines: null,
+                        controller: noticeController,
                         enabled: context.watch<ScheduleClass>().isGuide,
                         onChanged: (value) {
                           Provider.of<ScheduleClass>(context, listen: false).travel.setNotice(value);
                         },
                         textAlignVertical: TextAlignVertical.top,
                         expands: true,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           filled: true,
                           fillColor: Color.fromARGB(150, 255, 255, 255),
-                          labelText: context.watch<ScheduleClass>().travel.getNotice(),
+                          // labelText: context.watch<ScheduleClass>().travel.getNotice(),
                           alignLabelWithHint: true,
                           hintText: '내용 입력',
                           labelStyle: TextStyle(color: Colors.black),

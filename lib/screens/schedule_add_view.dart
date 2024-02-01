@@ -7,6 +7,7 @@ import 'package:go_together/models/Schedule.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:keyboard_service/keyboard_service.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:time_range_picker/time_range_picker.dart';
@@ -179,321 +180,323 @@ class _ScheduleAddView extends State<ScheduleAddView> {
         if (didPop) return;
         backPress();
       },
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black.withAlpha(200),
-          leading: IconButton(
-            onPressed: () => backPress(),
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {
-                saveSchedule();
-              },
-              icon: const Icon(Icons.save, color: Colors.white),
+      child: KeyboardAutoDismiss(
+        scaffold: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.black.withAlpha(200),
+            leading: IconButton(
+              onPressed: () => backPress(),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
-          ],
-          shadowColor: Colors.transparent,
-          centerTitle: true,
-          title: const Text(
-            '일정 추가',
-            style: TextStyle(color: Colors.white, fontSize: 17),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  saveSchedule();
+                },
+                icon: const Icon(Icons.save, color: Colors.white),
+              ),
+            ],
+            shadowColor: Colors.transparent,
+            centerTitle: true,
+            title: const Text(
+              '일정 추가',
+              style: TextStyle(color: Colors.white, fontSize: 17),
+            ),
           ),
-        ),
-        body: Container(
-          padding: EdgeInsets.all(15),
-          width: double.infinity,
-          height: double.infinity,
-          color: Colors.black.withAlpha(200),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(15),
-                  margin: EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Column(
-                    children: [
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.schedule),
-                              SizedBox(width: 5),
-                              Text('시간')
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                          width: 500,
-                          child: Divider(
-                              color: Color.fromARGB(100, 0, 0, 0),
-                              thickness: 1.0)),
-                      Column(
-                        children: [
-                          Container(
-                            height: 95,
-                            padding: const EdgeInsets.only(
-                                left: 20, right: 20, top: 5, bottom: 5),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  flex: 4,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white.withAlpha(230),
-                                        borderRadius:
-                                        BorderRadius.circular(15)),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          '시작',
-                                          style: TextStyle(
-                                              color:
-                                              Colors.black.withAlpha(150),
-                                              fontSize: 13),
-                                        ),
-                                        Text(
-                                          _startTime.format(context),
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const Icon(Icons.arrow_right),
-                                Expanded(
-                                  flex: 4,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white.withAlpha(230),
-                                        borderRadius:
-                                        BorderRadius.circular(15)),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          '종료',
-                                          style: TextStyle(
-                                              color:
-                                              Colors.black.withAlpha(150),
-                                              fontSize: 13),
-                                        ),
-                                        Text(
-                                          _endTime.format(context),
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // 시간 선택기
-                          TimeRangePicker(
-                            hideButtons: true,
-                            hideTimes: true,
-                            rotateLabels: false,
-                            paintingStyle: PaintingStyle.fill,
-                            backgroundColor: Colors.black.withAlpha(50),
-                            toText: '종료',
-                            fromText: '시작',
-                            labels: [
-                              "12 AM",
-                              "3",
-                              "6 AM",
-                              "9",
-                              "12 PM",
-                              "3",
-                              "6 PM",
-                              "9"
-                            ].asMap().entries.map((e) {
-                              return ClockLabel.fromIndex(
-                                  idx: e.key, length: 8, text: e.value);
-                            }).toList(),
-                            start: _startTime,
-                            end: _endTime,
-                            ticks: 10,
-                            strokeColor: Theme.of(context)
-                                .primaryColor
-                                .withOpacity(0.5),
-                            ticksColor: Theme.of(context).primaryColor,
-                            labelOffset: 20,
-                            padding: 60,
-                            onStartChange: (start) {
-                              setState(() {
-                                _startTime = start;
-                              });
-                            },
-                            onEndChange: (end) {
-                              setState(() {
-                                _endTime = end;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: TextField(
-                          onChanged: (value) {
-                            routeItem.setRouteName(value);
-                          },
-                          decoration: const InputDecoration(
-                            filled: true,
-                            fillColor: Color.fromARGB(150, 255, 255, 255),
-                            labelText: '일정명',
-                            hintText: '내용 입력',
-                            labelStyle: TextStyle(color: Colors.black),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
-                            ),
-                          ),
-                          keyboardType: TextInputType.text,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                    padding: const EdgeInsets.all(15),
-                    margin: const EdgeInsets.only(bottom: 5),
+          body: Container(
+            padding: EdgeInsets.all(15),
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.black.withAlpha(200),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(15),
+                    margin: EdgeInsets.only(bottom: 10),
                     decoration: BoxDecoration(
                         color: Colors.grey,
                         borderRadius: BorderRadius.circular(15)),
-                    child: Column(children: [
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.location_on),
-                              SizedBox(width: 5),
-                              Text('위치')
-                            ],
-                          ),
-                          Text(
-                            '일정의 위치를 지정하세요',
-                            style: TextStyle(
-                                fontWeight: FontWeight.normal, fontSize: 11),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                          width: 500,
-                          child: Divider(
-                              color: Color.fromARGB(100, 0, 0, 0),
-                              thickness: 1.0)),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 200,
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Stack(
+                    child: Column(
+                      children: [
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
                               children: [
-                                GoogleMap(
-                                  myLocationButtonEnabled: false,
-                                  zoomControlsEnabled: false,
-                                  mapType: MapType.normal,
-                                  initialCameraPosition:
-                                      CameraPosition(target: selectPosition),
-                                  onMapCreated: (controller) {
-                                    if (!_controller.isCompleted) {
-                                      _controller.complete(controller);
-                                    }
-                                  },
-                                  markers: markers,
-                                ),
-                                // 터치 이벤트
-                                GestureDetector(
-                                  onTap: () async {
-                                    //Navigator.push(context, MaterialPageRoute(builder: (context) => MapSelectView()));
-                                    // 만약 위치가 있다면 해당 위치로 저장.(보류)
-
-                                    Navigator.pushNamed(
-                                            context, MapSelectViewRoute)
-                                        .then(
-                                      (value) async {
-                                        await _getTargetPosition();
-
-                                        setState(() {
-                                          if (selectPosition !=
-                                              const LatLng(0, 0)) {
-                                            final Marker marker = Marker(
-                                              markerId: const MarkerId(
-                                                  "selectMarker"),
-                                              position: selectPosition,
-                                              icon: BitmapDescriptor
-                                                  .defaultMarker,
-                                            );
-
-                                            _targetPosition(selectPosition);
-
-                                            routeItem.setPosition(
-                                                "${selectPosition.latitude},${selectPosition.longitude}");
-
-                                            markers.clear();
-                                            markers.add(marker);
-                                          } else {
-                                            markers.clear();
-
-                                            routeItem.setPosition("");
-                                          }
-                                        });
-                                      },
-                                    );
-                                  },
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    alignment: Alignment.center,
-                                    color: selectPosition == const LatLng(0, 0)
-                                        ? Colors.black.withAlpha(150)
-                                        : Colors.black.withAlpha(0),
-                                    child: selectPosition == const LatLng(0, 0)
-                                        ? const Text(
-                                            '탭 하여 위치 지정',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          )
-                                        : null,
-                                  ),
-                                )
+                                Icon(Icons.schedule),
+                                SizedBox(width: 5),
+                                Text('시간')
                               ],
-                            )),
-                      ),
-                    ])),
-              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                            width: 500,
+                            child: Divider(
+                                color: Color.fromARGB(100, 0, 0, 0),
+                                thickness: 1.0)),
+                        Column(
+                          children: [
+                            Container(
+                              height: 95,
+                              padding: const EdgeInsets.only(
+                                  left: 20, right: 20, top: 5, bottom: 5),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    flex: 4,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                          color: Colors.white.withAlpha(230),
+                                          borderRadius:
+                                          BorderRadius.circular(15)),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            '시작',
+                                            style: TextStyle(
+                                                color:
+                                                Colors.black.withAlpha(150),
+                                                fontSize: 13),
+                                          ),
+                                          Text(
+                                            _startTime.format(context),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_right),
+                                  Expanded(
+                                    flex: 4,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                          color: Colors.white.withAlpha(230),
+                                          borderRadius:
+                                          BorderRadius.circular(15)),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            '종료',
+                                            style: TextStyle(
+                                                color:
+                                                Colors.black.withAlpha(150),
+                                                fontSize: 13),
+                                          ),
+                                          Text(
+                                            _endTime.format(context),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // 시간 선택기
+                            TimeRangePicker(
+                              hideButtons: true,
+                              hideTimes: true,
+                              rotateLabels: false,
+                              paintingStyle: PaintingStyle.fill,
+                              backgroundColor: Colors.black.withAlpha(50),
+                              toText: '종료',
+                              fromText: '시작',
+                              labels: [
+                                "12 AM",
+                                "3",
+                                "6 AM",
+                                "9",
+                                "12 PM",
+                                "3",
+                                "6 PM",
+                                "9"
+                              ].asMap().entries.map((e) {
+                                return ClockLabel.fromIndex(
+                                    idx: e.key, length: 8, text: e.value);
+                              }).toList(),
+                              start: _startTime,
+                              end: _endTime,
+                              ticks: 10,
+                              strokeColor: Theme.of(context)
+                                  .primaryColor
+                                  .withOpacity(0.5),
+                              ticksColor: Theme.of(context).primaryColor,
+                              labelOffset: 20,
+                              padding: 60,
+                              onStartChange: (start) {
+                                setState(() {
+                                  _startTime = start;
+                                });
+                              },
+                              onEndChange: (end) {
+                                setState(() {
+                                  _endTime = end;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: TextField(
+                            onChanged: (value) {
+                              routeItem.setRouteName(value);
+                            },
+                            decoration: const InputDecoration(
+                              filled: true,
+                              fillColor: Color.fromARGB(150, 255, 255, 255),
+                              labelText: '일정명',
+                              hintText: '내용 입력',
+                              labelStyle: TextStyle(color: Colors.black),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)),
+                                borderSide:
+                                    BorderSide(width: 1, color: Colors.grey),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)),
+                                borderSide:
+                                    BorderSide(width: 1, color: Colors.grey),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)),
+                              ),
+                            ),
+                            keyboardType: TextInputType.text,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                      padding: const EdgeInsets.all(15),
+                      margin: const EdgeInsets.only(bottom: 5),
+                      decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Column(children: [
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.location_on),
+                                SizedBox(width: 5),
+                                Text('위치')
+                              ],
+                            ),
+                            Text(
+                              '일정의 위치를 지정하세요',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.normal, fontSize: 11),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                            width: 500,
+                            child: Divider(
+                                color: Color.fromARGB(100, 0, 0, 0),
+                                thickness: 1.0)),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 200,
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Stack(
+                                children: [
+                                  GoogleMap(
+                                    myLocationButtonEnabled: false,
+                                    zoomControlsEnabled: false,
+                                    mapType: MapType.normal,
+                                    initialCameraPosition:
+                                        CameraPosition(target: selectPosition),
+                                    onMapCreated: (controller) {
+                                      if (!_controller.isCompleted) {
+                                        _controller.complete(controller);
+                                      }
+                                    },
+                                    markers: markers,
+                                  ),
+                                  // 터치 이벤트
+                                  GestureDetector(
+                                    onTap: () async {
+                                      //Navigator.push(context, MaterialPageRoute(builder: (context) => MapSelectView()));
+                                      // 만약 위치가 있다면 해당 위치로 저장.(보류)
+
+                                      Navigator.pushNamed(
+                                              context, MapSelectViewRoute)
+                                          .then(
+                                        (value) async {
+                                          await _getTargetPosition();
+
+                                          setState(() {
+                                            if (selectPosition !=
+                                                const LatLng(0, 0)) {
+                                              final Marker marker = Marker(
+                                                markerId: const MarkerId(
+                                                    "selectMarker"),
+                                                position: selectPosition,
+                                                icon: BitmapDescriptor
+                                                    .defaultMarker,
+                                              );
+
+                                              _targetPosition(selectPosition);
+
+                                              routeItem.setPosition(
+                                                  "${selectPosition.latitude},${selectPosition.longitude}");
+
+                                              markers.clear();
+                                              markers.add(marker);
+                                            } else {
+                                              markers.clear();
+
+                                              routeItem.setPosition("");
+                                            }
+                                          });
+                                        },
+                                      );
+                                    },
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      alignment: Alignment.center,
+                                      color: selectPosition == const LatLng(0, 0)
+                                          ? Colors.black.withAlpha(150)
+                                          : Colors.black.withAlpha(0),
+                                      child: selectPosition == const LatLng(0, 0)
+                                          ? const Text(
+                                              '탭 하여 위치 지정',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            )
+                                          : null,
+                                    ),
+                                  )
+                                ],
+                              )),
+                        ),
+                      ])),
+                ],
+              ),
             ),
           ),
         ),
