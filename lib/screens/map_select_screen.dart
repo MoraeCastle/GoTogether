@@ -165,6 +165,7 @@ class _MapSelectViewState extends State<MapSelectView> {
         children: [
           // 구글 맵
           GoogleMap(
+            myLocationEnabled: true,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             mapType: MapType.normal,
