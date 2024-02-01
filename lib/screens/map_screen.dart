@@ -387,15 +387,14 @@ class _MapViewState extends State<MapView> {
                       child: IconButton(
                           padding: const EdgeInsets.all(0),
                           onPressed: () {
-                            if (context.read<DataClass>().travel.getTravelCode().isEmpty) return;
-                            // _scaffoldKey.currentState!.openDrawer();
-                            // BotToast.showText(text: "text");
-
-                            // 테스트
-                            // Navigator.pop(context),
-                            Navigator.pushNamed(context, ScheduleRoute);
+                            if (context.read<DataClass>().travel.getTravelCode().isEmpty) {
+                              Navigator.pop(context);
+                            } else {
+                              Navigator.pushNamed(context, ScheduleRoute);
+                            }
                           },
-                          icon: const Icon(Icons.menu)),
+                          icon: context.read<DataClass>().travel.getTravelCode().isEmpty ?
+                          const Icon(Icons.logout) : const Icon(Icons.menu)),
                     ),
                     Flexible(
                         flex: 7,
