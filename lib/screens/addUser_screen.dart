@@ -131,7 +131,7 @@ class _AddUserView extends State<AddUserView> {
             Column(
               children: [
                 Container(
-                    margin: const EdgeInsets.only(top: 30),
+                    margin: const EdgeInsets.only(top: 50),
                     width: double.infinity,
                     height: 50,
                     // alignment: Alignment.bottomLeft,

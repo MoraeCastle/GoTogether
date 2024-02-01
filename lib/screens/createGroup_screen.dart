@@ -93,7 +93,7 @@ class _CreateGroupView extends State<CreateGroupView> {
             Column(
               children: [
                 Container(
-                    margin: const EdgeInsets.only(top: 30),
+                    margin: const EdgeInsets.only(top: 50),
                     width: double.infinity,
                     height: 50,
                     // alignment: Alignment.bottomLeft,
@@ -312,7 +312,8 @@ class _CreateGroupView extends State<CreateGroupView> {
                           ),
                           Container(
                             margin: const EdgeInsets.all(15),
-                            padding: const EdgeInsets.all(15),
+                            padding: const EdgeInsets.all(10),
+                            alignment: Alignment.center,
                             // color: Colors.blue,
                             decoration: BoxDecoration(
                               color: Colors.white,

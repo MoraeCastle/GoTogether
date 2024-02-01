@@ -88,7 +88,7 @@ class _LoginView extends State<LoginView> {
                               child: RowItemButton(
                                 padding: EdgeInsets.only(bottom: 10),
                                 backColor: Color.fromARGB(255, 158, 174, 255),
-                                imageName: "refresh_black",
+                                icon: Icons.sync_rounded,
                                 buttonText: "새로고침 하기",
                                 action: checkWaiting,
                               ),
@@ -160,7 +160,7 @@ class _LoginView extends State<LoginView> {
                             RowItemButton(
                               padding: EdgeInsets.only(bottom: 10),
                               backColor: Color.fromARGB(255, 194, 204, 255),
-                              imageName: "login_black",
+                              icon: Icons.login_rounded,
                               buttonText: "입력한 코드로 로그인",
                               action: () {
                                 login(context, editingController.value.text);
@@ -171,7 +171,7 @@ class _LoginView extends State<LoginView> {
                             RowItemButton(
                               padding: EdgeInsets.only(bottom: 10),
                               backColor: Color.fromARGB(255, 158, 174, 255),
-                              imageName: "group_add_black",
+                              icon: Icons.group_add_outlined,
                               buttonText: "새 그룹 만들기",
                               action: () => {
                                 // Navigator.pop(context),
@@ -185,7 +185,7 @@ class _LoginView extends State<LoginView> {
                         RowItemButton(
                           padding: EdgeInsets.only(bottom: 10),
                           backColor: Color.fromARGB(255, 218, 218, 218),
-                          imageName: "none_black",
+                          icon: Icons.directions_run_rounded,
                           buttonText: "비회원으로 이용하기",
                           action: () => noIdModeDialog(context),
                         ),
@@ -497,7 +497,7 @@ class _LoginView extends State<LoginView> {
 class RowItemButton extends StatelessWidget {
   final EdgeInsets padding;
   final Color backColor;
-  final String imageName;
+  final IconData icon;
   final String buttonText;
   final VoidCallback action;
   final bool? isBold;
@@ -506,7 +506,7 @@ class RowItemButton extends StatelessWidget {
     Key? key,
     required this.padding,
     required this.backColor,
-    required this.imageName,
+    required this.icon,
     required this.buttonText,
     required this.action,
     this.isBold = false,
@@ -531,26 +531,29 @@ class RowItemButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                alignment: Alignment.center,
-                width: 50,
-                height: 25,
-                child: Image.asset(
-                  'assets/images/$imageName.png',
+              Expanded(
+                flex: 2,
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 25,
+                  child: Icon(
+                    icon,
+                    color: Colors.black,
+                  )
                 ),
               ),
-              Container(
-                width: 180,
-                alignment: Alignment.center,
+              Expanded(
+                flex: 5,
                 child: Text(
                   buttonText,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 15,
                     fontWeight: isBold! ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

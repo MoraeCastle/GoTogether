@@ -363,7 +363,7 @@ class _MapViewState extends State<MapView> {
           ),
           // 검색창
           Positioned(
-            top: 40,
+            top: 50,
             left: 10,
             right: 10,
             child: Container(
