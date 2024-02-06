@@ -1,8 +1,10 @@
 // 앱 내 주요 기능관련 클래스.
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -268,5 +271,46 @@ class NetworkUtil {
     }
 
     return answer;
+  }
+
+  /// 미디어 관련
+  ///
+  ///
+  /// 이미지 업로드
+  /// 다운로드 링크가 반환됩니다.
+  static Future<String> uploadImage(String travelCode, String userCode, XFile? image) async {
+    if (image != null) {
+      try {
+        //현재 시간 저장
+        final now = DateTime.now();
+        File? selectedImage;
+        selectedImage = File(image.path);
+
+        // 이름 분리
+        String imageType = "";
+        List<String> imageName = image.name.split('.');
+        if (imageName.length > 1) {
+          imageType = imageName[imageName.length - 1];
+          imageType = '.' + imageType;
+        }
+
+        //참조 생성
+        final storageRef = FirebaseStorage.instance.ref();
+        var ref = storageRef.child('$travelCode/$userCode' + imageType);
+
+        String downloadURL = "";
+
+        // 참조에 파일 저장
+        // 상태에 따라. 아직은 완료되기만 구분. == 결과가 비어있으면 오류.
+        await ref.putFile(selectedImage);
+        downloadURL = await ref.getDownloadURL();
+
+        return downloadURL;
+      } catch (e) {
+        return "";
+      }
+    } else {
+      return "";
+    }
   }
 }

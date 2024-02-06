@@ -58,6 +58,8 @@ dependencies:
   volume_control: ^0.1.5
   url_launcher: ^6.2.4
   keyboard_service: ^2.0.2
+  firebase_storage: ^11.6.4
+  firebase_app_check: ^0.2.1+12
 
 dependency_overrides:
  intl: any

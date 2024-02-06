@@ -7,6 +7,7 @@ import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/WidgetBuilder.dart';
+import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -189,6 +190,16 @@ class _LoginView extends State<LoginView> {
                           buttonText: "비회원으로 이용하기",
                           action: () => noIdModeDialog(context),
                         ),
+                        // 테스트
+                        /*RowItemButton(
+                          padding: EdgeInsets.only(bottom: 10),
+                          backColor: Colors.yellow,
+                          icon: Icons.bug_report_outlined,
+                          buttonText: "테스트 버튼",
+                          action: () {
+                            NetworkUtil.uploadImage();
+                          },
+                        ),*/
                       ],
                     ),
                   ),

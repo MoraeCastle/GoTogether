@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
@@ -24,12 +25,21 @@ void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  if(Platform.isAndroid) {
-    // AndroidGoogleMapsFlutter.useAndroidViewSurface = true;
-  }
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await FirebaseAppCheck.instance.activate(
+    webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+    // androidProvider: AndroidProvider.playIntegrity,
+    androidProvider: AndroidProvider.debug,
+    appleProvider: AppleProvider.deviceCheck,
+  );
+
+  if(Platform.isAndroid) {
+    // AndroidGoogleMapsFlutter.useAndroidViewSurface = true;
+  }
+
   await dotenv.load(fileName: 'assets/config/.env');
   route = await checkAutoLogin();
 

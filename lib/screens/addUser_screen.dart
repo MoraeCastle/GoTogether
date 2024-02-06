@@ -7,6 +7,7 @@ import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/User.dart';
 import 'package:image_picker/image_picker.dart';
@@ -90,6 +91,21 @@ class _AddUserView extends State<AddUserView> {
           }
         }
 
+        // 프로필 이미지 등록
+        String profileURL = "";
+        if (_imageFile != null) {
+          profileURL = await NetworkUtil.uploadImage(travelCode, userItem.getUserCode(), _imageFile);
+
+          Logger logger = Logger();
+          logger.e('ddd');
+          logger.e(profileURL);
+
+          if (profileURL.isNotEmpty) {
+            userItem.setProfileURL(profileURL);
+          }
+        }
+
+        // 여행데이터에 유저정보 삽입
         travel.addUser(userItem);
 
         if (userItem.getAuthority() == describeEnum(UserType.guide)) {

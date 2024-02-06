@@ -6,6 +6,7 @@ class User {
   late String position; // 위치좌표
   late String pushToken; // 알림전송용 고유토큰
   late String userCode; // 유저 고유코드
+  late String profileURL; // 프로필 이미지 다운링크
 
   User({
     String authority = "",
@@ -14,12 +15,14 @@ class User {
     String position = "",
     String pushToken = "",
     String userCode = "",
+    String profileURL = "",
   })  : authority = authority,
         deviceCode = deviceCode,
         name = name,
         position = position,
         pushToken = pushToken,
-        userCode = userCode;
+        userCode = userCode,
+        profileURL = profileURL;
 
   void setAuthority(String authority) {
     this.authority = authority;
@@ -68,6 +71,14 @@ class User {
     return userCode;
   }
 
+  void setProfileURL(String profileURL) {
+    this.profileURL = profileURL;
+  }
+
+  String getProfileURL() {
+    return profileURL;
+  }
+
   Map<String, dynamic> toJson() => {
     'authority': authority,
     'deviceCode': deviceCode,
@@ -75,6 +86,7 @@ class User {
     'position': position,
     'pushToken': pushToken,
     'userCode': userCode,
+    'profileURL' : profileURL,
   };
 
   factory User.fromJson(json) {
@@ -85,6 +97,7 @@ class User {
       position: json['position'] ?? "",
       pushToken: json['pushToken'] ?? "",
       userCode: json['userCode'] ?? "",
+      profileURL: json['profileURL'] ?? "",
     );
 
     return user;
