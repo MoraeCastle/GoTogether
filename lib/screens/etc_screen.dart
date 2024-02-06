@@ -1,4 +1,6 @@
 import 'package:bot_toast/bot_toast.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:go_together/models/RouteItem.dart';
 import 'package:go_together/models/Travel.dart';
@@ -7,6 +9,7 @@ import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:go_together/utils/network_util.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 /// 채팅방 씬
@@ -21,6 +24,124 @@ class EtcView extends StatefulWidget {
 class _EtcViewState extends State<EtcView> {
   TextEditingController userNameController = TextEditingController();
   bool profileRadioState = false;
+
+  XFile? _imageFile;
+  final ImagePicker _picker = ImagePicker();
+
+  Widget bottomSheet() {
+    return Container(
+        height: 100,
+        width: MediaQuery.of(context).size.width,
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Wrap(
+          children: <Widget>[
+            const Text(
+              '프로필 사진 선택',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 25, right: 25),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                        const Color.fromARGB(255, 159, 195, 255),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        padding: const EdgeInsets.only(
+                            left: 25, right: 25, bottom: 10, top: 10)),
+                    icon: const Icon(
+                      Icons.camera,
+                      size: 35,
+                    ),
+                    onPressed: () {
+                      takePhoto(ImageSource.camera);
+                    },
+                    label: const Text(
+                      '카메라',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                        const Color.fromARGB(255, 159, 195, 255),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        padding: const EdgeInsets.only(
+                            left: 25, right: 25, bottom: 10, top: 10)),
+                    icon: const Icon(
+                      Icons.photo_library,
+                      size: 35,
+                    ),
+                    onPressed: () {
+                      takePhoto(ImageSource.gallery);
+                    },
+                    label: const Text(
+                      '갤러리',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ));
+  }
+
+  // 사진선택 결과.
+  takePhoto(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
+    setState(() {
+      _imageFile = pickedFile;
+    });
+
+    BotToast.showLoading();
+
+    Travel travel = context.read<DataClass>().travel;
+    User targetUser = context.read<DataClass>().currentUser;
+
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('travel/${travel.getTravelCode()}').get();
+    var result = snapshot.value;
+    if (result != null) {
+      var travel = Travel.fromJson(result);
+      User target = User();
+      for (User user in travel.getUserList().values) {
+        if (user.getUserCode() == targetUser.getUserCode()) {
+          target = user;
+          break;
+        }
+      }
+
+      if (target.getUserCode().isNotEmpty) {
+        String profileURL = "";
+        profileURL = await NetworkUtil.uploadImage(travel.getTravelCode(), targetUser.getUserCode(), _imageFile);
+
+        if (profileURL.isNotEmpty) {
+          target.setProfileURL(profileURL);
+
+          await ref.child('travel/${travel.getTravelCode()}').set(travel.toJson());
+
+          BotToast.showText(text: '프로필이 변경되었습니다.');
+        }
+      }
+    }
+
+    Navigator.pop(context);
+    BotToast.closeAllLoading();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,125 +175,182 @@ class _EtcViewState extends State<EtcView> {
                   children: [
                     // 프로필
                     Container(
-                        width: double.infinity,
-                        height: 120,
-                        margin: const EdgeInsets.all(5),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.grey,
-                              offset: Offset(0.0, 3.0), //(x,y)
-                              blurRadius: 3.0,
-                            ),
-                          ],
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            // BotToast.showText(text: 'text');
-                            CustomDialog.doubleButton(
-                              context, Icons.edit, '이름 변경', "이름을 변경하려면 아래 내용을 입력해주세요.",
-                              Container(
-                                padding: EdgeInsets.only(top: 10),
-                                child: TextField(
-                                  controller: userNameController,
-                                  /*onChanged: (value) {
-                                    userItem.setName(value);
-
-                                    setState(() {
-                                      isNameEdited = value.isNotEmpty;
-                                    });
-                                  },*/
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    hintText: targetUser.getName(),
-                                    contentPadding: EdgeInsets.only(
-                                        left: 14.0, bottom: 8.0, top: 8.0),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.black, width: 1),
-                                      borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.black, width: 1.0),
-                                      borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                    ),
+                      width: double.infinity,
+                      height: 120,
+                      margin: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.grey,
+                            offset: Offset(0.0, 3.0), //(x,y)
+                            blurRadius: 3.0,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text('프로필'),
+                                Text(
+                                  '탭해서 정보 수정',
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey
                                   ),
-                                  style: const TextStyle(),
                                 ),
-                              ), '저장', () {
-                                // 입력 액션
-                                if (userNameController.text.isNotEmpty && userNameController.text != targetUser.getName()) {
-                                  // 유저 이름 저장 처리...
-                                  NetworkUtil.changeUserName(
-                                      travel.getTravelCode(), targetUser.getUserCode(), userNameController.text);
-                                }
-                                Navigator.pop(context);
-                              },
-                              '취소', () {
-                                Navigator.pop(context);
-                            }, false);
-                          },
-                          child: Column(
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                child: Text('프로필'),
-                              ),
-                              Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(left: 10, right: 10),
-                                    child: Row(
-                                      children: [
-                                        Flexible(
-                                            flex: 10,
-                                            child: Row(
-                                              children: [
-                                                CircleAvatar(
-                                                  radius: 25,
-                                                  backgroundImage: const AssetImage(
-                                                      'assets/images/profile_back.png'),
-                                                  backgroundColor: Colors.grey[200],
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 10, right: 10),
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                        flex: 2,
+                                        child: InkWell(
+                                          onTap: () {
+                                            showModalBottomSheet(
+                                                context: context, builder: ((builder) => bottomSheet()));
+                                          },
+                                          child: Material(
+                                            elevation: 3,
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(5.0),
+                                              child: SizedBox.fromSize(
+                                                size: Size.fromRadius(35),
+                                                child: targetUser.getProfileURL().isEmpty ?
+                                                AspectRatio(
+                                                  aspectRatio: 1 / 1,
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(10),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white.withAlpha(100),
+                                                      border: Border.all(
+                                                          color: Colors.grey,
+                                                          width: 3
+                                                      ),
+                                                      borderRadius: BorderRadius.circular(5),
+                                                    ),
+                                                    child: Icon(
+                                                      Icons.person,
+                                                      color: Colors.grey,
+                                                      size: 35,
+                                                    ),
+                                                  ),
+                                                ) :
+                                                CachedNetworkImage(
+                                                  imageUrl: targetUser.getProfileURL(),
+                                                  imageBuilder: (context, imageProvider) => Container(
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.rectangle,
+                                                      image: DecorationImage(
+                                                          image: imageProvider, fit: BoxFit.fitHeight),
+                                                    ),
+                                                  ),
+                                                  placeholder: (context, url) => Center(
+                                                    child: CircularProgressIndicator(),
+                                                  ),
+                                                  errorWidget: (context, url, error) => Icon(Icons.error),
                                                 ),
-                                                Container(width: 10),
-                                                Text(
-                                                  !profileRadioState ? targetUser.getName() : targetUser.getUserCode(),
-                                                  style: TextStyle(fontSize: 20),
-                                                )
-                                              ],
-                                            )),
-                                        Flexible(
-                                            flex: 2,
-                                            child: Container(
-                                              child: Column(
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                    ),
+                                    Flexible(
+                                        flex: 5,
+                                        child: InkWell(
+                                          onTap: () {
+                                            CustomDialog.doubleButton(
+                                                context, Icons.edit, '이름 변경', "변경할 이름을 입력하세요.",
+                                                Container(
+                                                  padding: EdgeInsets.only(top: 10),
+                                                  child: TextField(
+                                                    controller: userNameController,
+                                                    /*onChanged: (value) {
+                                                    userItem.setName(value);
+
+                                                    setState(() {
+                                                      isNameEdited = value.isNotEmpty;
+                                                    });
+                                                  },*/
+                                                    decoration: InputDecoration(
+                                                      filled: true,
+                                                      fillColor: Colors.white,
+                                                      hintText: targetUser.getName(),
+                                                      contentPadding: EdgeInsets.only(
+                                                          left: 14.0, bottom: 8.0, top: 8.0),
+                                                      enabledBorder: OutlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                            color: Colors.black, width: 1),
+                                                        borderRadius:
+                                                        BorderRadius.all(Radius.circular(10)),
+                                                      ),
+                                                      focusedBorder: OutlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                            color: Colors.black, width: 1.0),
+                                                        borderRadius:
+                                                        BorderRadius.all(Radius.circular(10)),
+                                                      ),
+                                                    ),
+                                                    style: const TextStyle(),
+                                                  ),
+                                                ), '저장', () {
+                                              // 입력 액션
+                                              if (userNameController.text.isNotEmpty && userNameController.text != targetUser.getName()) {
+                                                // 유저 이름 저장 처리...
+                                                NetworkUtil.changeUserName(
+                                                    travel.getTravelCode(), targetUser.getUserCode(), userNameController.text);
+                                              }
+                                              Navigator.pop(context);
+                                            },
+                                                '취소', () {
+                                              Navigator.pop(context);
+                                            }, false);
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                crossAxisAlignment: CrossAxisAlignment.end,
                                                 children: [
                                                   Text(
-                                                    '고유 코드',
-                                                    style: TextStyle(fontSize: 11),
+                                                    targetUser.getName(),
+                                                    style: TextStyle(
+                                                        fontSize: 25,
+                                                        fontWeight: FontWeight.bold
+                                                    ),
                                                   ),
-                                                  Switch(
-                                                    value: profileRadioState,
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        profileRadioState = value;
-                                                      });
-                                                    },
-                                                  ),
+                                                  Text(
+                                                    '(' + targetUser.getUserCode() + ')',
+                                                    style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.grey
+                                                    ),
+                                                  )
                                                 ],
-                                              )
-                                            )),
-                                      ],
+                                              ),
+                                            ],
+                                          ),
+                                        )
                                     ),
-                                  ))
-                            ],
+                                  ],
+                                ),
+                              )
                           ),
-                        )),
+                        ],
+                      ),
+                    ),
                     GridView.count(
                         crossAxisCount: 2,
                         shrinkWrap: true,
