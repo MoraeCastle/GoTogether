@@ -194,11 +194,26 @@ class _EtcViewState extends State<EtcView> {
                         children: [
                           Container(
                             width: double.infinity,
-                            child: Row(
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text('프로필'),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.person,
+                                      size: 15,
+                                    ),
+                                    SizedBox(width: 2),
+                                    Text(
+                                      '프로필',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 Text(
                                   '탭해서 정보 수정',
                                   style: TextStyle(
@@ -222,7 +237,8 @@ class _EtcViewState extends State<EtcView> {
                                                 context: context, builder: ((builder) => bottomSheet()));
                                           },
                                           child: Material(
-                                            elevation: 3,
+                                            color: Colors.transparent,
+                                            elevation: 5,
                                             child: ClipRRect(
                                               borderRadius: BorderRadius.circular(5.0),
                                               child: SizedBox.fromSize(
