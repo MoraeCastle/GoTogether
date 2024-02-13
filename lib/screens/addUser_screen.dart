@@ -244,108 +244,154 @@ class _AddUserView extends State<AddUserView> {
   }
 
   Widget imageProfile() {
-    return Center(
-      child: Stack(
-        children: <Widget>[
-          CircleAvatar(
-            radius: 50,
-            backgroundColor: Colors.grey,
-            backgroundImage: _imageFile == null
-                ? const AssetImage('assets/images/profile_back.png')
-                : Image.file(
-                    File(_imageFile!.path),
-                    fit: BoxFit.cover,
-                  ).image,
+    return InkWell(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          builder: ((builder) => bottomSheet()),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15),
+              topRight: Radius.circular(15),
+            ),
           ),
-          Positioned(
-              bottom: 10,
-              right: 10,
-              child: InkWell(
-                onTap: () {
-                  showModalBottomSheet(
-                      context: context, builder: ((builder) => bottomSheet()));
-                },
-                child: const Icon(
-                  Icons.camera_alt,
-                  color: Colors.black,
-                  size: 30,
-                ),
-              ))
-        ],
+        );
+      },
+      child: Material(
+        color: Colors.transparent,
+        elevation: 5,
+        child: Container(
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10), // 사각형의 모서리를 둥글게 만듦
+            image: _imageFile != null
+                ? DecorationImage(
+              image: FileImage(File(_imageFile!.path),),
+              fit: BoxFit.cover, // 이미지가 찌그러지지 않고 꽉 채우도록 설정
+            )
+                : null,
+          ),
+          child: _imageFile != null ? null :
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                  color: Colors.grey,
+                  width: 5
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.person,
+              color: Colors.grey,
+              size: 55,
+            ),
+          ),
+        ),
       ),
     );
   }
 
   Widget bottomSheet() {
     return Container(
-        height: 100,
-        width: MediaQuery.of(context).size.width,
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Wrap(
-          children: <Widget>[
-            const Text(
-              '프로필 사진 선택',
-              style: TextStyle(
-                fontSize: 20,
+      height: 100,
+      width: MediaQuery.of(context).size.width,
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Wrap(
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                '프로필 사진 선택',
+                style: TextStyle(
+                  fontSize: 18,
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 25, right: 25),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 159, 195, 255),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        padding: const EdgeInsets.only(
-                            left: 25, right: 25, bottom: 10, top: 10)),
-                    icon: const Icon(
-                      Icons.camera,
-                      size: 35,
-                    ),
-                    onPressed: () {
-                      takePhoto(ImageSource.camera);
-                    },
-                    label: const Text(
-                      '카메라',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 159, 195, 255),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        padding: const EdgeInsets.only(
-                            left: 25, right: 25, bottom: 10, top: 10)),
-                    icon: const Icon(
-                      Icons.photo_library,
-                      size: 35,
-                    ),
-                    onPressed: () {
-                      takePhoto(ImageSource.gallery);
-                    },
-                    label: const Text(
-                      '갤러리',
-                      style: TextStyle(fontSize: 20),
+              InkWell(
+                  onTap: () {
+                    _imageFile = null;
+                    setState(() {});
+                    Navigator.pop(context);
+                  },
+                  child: Visibility(
+                    visible: _imageFile != null,
+                    child: Text(
+                      '기본 이미지로 변경',
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.grey
+                      ),
                     ),
                   )
-                ],
+              )
+            ],
+          ),
+          const SizedBox(
+            height: 40,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Expanded(
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        side: BorderSide(color: Colors.black, width: 2),
+                      ),
+                      padding: const EdgeInsets.only(
+                          left: 25, right: 25, bottom: 10, top: 10)
+                  ),
+                  icon: const Icon(
+                    Icons.photo_camera,
+                    color: Colors.black,
+                    size: 30,
+                  ),
+                  onPressed: () {
+                    takePhoto(ImageSource.camera);
+                  },
+                  label: const Text(
+                    '카메라',
+                    style: TextStyle(fontSize: 20, color: Colors.black),
+                  ),
+                ),
               ),
-            )
-          ],
-        ));
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      side: BorderSide(color: Colors.black, width: 2),
+                    ),
+                    padding: const EdgeInsets.only(
+                        left: 25, right: 25, bottom: 10, top: 10),
+                  ),
+                  icon: const Icon(
+                    Icons.photo_library,
+                    color: Colors.black,
+                    size: 30,
+                  ),
+                  onPressed: () {
+                    takePhoto(ImageSource.gallery);
+                  },
+                  label: const Text(
+                    '갤러리',
+                    style: TextStyle(fontSize: 20, color: Colors.black),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   takePhoto(ImageSource source) async {
@@ -353,5 +399,7 @@ class _AddUserView extends State<AddUserView> {
     setState(() {
       _imageFile = pickedFile;
     });
+
+    Navigator.pop(context);
   }
 }

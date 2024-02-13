@@ -331,4 +331,43 @@ class NetworkUtil {
       return "";
     }
   }
+  /// 이미지 삭제.
+  /// 모든 이미지가 삭제됩니다.
+  static Future<bool> deleteImage(String travelCode, String userCode) async {
+    try {
+      // firebase
+      final ref = FirebaseDatabase.instance.ref();
+      final snapshot = await ref.child('travel/$travelCode').get();
+
+      var result = snapshot.value;
+      if (result != null) {
+        var travel = Travel.fromJson(result);
+
+        for (User user in travel.getUserList().values) {
+          if (user.getUserCode() == userCode) {
+            user.setProfileURL('');
+
+            break;
+          }
+        }
+
+        await ref.child('travel/$travelCode').set(travel.toJson());
+      }
+
+      // storage
+      final storageRef = FirebaseStorage.instance.ref().child(travelCode);
+      final listResult = await storageRef.listAll();
+
+      for (var item in listResult.items) {
+        //  유저 코드 탐색
+        if (item.name.contains(userCode)) {
+          await storageRef.child(item.name).delete();
+        }
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

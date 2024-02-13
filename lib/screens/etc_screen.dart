@@ -2,7 +2,6 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:go_together/models/RouteItem.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/providers/data_provider.dart';
@@ -30,74 +29,116 @@ class _EtcViewState extends State<EtcView> {
 
   Widget bottomSheet() {
     return Container(
-        height: 100,
-        width: MediaQuery.of(context).size.width,
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Wrap(
-          children: <Widget>[
-            const Text(
-              '프로필 사진 선택',
-              style: TextStyle(
-                fontSize: 20,
+      height: 100,
+      width: MediaQuery.of(context).size.width,
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Wrap(
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                '프로필 사진 선택',
+                style: TextStyle(
+                  fontSize: 18,
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 25, right: 25),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                        const Color.fromARGB(255, 159, 195, 255),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        padding: const EdgeInsets.only(
-                            left: 25, right: 25, bottom: 10, top: 10)),
-                    icon: const Icon(
-                      Icons.camera,
-                      size: 35,
-                    ),
-                    onPressed: () {
-                      takePhoto(ImageSource.camera);
-                    },
-                    label: const Text(
-                      '카메라',
-                      style: TextStyle(fontSize: 20),
+              InkWell(
+                onTap: () {
+                  deleteProfile();
+                },
+                child: Visibility(
+                  visible: context.read<DataClass>().currentUser.getProfileURL().isNotEmpty,
+                  child: Text(
+                    '기본 이미지로 변경',
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey
                     ),
                   ),
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                        const Color.fromARGB(255, 159, 195, 255),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        padding: const EdgeInsets.only(
-                            left: 25, right: 25, bottom: 10, top: 10)),
-                    icon: const Icon(
-                      Icons.photo_library,
-                      size: 35,
+                )
+              )
+            ],
+          ),
+          const SizedBox(
+            height: 40,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Expanded(
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      side: BorderSide(color: Colors.black, width: 2),
                     ),
-                    onPressed: () {
-                      takePhoto(ImageSource.gallery);
-                    },
-                    label: const Text(
-                      '갤러리',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  )
-                ],
+                    padding: const EdgeInsets.only(
+                        left: 25, right: 25, bottom: 10, top: 10)
+                  ),
+                  icon: const Icon(
+                    Icons.photo_camera,
+                    color: Colors.black,
+                    size: 30,
+                  ),
+                  onPressed: () {
+                    takePhoto(ImageSource.camera);
+                  },
+                  label: const Text(
+                    '카메라',
+                    style: TextStyle(fontSize: 20, color: Colors.black),
+                  ),
+                ),
               ),
-            )
-          ],
-        ));
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      side: BorderSide(color: Colors.black, width: 2),
+                    ),
+                    padding: const EdgeInsets.only(
+                        left: 25, right: 25, bottom: 10, top: 10),
+                  ),
+                  icon: const Icon(
+                    Icons.photo_library,
+                    color: Colors.black,
+                    size: 30,
+                  ),
+                  onPressed: () {
+                    takePhoto(ImageSource.gallery);
+                  },
+                  label: const Text(
+                    '갤러리',
+                    style: TextStyle(fontSize: 20, color: Colors.black),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 프로필 삭제.
+  deleteProfile() async {
+    BotToast.showLoading();
+
+    Travel travel = context.read<DataClass>().travel;
+    User targetUser = context.read<DataClass>().currentUser;
+
+    bool answer = false;
+    answer = await NetworkUtil.deleteImage(travel.getTravelCode(), targetUser.getUserCode());
+
+    BotToast.showText(text: answer ? '기본 프로필로 번경되었습니다.' : '네트워크에 오류가 있습니다.');
+
+    Navigator.pop(context);
+    BotToast.closeAllLoading();
   }
 
   // 사진선택 결과.
@@ -234,7 +275,15 @@ class _EtcViewState extends State<EtcView> {
                                         child: InkWell(
                                           onTap: () {
                                             showModalBottomSheet(
-                                                context: context, builder: ((builder) => bottomSheet()));
+                                              context: context,
+                                              builder: ((builder) => bottomSheet()),
+                                              shape: const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: Radius.circular(15),
+                                                  topRight: Radius.circular(15),
+                                                ),
+                                              ),
+                                            );
                                           },
                                           child: Material(
                                             color: Colors.transparent,
@@ -249,7 +298,7 @@ class _EtcViewState extends State<EtcView> {
                                                   child: Container(
                                                     padding: EdgeInsets.all(10),
                                                     decoration: BoxDecoration(
-                                                      color: Colors.white.withAlpha(100),
+                                                      color: Colors.white,
                                                       border: Border.all(
                                                           color: Colors.grey,
                                                           width: 3
@@ -269,7 +318,7 @@ class _EtcViewState extends State<EtcView> {
                                                     decoration: BoxDecoration(
                                                       shape: BoxShape.rectangle,
                                                       image: DecorationImage(
-                                                          image: imageProvider, fit: BoxFit.fitHeight),
+                                                          image: imageProvider, fit: BoxFit.cover),
                                                     ),
                                                   ),
                                                   placeholder: (context, url) => Center(
