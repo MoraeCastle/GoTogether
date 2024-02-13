@@ -9,6 +9,7 @@ import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/models/data.dart';
 import 'package:go_together/models/theme.dart';
+import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:logger/logger.dart';
@@ -40,6 +41,7 @@ class _ChatScreenState extends State<ChatRoomView> {
   // List<ChatUser> userList = [];
   List<Message> chatList = [];
   Room targetRoom = Room();
+  String roomProfileURL = "";
   late ChatController _chatController;
 
   // 기준 유저
@@ -123,7 +125,8 @@ class _ChatScreenState extends State<ChatRoomView> {
                 resultList.add(ChatUser(
                   id: user.getUserCode(),
                   name: user.getName(),
-                  profilePhoto: Data.profileImage,
+                  // profilePhoto: Data.profileImage,
+                  profilePhoto: user.getProfileURL(),
                 ));
                 break;
               }
@@ -150,29 +153,36 @@ class _ChatScreenState extends State<ChatRoomView> {
   /// 채팅 목록을 가져오고 최신화합니다.
   void getChatList() {
     DatabaseReference ref = FirebaseDatabase.instance.ref('chat/$travelCode');
-    ref.onValue.listen((DatabaseEvent event) {
+    ref.onValue.listen((DatabaseEvent event) async {
       final result = event.snapshot.value;
       if (result != null) {
         var chat = Chat.fromJson(result);
         //logger.e(chat.roomList.length.toString() + "개의 방");
 
         // 이 채팅방인지?
-        setState(() {
-          for (Room room in chat.getRoomList()) {
-            if (room.getTitle() == chatTitle) {
-              targetRoom = room;
-              chatList = room.getChatList();
-              //logger.e(room.messageList.length.toString() + "개의 채팅");
-              //logger.e(room.getChatList().length.toString() + "개의 찐채팅");
+        for (Room room in chat.getRoomList()) {
+          if (room.getTitle() == chatTitle) {
+            targetRoom = room;
+            chatList = room.getChatList();
+            //logger.e(room.messageList.length.toString() + "개의 채팅");
+            //logger.e(room.getChatList().length.toString() + "개의 찐채팅");
 
-              _chatController.initialMessageList = [];
-              _chatController.loadMoreData(chatList);
+            _chatController.initialMessageList = [];
+            _chatController.loadMoreData(chatList);
 
-              //logger.e(chatList.map((e) => e.toJson().toString()));
-              break;
-            }
+            //logger.e(chatList.map((e) => e.toJson().toString()));
+            break;
           }
-        });
+        }
+
+        // 채팅 프로필 이미지 지정.
+        if (targetRoom.getTitle().isNotEmpty) {
+          if (targetRoom.getState() == 1) {
+            roomProfileURL = await NetworkUtil.getNoticeProfileURL();
+          }
+        }
+
+        setState(() {});
       } else {
         BotToast.showText(text: "데이터가 없습니다...");
       }
@@ -234,7 +244,7 @@ class _ChatScreenState extends State<ChatRoomView> {
           appBar: ChatViewAppBar(
             elevation: theme.elevation,
             backGroundColor: theme.appBarColor,
-            profilePicture: Data.profileImage,
+            profilePicture: roomProfileURL,
             backArrowColor: theme.backArrowColor,
             chatTitle: targetRoom.getTitle(),
             chatTitleTextStyle: TextStyle(

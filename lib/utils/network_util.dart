@@ -112,6 +112,24 @@ class NetworkUtil {
     }
   }
 
+  /// 공지방 프로필 이미지 가져오기.
+  /// 추후 이미지 교체를 위해 구현.
+  static Future<String> getNoticeProfileURL() async {
+    final storageRef = FirebaseStorage.instance.ref();
+    final result = await storageRef.child("System/room_notice.png");
+
+    try {
+      final listResult = await result.listAll();
+      final imageUrl = await result.getDownloadURL();
+
+      return imageUrl;
+    } on FirebaseException catch (e) {
+      // print("Failed with error '${e.code}': ${e.message}");
+      // 오류의 경우 빈 문자열...
+      return "";
+    }
+  }
+
   /// 공지 쓰기
   static Future<void> writeNotice(
       String noticeCode, String title, String url, String writeTime, String limit

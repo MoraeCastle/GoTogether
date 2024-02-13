@@ -1,10 +1,13 @@
 import 'package:bot_toast/bot_toast.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:go_together/models/Chat.dart';
 import 'package:go_together/models/Room.dart';
+import 'package:go_together/models/data.dart';
 import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/service/routing_service.dart';
+import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:logger/logger.dart';
@@ -24,6 +27,7 @@ class ChatView extends StatefulWidget {
 class _ChatView extends State<ChatView> {
   List<Widget> roomWidgetList = [];
   String travelCode = "";
+  String noticeURL = Data.profileImage;
 
   Logger logger = Logger();
 
@@ -41,9 +45,14 @@ class _ChatView extends State<ChatView> {
     travelCode = prefs.getString(SystemData.travelCode) ?? "";
   }
 
+  getSystemSetting() async {
+    noticeURL = await NetworkUtil.getNoticeProfileURL();
+  }
+
   /// 여행 데이터 변경 감지
   Future<void> listenTravelChange() async {
     await getDeviceData();
+    await getSystemSetting();
 
     DatabaseReference ref = FirebaseDatabase.instance.ref('chat/$travelCode');
     ref.onValue.listen((DatabaseEvent event) {
@@ -55,6 +64,9 @@ class _ChatView extends State<ChatView> {
 
         setState(() {
           for (Room room in chat.getRoomList()) {
+            if (room.getState() == 1) {
+              room.setProfile(noticeURL);
+            }
             roomWidgetList.add(
                 ChatRoomItem(roomData: room)
             );
@@ -90,12 +102,31 @@ class _ChatView extends State<ChatView> {
                 borderRadius: BorderRadius.circular(10),
               ),
               margin: const EdgeInsets.all(10),
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(10),
-                child: Column(
-                  children: roomWidgetList,
-                ),
-              ),
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      children: roomWidgetList,
+                    ),
+                  ),
+                  Visibility(
+                    visible: roomWidgetList.isEmpty,
+                    child: const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 10),
+                          Text(
+                              '데이터 로딩중...'
+                          ),
+                        ],
+                      ),
+                    )
+                  ),
+                ],
+              )
             ),
           )
         ],
@@ -159,11 +190,55 @@ class _ChatRoomItem extends State<ChatRoomItem> {
                   children: [
                     Expanded(
                       flex: 1,
-                      child: CircleAvatar(
+                      /*child: CircleAvatar(
                         radius: 25,
                         backgroundImage:
                         const AssetImage('assets/images/profile_back.png'),
                         backgroundColor: Colors.grey[200],
+                      ),*/
+                      child: Material(
+                        color: Colors.transparent,
+                        elevation: 5,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(5.0),
+                          child: AspectRatio(
+                            aspectRatio: 1 / 1,
+                            child: widget.roomData.getProfile().isEmpty ?
+                            AspectRatio(
+                              aspectRatio: 1 / 1,
+                              child: Container(
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withAlpha(100),
+                                  border: Border.all(
+                                      color: Colors.grey,
+                                      width: 3
+                                  ),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Icon(
+                                  Icons.phone,
+                                  color: Colors.grey,
+                                  size: 35,
+                                ),
+                              ),
+                            ) :
+                            CachedNetworkImage(
+                              imageUrl: widget.roomData.getProfile(),
+                              imageBuilder: (context, imageProvider) => Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  image: DecorationImage(
+                                      image: imageProvider, fit: BoxFit.fitHeight),
+                                ),
+                              ),
+                              placeholder: (context, url) => Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                              errorWidget: (context, url, error) => Icon(Icons.error),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     Container(width: 15),
