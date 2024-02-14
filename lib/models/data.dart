@@ -3,6 +3,8 @@ import 'package:chatview/chatview.dart';
 class Data {
   static const profileImage =
       "https://raw.githubusercontent.com/SimformSolutionsPvtLtd/flutter_showcaseview/master/example/assets/simform.png";
+  static const defaultImage =
+      "https://firebasestorage.googleapis.com/v0/b/gotogetherforflutter.appspot.com/o/System%2Froom_profile.png?alt=media&token=a697d2cf-fb04-447b-ab7e-09ab8d3b247b";
   static final messageList = [
     Message(
       id: '1',
