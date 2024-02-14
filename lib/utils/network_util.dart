@@ -197,6 +197,8 @@ class NetworkUtil {
 
   /// 로그아웃(탈퇴)
   static Future<bool> logout(String travelCode, String userCode) async {
+    await deleteImage(travelCode, userCode);
+
     final ref = FirebaseDatabase.instance.ref();
     final snapshot = await ref.child('travel/$travelCode').get();
 

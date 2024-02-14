@@ -366,9 +366,9 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
           UserItem(
             user: user,
             action: () {
-              BotToast.showText(text: "클릭...");
+              //BotToast.showText(text: "클릭...");
             }, longAction: () {
-              if (isGuide) {
+              if (isGuide && user.getAuthority() == describeEnum(UserType.common)) {
                 finishDialog(user);
               }
           },
