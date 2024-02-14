@@ -422,9 +422,13 @@ class _ChatScreenState extends State<ChatRoomView> {
                 replyIconColor: theme.swipeToReplyIconColor,
               ),
             ),
-            Expanded(
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,  
               child: Visibility(
-                visible: chatList.isEmpty,
+                visible: chatUserStrList.isEmpty,
                 child: Container(
                   color: Colors.white,
                   child: Center(
