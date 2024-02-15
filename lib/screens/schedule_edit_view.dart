@@ -436,7 +436,8 @@ class _UserItem extends State<UserItem> {
                           Container(
                             width: 50,
                             child: CachedNetworkImage(
-                              imageUrl: Data.profileImage,
+                              imageUrl: widget.user.getProfileURL().isNotEmpty ?
+                              widget.user.getProfileURL() : Data.defaultImage,
                               imageBuilder: (context, imageProvider) => Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
