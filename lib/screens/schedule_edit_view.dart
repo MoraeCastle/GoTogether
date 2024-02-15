@@ -431,46 +431,52 @@ class _UserItem extends State<UserItem> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Stack(
-                        children: [
-                          Container(
-                            width: 50,
-                            child: CachedNetworkImage(
-                              imageUrl: widget.user.getProfileURL().isNotEmpty ?
-                              widget.user.getProfileURL() : Data.defaultImage,
-                              imageBuilder: (context, imageProvider) => Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                      image: imageProvider, fit: BoxFit.contain),
-                                ),
-                              ),
-                              placeholder: (context, url) => Center(
-                                child: Icon(Icons.account_circle),
-                              ),
-                              errorWidget: (context, url, error) => Icon(Icons.error),
-                            ),
-                          ),
-                          Positioned(
-                            // top: 5,
-                              child: Visibility(
-                                visible: isGuide,
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    'assets/images/crown_color.png',
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          child: Stack(
+                            children: [
+                              CachedNetworkImage(
+                                imageUrl: widget.user.getProfileURL().isNotEmpty ?
+                                widget.user.getProfileURL() : Data.defaultImage,
+                                imageBuilder: (context, imageProvider) => Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                        image: imageProvider, fit: BoxFit.cover),
                                   ),
                                 ),
-                              )
-                          ),
-                        ],
+                                placeholder: (context, url) => Center(
+                                  child: Icon(Icons.account_circle),
+                                ),
+                                errorWidget: (context, url, error) => Icon(Icons.error),
+                              ),
+                              Positioned(
+                                // top: 5,
+                                  child: Visibility(
+                                    visible: isGuide,
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      width: 20,
+                                      height: 20,
+                                      child: Image.asset(
+                                        'assets/images/crown_color.png',
+                                      ),
+                                    ),
+                                  )
+                              ),
+                            ],
+                          )
+                        ),
                       ),
-                      Text(
-                        widget.user.getName(),
-                        style: TextStyle(
-                            fontWeight: isGuide ? FontWeight.bold : FontWeight.normal
+                      Expanded(
+                        flex: 5,
+                        child: Text(
+                          widget.user.getName(),
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontWeight: widget.isMe ? FontWeight.bold : FontWeight.normal
+                          ),
                         ),
                       ),
                     ],
