@@ -60,6 +60,7 @@ dependencies:
   keyboard_service: ^2.0.2
   firebase_storage: ^11.6.4
   firebase_app_check: ^0.2.1+12
+  badges: ^3.1.2
 
 dependency_overrides:
  intl: any

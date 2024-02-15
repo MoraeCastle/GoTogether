@@ -1,19 +1,19 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_together/models/Chat.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/screens/chat_screen.dart';
 import 'package:go_together/screens/etc_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
 import 'package:go_together/utils/WidgetBuilder.dart';
+import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'chatRoom_screen.dart';
-
+import 'package:badges/badges.dart' as badges;
 import 'package:firebase_database/firebase_database.dart';
 
 /// 메인 씬
@@ -139,6 +139,7 @@ class _TabBarScreenState extends State<TabBarWidget>
           _countProvider.travel = travel;
 
           listenTravelChange(travelCode, userCode);
+          listenChatChange(travelCode, userCode);
         } else {
           // 데이터가 null이라면 처리할 로직을 여기에 추가하세요.
           BotToast.showText(text: "여행 데이터 불러오기 오류...");
@@ -196,6 +197,21 @@ class _TabBarScreenState extends State<TabBarWidget>
         BotToast.showText(text: "여행 데이터 로드됨");
       } else {
         BotToast.showText(text: "서버에 오류가 있습니다.");
+      }
+    });
+  }
+
+  /// 여행 데이터 변경 감지
+  void listenChatChange(String travelCode, String userCode) {
+    DatabaseReference ref =
+    FirebaseDatabase.instance.ref('chat/$travelCode');
+    ref.onValue.listen((DatabaseEvent event) {
+      var result = event.snapshot.value;
+      if (result != null) {
+        var chat = Chat.fromJson(result);
+
+        Provider.of<DataClass>(context, listen: false).allUnreadCount =
+            NetworkUtil.getAllUnreadCount(chat.getRoomList(), userCode);
       }
     });
   }
@@ -272,7 +288,26 @@ class _TabBarScreenState extends State<TabBarWidget>
         // 탭 항목.
         tabs: [
           Tab(text: '지도', icon: Icon(Icons.map)),
-          Tab(text: '채팅', icon: Icon(Icons.chat)),
+          Tab(
+            text: '채팅',
+            icon: badges.Badge(
+              showBadge: context.watch<DataClass>().allUnreadCount != 0,
+              badgeStyle: badges.BadgeStyle(
+                badgeColor: Colors.orange,
+                borderRadius: BorderRadius.circular(4),
+                elevation: 5,
+              ),
+              position: badges.BadgePosition.topEnd(top: -12, end: -12),
+              badgeContent: Text(
+                context.watch<DataClass>().allUnreadCount.toString(),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold
+                ),
+              ),
+              child: Icon(Icons.chat),
+            ),
+          ),
           Tab(text: '기타', icon: Icon(Icons.account_circle)),
         ],
         // 글씨체 설정

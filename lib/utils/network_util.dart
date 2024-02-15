@@ -112,6 +112,22 @@ class NetworkUtil {
     }
   }
 
+  /// 전체 채팅방 중 읽지않은 메세지 수를 불러옵니다.
+  static int getAllUnreadCount(List<Room> roomList, String userCode) {
+    int result = 0;
+
+    for (Room room in roomList) {
+      if (room.getUserMap().keys.contains(userCode)) {
+        int count = 0;
+        count = room.getMessageList().length - room.getUserMap()[userCode]!;
+
+        result += count;
+      }
+    }
+
+    return result;
+  }
+
   /// 공지방 프로필 이미지 가져오기.
   /// 추후 이미지 교체를 위해 구현.
   static Future<String> getNoticeProfileURL() async {

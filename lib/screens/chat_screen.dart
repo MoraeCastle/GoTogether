@@ -1,5 +1,6 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chatview/chatview.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:go_together/models/Chat.dart';
@@ -27,6 +28,8 @@ class ChatView extends StatefulWidget {
 class _ChatView extends State<ChatView> {
   List<Widget> roomWidgetList = [];
   String travelCode = "";
+  String userCode = "";
+
   String noticeURL = Data.profileImage;
 
   Logger logger = Logger();
@@ -40,9 +43,9 @@ class _ChatView extends State<ChatView> {
 
   /// 기기내 저장값 가져오기
   Future<void> getDeviceData() async {
-    Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-    final SharedPreferences prefs = await _prefs;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     travelCode = prefs.getString(SystemData.travelCode) ?? "";
+    userCode = prefs.getString(SystemData.userCode) ?? "";
   }
 
   getSystemSetting() async {
@@ -67,8 +70,35 @@ class _ChatView extends State<ChatView> {
             if (room.getState() == 1) {
               room.setProfile(noticeURL);
             }
+
+            int unReadCount = 0;
+            if (room.getUserMap().keys.contains(userCode)) {
+              unReadCount = room.getMessageList().length - room.getUserMap()[userCode]!;
+            }
+
             roomWidgetList.add(
-                ChatRoomItem(roomData: room)
+                ChatRoomItem(
+                  roomData: room,
+                  unReadCount: unReadCount,
+                  onTap: () async {
+                    // 이 채팅방의 내용대로 기기값 저장.
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    prefs.setString(SystemData.chatTitle, room.getTitle());
+                    prefs.setInt(SystemData.chatUserCount, room.getUserMap().keys.length);
+                    prefs.setStringList(SystemData.chatUserList, room.getUserMap().keys.toList());
+
+                    String userCode = "";
+                    String userName = "";
+                    userCode = prefs.getString(SystemData.userCode) ?? "";
+                    userName = prefs.getString(SystemData.userName) ?? "";
+
+                    Navigator.pushNamed(context, ChatRoomRoute,
+                        arguments: {
+                          'userCode' : userCode,
+                          'userName' : userName,
+                        });
+                  },
+                )
             );
           }
         });
@@ -138,10 +168,12 @@ class _ChatView extends State<ChatView> {
 // 채팅방 아이템
 class ChatRoomItem extends StatefulWidget {
   final Room roomData;
+  final VoidCallBack onTap;
+  final int unReadCount;
 
   const ChatRoomItem(
       {Key? key,
-        required this.roomData,})
+        required this.roomData, required this.onTap, required this.unReadCount,})
       : super(key: key);
 
   @override
@@ -154,24 +186,7 @@ class _ChatRoomItem extends State<ChatRoomItem> {
     return Padding(
       padding: const EdgeInsets.all(5),
       child: ElevatedButton(
-          onPressed: () async {
-            // 이 채팅방의 내용대로 기기값 저장.
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.setString(SystemData.chatTitle, widget.roomData.getTitle());
-            await prefs.setInt(SystemData.chatUserCount, widget.roomData.getUserMap().keys.length);
-            await prefs.setStringList(SystemData.chatUserList, widget.roomData.getUserMap().keys.toList());
-
-            String userCode = "";
-            String userName = "";
-            userCode = prefs.getString(SystemData.userCode) ?? "";
-            userName = prefs.getString(SystemData.userName) ?? "";
-
-            Navigator.pushNamed(context, ChatRoomRoute,
-              arguments: {
-                'userCode' : userCode,
-                'userName' : userName,
-              });
-          },
+          onPressed: widget.onTap,
           style: ElevatedButton.styleFrom(
             elevation: 5,
             backgroundColor: Colors.white,
@@ -269,7 +284,7 @@ class _ChatRoomItem extends State<ChatRoomItem> {
                 ),
                 Positioned(
                   right: 0,
-                  top: 3,
+                  bottom: 10,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -283,7 +298,36 @@ class _ChatRoomItem extends State<ChatRoomItem> {
                 ),
                 Positioned(
                   right: 0,
-                  bottom: 10,
+                  top: 0,
+                  bottom: 0,
+                  child: Visibility(
+                    visible: widget.unReadCount != 0,
+                    child: Center(
+                      child: Container(
+                        // padding: EdgeInsets.all(8),
+                        padding: EdgeInsets.only(top:3, bottom: 3, left: 8, right: 8),
+                        decoration: BoxDecoration(
+                          // shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(20), // 둥근 모서리 반경 설정
+                            color: Colors.orange
+                        ),
+                        child: Text(
+                          widget.unReadCount.toString(),
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                ),
+                Positioned(
+                  right: 0,
+                  top: 3,
                   child: Row(
                     children: [
                       Icon(Icons.person, size: 18),

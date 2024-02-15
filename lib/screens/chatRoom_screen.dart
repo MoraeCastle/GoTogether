@@ -157,20 +157,16 @@ class _ChatScreenState extends State<ChatRoomView> {
       final result = event.snapshot.value;
       if (result != null) {
         var chat = Chat.fromJson(result);
-        //logger.e(chat.roomList.length.toString() + "개의 방");
 
         // 이 채팅방인지?
         for (Room room in chat.getRoomList()) {
           if (room.getTitle() == chatTitle) {
             targetRoom = room;
             chatList = room.getChatList();
-            //logger.e(room.messageList.length.toString() + "개의 채팅");
-            //logger.e(room.getChatList().length.toString() + "개의 찐채팅");
-
+            
             _chatController.initialMessageList = [];
             _chatController.loadMoreData(chatList);
 
-            //logger.e(chatList.map((e) => e.toJson().toString()));
             break;
           }
         }
@@ -180,10 +176,23 @@ class _ChatScreenState extends State<ChatRoomView> {
           if (targetRoom.getState() == 1) {
             roomProfileURL = await NetworkUtil.getNoticeProfileURL();
           }
-        }
 
-        // 채팅인원 오류 검증
-        rearrangeList(chatList);
+          // 채팅인원 오류 검증
+          rearrangeList(chatList);
+
+          // 읽음처리.
+          if (targetRoom.getMessageList().length != targetRoom.getUserMap()[userCode]!) {
+            targetRoom.getUserMap()[userCode] = targetRoom.getMessageList().length;
+
+            try{
+              Room item = chat.getRoomList().firstWhere((element) => element.getTitle() == targetRoom.getTitle());
+              item = targetRoom;
+              await ref.set(chat.toJson());
+            } catch(e) {
+              // 갱신 실패...
+            }
+          }
+        }
 
         setState(() {});
       } else {
@@ -195,7 +204,7 @@ class _ChatScreenState extends State<ChatRoomView> {
   }
 
   /// 리스트 재정렬.
-  /// 채팅목록 내 나간유저가 남긴 채팅을 수정합니다.
+  /// 채팅내용중 퇴장한 인원이 있는경우 퇴장인원으로 추가합니다.
   rearrangeList(List<Message> list) {
     for (Message message in list) {
       // 채팅 유저리스트에 이 아이디가 없다면?
@@ -348,9 +357,12 @@ class _ChatScreenState extends State<ChatRoomView> {
                   onMessageRead: (message) {
                     /// send your message reciepts to the other client
                     debugPrint('Message Read');
+                    BotToast.showText(text: '메세지를 읽음..');
                   },
-                  senderNameTextStyle:
-                  TextStyle(color: theme.inComingChatBubbleTextColor),
+                  senderNameTextStyle: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold
+                  ),
                   color: theme.inComingChatBubbleColor,
                 ),
               ),

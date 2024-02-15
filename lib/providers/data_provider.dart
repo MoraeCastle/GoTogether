@@ -10,6 +10,7 @@ class DataClass with ChangeNotifier {
   late Travel _travel;
   late User _currentUser;
   late Map<String, Notice> _noticeList;
+  late int _allUnreadCount;
 
   // 현재 보고있는 일정
   late RouteItem _targetRoute;
@@ -21,6 +22,7 @@ class DataClass with ChangeNotifier {
   DataClass() {
     travel = Travel();
     noticeList = {};
+    allUnreadCount = 0;
   }
 
   // 데이터 접근자(getter)
@@ -30,6 +32,7 @@ class DataClass with ChangeNotifier {
   String get targetDayKey => _targetDayKey;
   List<String> get sortedDayList => _sortedList;
   Map<String, Notice> get noticeList => _noticeList;
+  int get allUnreadCount => _allUnreadCount;
 
   // 데이터 설정자(setter)
   set travel(Travel value) {
@@ -63,6 +66,11 @@ class DataClass with ChangeNotifier {
 
   set noticeList(Map<String, Notice> value) {
     _noticeList = value;
+    notifyListeners();
+  }
+
+  set allUnreadCount(int value) {
+    _allUnreadCount = value;
     notifyListeners();
   }
 }
