@@ -1,6 +1,6 @@
 {
-    "name": "go_together",
-    "short_name": "go_together",
+    "name": "여행갈까요",
+    "short_name": "여행갈까요",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

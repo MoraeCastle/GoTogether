@@ -1,0 +1,31 @@
+package_rename_config:
+  android:
+    app_name: 여행갈까요
+    package_name: com.sandcastle.travel
+    override_old_package: com.sandcastle.travel
+    lang: java
+
+  ios:
+    app_name: 여행갈까요
+    bundle_name: 여행갈까요
+    package_name: com.sandcastle.travel
+
+  linux:
+    app_name: 여행갈까요
+    package_name: com.sandcastle.travel
+    exe_name: # (String) The executable name (binary name) of the linux app
+
+  macos:
+    app_name: 여행갈까요
+    package_name: com.sandcastle.travel
+    copyright_notice: # (String) The product copyright of the macos app
+
+  web:
+    app_name: 여행갈까요
+    description: # (String) The description of the web app and PWA
+
+  windows:
+    app_name: 여행갈까요
+    organization: # (String) The organization name (company name) of the windows app
+    copyright_notice: # (String) The legal copyright of the windows app
+    exe_name: # (String) The executable name (binary name) of the windows app

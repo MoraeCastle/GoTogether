@@ -1,4 +1,4 @@
-package com.example.go_together
+package com.sandcastle.travel
 
 import io.flutter.embedding.android.FlutterActivity
 

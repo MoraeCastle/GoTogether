@@ -60,7 +60,7 @@ class SystemUtil {
   /// 구글 api 키
   static String getGoogleKey() {
     if(Platform.isAndroid) {
-      return "AIzaSyAMY7K4jHaK9RUlMc43jhf_-YxM1WLBfv0";
+      return "AIzaSyBBgGUTtOlsV7uPzkaLPeDH2Mb2lHWo3X0";
     } else {
       return "AIzaSyDiOvYFYY-bz2NhsmQHAFX4gk0jWhwV2t8";
     }

@@ -8,29 +8,29 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:80250456205:android:13e154b8b378c5813c7ac4",
+        "mobilesdk_app_id": "1:80250456205:android:524de86bd50e53d93c7ac4",
         "android_client_info": {
-          "package_name": "com.sandcastle.go_together"
+          "package_name": "com.sandcastle.travel"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "80250456205-5dao6hce02nr73t80ck93cjdv6c4le9g.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.sandcastle.go_together",
-            "certificate_hash": "946de896363b3d35376eb70c0035fed8096f8abb"
-          }
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDJHo_dalur4NaHrXfnMSUFG4EEZ692KbA"
+          "current_key": "AIzaSyBBgGUTtOlsV7uPzkaLPeDH2Mb2lHWo3X0"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "80250456205-s1jf47ckun3v14f9kcpf0a8lnc4ajju9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.sandcastle.travel",
+                "app_store_id": "6476766603"
+              }
+            }
+          ]
         }
       }
     }

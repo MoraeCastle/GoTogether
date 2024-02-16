@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.go_together">
+    package="com.sandcastle.travel">
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -19,7 +19,7 @@
         android:icon="@mipmap/ic_launcher">
         <!-- TODO: Add your API key here -->
        <meta-data android:name="com.google.android.geo.API_KEY"
-           android:value="AIzaSyAMY7K4jHaK9RUlMc43jhf_-YxM1WLBfv0"/>
+           android:value="AIzaSyBBgGUTtOlsV7uPzkaLPeDH2Mb2lHWo3X0"/>
 
         <activity
             android:name=".MainActivity"
