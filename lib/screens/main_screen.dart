@@ -1,6 +1,7 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_together/api/firebase_api.dart';
 import 'package:go_together/models/Chat.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/providers/data_provider.dart';
@@ -67,6 +68,8 @@ class _TabBarScreenState extends State<TabBarWidget>
 
     super.initState();
     setTravelDate();
+
+    FirebaseApi().initNotifications(context);
   }
 
   /// 오류로 인한 나가기.
@@ -161,17 +164,13 @@ class _TabBarScreenState extends State<TabBarWidget>
   void listenTravelChange(String travelCode, String userCode) {
     DatabaseReference ref =
       FirebaseDatabase.instance.ref('travel/$travelCode');
-    ref.onValue.listen((DatabaseEvent event) {
+    ref.onValue.listen((DatabaseEvent event) async {
 
       var result = event.snapshot.value;
       if (result != null) {
         Travel travel = Travel.fromJson(result);
         _countProvider = Provider.of<DataClass>(context, listen: false);
         _countProvider.travel = travel;
-
-        if (travel.getUserList().keys.contains(userCode)) {
-          _countProvider.currentUser = travel.getUserList()[userCode]!;
-        }
 
         if (travel.getSchedule().isNotEmpty) {
           _countProvider.sortedDayList = SystemUtil.getSortedDayKeyList(travel.getSchedule().first.getRouteMap().keys);
@@ -191,6 +190,21 @@ class _TabBarScreenState extends State<TabBarWidget>
               _countProvider.targetDayKey = dayKey;
               _countProvider.targetRoute = travel.getSchedule().first.getRouteMap()[dayKey]!.first;
             }
+          }
+        }
+
+        /// 유저 설정
+        if (travel.getUserList().keys.contains(userCode)) {
+          _countProvider.currentUser = travel.getUserList()[userCode]!;
+
+          SharedPreferences prefs = await _prefs;
+          String pushToken = prefs.getString(SystemData.fcmToken) ?? "";
+
+          // 토큰이 없거나 갱신되면 토큰값 저장.
+          if (_countProvider.currentUser.getPushToken() != pushToken) {
+            travel.getUserList()[userCode]!.setPushToken(pushToken);
+
+            await ref.set(travel.toJson());
           }
         }
 

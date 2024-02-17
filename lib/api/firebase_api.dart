@@ -1,6 +1,10 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_together/main.dart';
 import 'package:go_together/service/routing_service.dart';
+import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,17 +44,22 @@ class FirebaseApi {
   }
 
   /// FCM 초기화.
-  Future<void> initNotifications() async {
-    await _firebaseMessaging.requestPermission();
-    final fcmToken = await _firebaseMessaging.getToken();
+  Future<void> initNotifications(BuildContext context) async {
+    NotificationSettings settings = await _firebaseMessaging.requestPermission();
 
-    Logger logger = Logger();
-    logger.e('Token: ${fcmToken!}');
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      final fcmToken = await _firebaseMessaging.getToken();
 
-    // 기기 내에 토큰값 저장.
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(SystemData.fcmToken, fcmToken ?? '');
+      Logger logger = Logger();
+      logger.e('Token: ${fcmToken!}');
 
-    initPushNotifications();
+      // 기기 내에 토큰값 저장.
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(SystemData.fcmToken, fcmToken ?? '');
+
+      initPushNotifications();
+    } else {
+      BotToast.showText(text: '알림 권한은 앱 설정에서 허용할 수 있습니다.');
+    }
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_together/api/firebase_api.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/service/routing_service.dart';
@@ -36,6 +37,9 @@ class _PermissionViewState extends State<PermissionView> {
 
   /// 퍼미션 체크
   Future<void> checkPermission() async {
+    // 0. 알림
+    await FirebaseApi().initNotifications(context);
+
     // 1. 위치
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -129,6 +133,10 @@ class _PermissionViewState extends State<PermissionView> {
                         child: Column(
                           children: [
                             PermissionItemWidget(
+                              icon: Icons.notifications_active, title: '알림',
+                              content: '새 메세지 등 시스템 알림을 받을 수 있습니다.',
+                            ),
+                            PermissionItemWidget(
                               icon: Icons.my_location_rounded, title: '위치',
                               content: '사용자의 위치를 지도에 표시합니다.',
                             ),
@@ -137,7 +145,7 @@ class _PermissionViewState extends State<PermissionView> {
                               content: '번역기의 음성인식을 위해 마이크를 사용합니다.',
                             ),
                             PermissionItemWidget(
-                              icon: Icons.folder_open_rounded, title: '저장소',
+                              icon: Icons.folder_open, title: '저장소',
                               content: '사용자 프로필 및 채팅 내 미디어 파일을 올립니다.',
                             ),
                           ],
@@ -231,15 +239,16 @@ class PermissionItemWidget extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold
                       ),
                     ),
+                    SizedBox(height: 5),
                     Text(
                       content,
                       style: TextStyle(
                           color: Colors.grey,
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold
                       ),
                     ),
