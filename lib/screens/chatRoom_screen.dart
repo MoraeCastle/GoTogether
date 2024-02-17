@@ -494,6 +494,9 @@ class _ChatScreenState extends State<ChatRoomView> {
 
             room.getMessageList().add(item);
 
+            // 채팅 메세지를 보냄과 함꼐 읽음처리 갱신.
+            room.getUserMap()[userCode] = room.getMessageList().length;
+
             await ref.child('chat/$travelCode').set(chat.toJson());
 
             /*Future.delayed(const Duration(seconds: 1), () {
