@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:go_together/api/firebase_api.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/service/router_service.dart' as router;
@@ -28,6 +29,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await FirebaseApi().initNotifications();
 
   await FirebaseAppCheck.instance.activate(
     webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
@@ -120,7 +123,7 @@ class MyApp extends StatelessWidget {
         Locale('en'),
       ],
       locale: const Locale('ko'),
-      title: 'Flutter Demo',
+      title: '여행갈까요',
       // theme: ThemeData(
       //   primarySwatch: Colors.blue,
       // ),
@@ -129,6 +132,7 @@ class MyApp extends StatelessWidget {
       builder: BotToastInit(),
       navigatorObservers: [BotToastNavigatorObserver()],
       initialRoute: route,
+      
     );
   }
 }

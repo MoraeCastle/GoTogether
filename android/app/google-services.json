@@ -13,7 +13,16 @@
           "package_name": "com.sandcastle.travel"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "80250456205-8fq4l9dsknu7gume7iga9ef8eu4bufl9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sandcastle.travel",
+            "certificate_hash": "946de896363b3d35376eb70c0035fed8096f8abb"
+          }
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBBgGUTtOlsV7uPzkaLPeDH2Mb2lHWo3X0"

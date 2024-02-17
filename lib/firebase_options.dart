@@ -44,7 +44,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyC3YUkIWjyU6NpVX84MeXve9xIr_1H_mHQ',
+    apiKey: 'AIzaSyDkKqENNJPsn0b06Ocdca40hMYjf3CnmOI',
     appId: '1:80250456205:web:eca9fd66eedf22143c7ac4',
     messagingSenderId: '80250456205',
     projectId: 'gotogetherforflutter',
@@ -55,8 +55,8 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCjyYnbJHXEOYLHuCs7yhn00qv_a3GErts',
-    appId: '1:80250456205:android:6eab852cf08f9d003c7ac4',
+    apiKey: 'AIzaSyBBgGUTtOlsV7uPzkaLPeDH2Mb2lHWo3X0',
+    appId: '1:80250456205:android:524de86bd50e53d93c7ac4',
     messagingSenderId: '80250456205',
     projectId: 'gotogetherforflutter',
     databaseURL: 'https://gotogetherforflutter-default-rtdb.asia-southeast1.firebasedatabase.app',
@@ -64,8 +64,8 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD9pEqWcgdjmvGeV40fMB834Fw3u_4vs0c',
-    appId: '1:80250456205:ios:1209545c6998841e3c7ac4',
+    apiKey: 'AIzaSyDiOvYFYY-bz2NhsmQHAFX4gk0jWhwV2t8',
+    appId: '1:80250456205:ios:250920af2352b7193c7ac4',
     messagingSenderId: '80250456205',
     projectId: 'gotogetherforflutter',
     databaseURL: 'https://gotogetherforflutter-default-rtdb.asia-southeast1.firebasedatabase.app',

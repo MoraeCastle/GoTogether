@@ -17,6 +17,8 @@ class SystemData {
 
   static const String noticeName = '공지';
 
+  static const String fcmToken = 'fcmToken';
+
   static const String naverClientID = 'BGwhW2W9uwbQALukaWDH';
   static const String naverSecretID = 'rfGxmb4r9Q';
   static const String openDataAPIKey = 'HR8TyxL0w4ktjhNK3sGgYDehPyfUNFiQmInLBxO4Oacj0WiY4aDSIGvjVLgMdt0SnrgXg6YGKMTlryaLcEFL0w%3D%3D';
