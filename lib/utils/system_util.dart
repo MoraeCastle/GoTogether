@@ -62,7 +62,7 @@ class SystemUtil {
     if(Platform.isAndroid) {
       return "AIzaSyBBgGUTtOlsV7uPzkaLPeDH2Mb2lHWo3X0";
     } else {
-      return "AIzaSyDiOvYFYY-bz2NhsmQHAFX4gk0jWhwV2t8";
+      return "AIzaSyAx-041yZYqaQCBq3zgZPMUvp-9uEg53Jc";
     }
   }
 

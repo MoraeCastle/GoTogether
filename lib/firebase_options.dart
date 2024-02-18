@@ -64,14 +64,14 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDiOvYFYY-bz2NhsmQHAFX4gk0jWhwV2t8',
-    appId: '1:80250456205:ios:250920af2352b7193c7ac4',
+    apiKey: 'AIzaSyAx-041yZYqaQCBq3zgZPMUvp-9uEg53Jc',
+    appId: '1:80250456205:ios:5234eb934bdccdbe3c7ac4',
     messagingSenderId: '80250456205',
     projectId: 'gotogetherforflutter',
     databaseURL: 'https://gotogetherforflutter-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'gotogetherforflutter.appspot.com',
-    iosClientId: '80250456205-2ckl161mlq9ain36masap40depmjsoh1.apps.googleusercontent.com',
-    iosBundleId: 'com.example.goTogether',
+    iosClientId: '80250456205-s1jf47ckun3v14f9kcpf0a8lnc4ajju9.apps.googleusercontent.com',
+    iosBundleId: 'com.sandcastle.travel',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -22,8 +24,23 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.80250456205-s1jf47ckun3v14f9kcpf0a8lnc4ajju9</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>mailto</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -31,6 +48,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>프로필 사진 첨부를 위해 카메라 권한 동의가 필요합니다. 설정에서 이를 변경할 수 있습니다.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>지도에서 사용자가 자신의 위치를 확인하기 위해 위치 권한 동의가 필요합니다. 설정에서 이를 변경할 수 있습니다.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -41,12 +60,15 @@
 	<string>번역기 내 음성인식으로 텍스트를 대신 입력하기 위해 마이크 사용 권한 동의가 필요합니다. 설정에서 이를 변경할 수 있습니다.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>프로필 사진 첨부 기능 사용을 위해 사진 라이브러리 접근권한 동의가 필요합니다. 설정에서 이를 변경할 수 있습니다.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>프로필 사진 첨부를 위해 카메라 권한 동의가 필요합니다. 설정에서 이를 변경할 수 있습니다.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>번역기 내 마이크를 통한 사용자의 음성을 텍스트로 변환하기 위해 음성인식 사용 권한 동의가 필요합니다. 설정에서 이를 변경할 수 있습니다.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -70,9 +92,5 @@
 	<false/>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
-	<key>LSApplicationQueriesSchemes</key>
-    <array>
-      <string>mailto</string>
-    </array>
 </dict>
 </plist>
