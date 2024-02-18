@@ -1,16 +1,11 @@
-import 'package:bot_toast/bot_toast.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_together/api/firebase_api.dart';
-import 'package:go_together/models/Travel.dart';
-import 'package:go_together/models/User.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:go_together/utils/string.dart';
-import 'package:go_together/utils/system_util.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
@@ -93,10 +88,10 @@ class _PermissionViewState extends State<PermissionView> {
                   width: double.infinity,
                   alignment: Alignment.center,
                   padding: EdgeInsets.all(15),
-                  child: const Column(
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.all(10),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -125,6 +120,16 @@ class _PermissionViewState extends State<PermissionView> {
                                 fontSize: 15
                               ),
                             ),
+                            SizedBox(height: 10,),
+                            Text(
+                              textAlign: TextAlign.center,
+                              '※ 아래 권한들은 앱 설정에서 수정 가능합니다.',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(150, 0, 0, 0),
+                                  fontSize: 15,
+                              ),
+                            ),
                           ],
                         )
                       ),
@@ -132,19 +137,26 @@ class _PermissionViewState extends State<PermissionView> {
                         padding: EdgeInsets.all(10),
                         child: Column(
                           children: [
-                            PermissionItemWidget(
+                            const PermissionItemWidget(
                               icon: Icons.notifications_active, title: '알림',
                               content: '새 메세지 등 시스템 알림을 받을 수 있습니다.',
                             ),
-                            PermissionItemWidget(
+                            Visibility(
+                              visible: Platform.isAndroid,
+                              child: const PermissionItemWidget(
+                                icon: Icons.charging_station, title: '배터리 최적화 중지',
+                                content: '앱을 사용하지 않아도 알림을 원활히 받을 수 있습니다.',
+                              ),
+                            ),
+                            const PermissionItemWidget(
                               icon: Icons.my_location_rounded, title: '위치',
                               content: '사용자의 위치를 지도에 표시합니다.',
                             ),
-                            PermissionItemWidget(
+                            const PermissionItemWidget(
                               icon: Icons.keyboard_voice_rounded, title: '녹음',
                               content: '번역기의 음성인식을 위해 마이크를 사용합니다.',
                             ),
-                            PermissionItemWidget(
+                            const PermissionItemWidget(
                               icon: Icons.folder_open, title: '저장소',
                               content: '사용자 프로필 및 채팅 내 미디어 파일을 올립니다.',
                             ),

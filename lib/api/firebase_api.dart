@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -8,6 +10,7 @@ import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 백그라운드 알림이 도착 했을 때. 알림을 탭하지 않아도 작동됨.
@@ -60,6 +63,10 @@ class FirebaseApi {
   /// FCM 초기화.
   Future<void> initNotifications(BuildContext context) async {
     NotificationSettings settings = await _firebaseMessaging.requestPermission();
+
+    if(Platform.isAndroid) {
+      await Permission.ignoreBatteryOptimizations.request();
+    }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       final fcmToken = await _firebaseMessaging.getToken();
