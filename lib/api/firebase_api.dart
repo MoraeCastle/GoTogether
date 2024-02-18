@@ -5,9 +5,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_together/main.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/WidgetBuilder.dart';
+import 'package:go_together/utils/notification.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -26,6 +28,12 @@ Future<void> handleBackgroundMessage(RemoteMessage message) async {
 Future<void> handleForegroundMessage(RemoteMessage message) async {
   Logger logger = Logger();
   logger.e('포그라운드 메세지 도착...');
+
+  FlutterLocalNotification.showNotification(
+      message.notification?.title,
+      message.notification?.title,
+      message.notification?.body
+  );
 }
 
 class FirebaseApi {

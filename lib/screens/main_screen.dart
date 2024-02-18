@@ -2,6 +2,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_together/api/firebase_api.dart';
+import 'package:go_together/main.dart';
 import 'package:go_together/models/Chat.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/providers/data_provider.dart';
@@ -10,6 +11,7 @@ import 'package:go_together/screens/etc_screen.dart';
 import 'package:go_together/screens/map_screen.dart';
 import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:go_together/utils/network_util.dart';
+import 'package:go_together/utils/notification.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:logger/logger.dart';
@@ -71,11 +73,22 @@ class _TabBarScreenState extends State<TabBarWidget>
     setTravelDate();
 
     FirebaseApi().initNotifications(context);
+    FlutterLocalNotification.init();
 
     checkChatUnread();
     WidgetsBinding.instance!.addObserver(this);
+
+    // 로컬 메세지 클릭 대기...
+    streamController.stream.listen((payload) {
+      Logger logger = Logger();
+      logger.e(payload);
+      if (payload == SystemData.chatStreamStr) {
+        tabController.animateTo(1);
+      }
+    });
   }
 
+  /// 앱 홈으로 이동해서 돌아왔을 때...
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
@@ -285,6 +298,7 @@ class _TabBarScreenState extends State<TabBarWidget>
   void dispose() {
     tabController.dispose();
     WidgetsBinding.instance!.removeObserver(this);
+    streamController.close();
     super.dispose();
   }
 

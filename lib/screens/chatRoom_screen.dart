@@ -10,6 +10,7 @@ import 'package:go_together/models/User.dart';
 import 'package:go_together/models/data.dart';
 import 'package:go_together/models/theme.dart';
 import 'package:go_together/utils/network_util.dart';
+import 'package:go_together/utils/notification.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:logger/logger.dart';
@@ -24,7 +25,7 @@ class ChatRoomView extends StatefulWidget {
   State<ChatRoomView> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatRoomView> {
+class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
   Logger logger = Logger();
   
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -145,6 +146,8 @@ class _ChatScreenState extends State<ChatRoomView> {
 
     if (resultList.isNotEmpty) {
       getChatList();
+      // 알림메세지 모두 읽음처리
+      FlutterLocalNotification.cancelAllNotifications();
     } else {
       finishDialog();
     }
@@ -237,8 +240,25 @@ class _ChatScreenState extends State<ChatRoomView> {
     );
 
     super.initState();
+    WidgetsBinding.instance!.addObserver(this);
 
     getChatUser();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  /// 앱 홈으로 이동해서 돌아왔을 때...
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // 알림메세지 모두 읽음처리
+      FlutterLocalNotification.cancelAllNotifications();
+    }
   }
 
   @override

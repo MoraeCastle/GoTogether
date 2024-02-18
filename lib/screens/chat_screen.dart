@@ -72,6 +72,8 @@ class _ChatView extends State<ChatView> {
 
         roomWidgetList = [];
 
+        if (!mounted) return;
+
         setState(() {
           for (Room room in chat.getRoomList()) {
             if (room.getState() == 1) {

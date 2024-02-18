@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:country_code_picker/country_code_picker.dart';
@@ -19,6 +20,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
 String route = LoginViewRoute;
+//! Notification을 위한 StreamController 전역 변수 선언
+StreamController<String> streamController = StreamController.broadcast();
 
 void main() async {
 //  WidgetsFlutterBinding.ensureInitialized();
