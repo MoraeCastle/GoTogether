@@ -39,6 +39,13 @@ class _ChatView extends State<ChatView> {
     super.initState();
 
     listenTravelChange();
+
+    refreshUnRead();
+  }
+
+  Future<void> refreshUnRead() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(SystemData.chatUnread, false);
   }
 
   /// 기기내 저장값 가져오기

@@ -12,6 +12,7 @@ import 'package:go_together/utils/WidgetBuilder.dart';
 import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:badges/badges.dart' as badges;
@@ -57,7 +58,7 @@ class TabBarWidget extends StatefulWidget {
 }
 
 class _TabBarScreenState extends State<TabBarWidget>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late DataClass _countProvider;
   bool isTravel = false;
@@ -70,6 +71,30 @@ class _TabBarScreenState extends State<TabBarWidget>
     setTravelDate();
 
     FirebaseApi().initNotifications(context);
+
+    checkChatUnread();
+    WidgetsBinding.instance!.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      checkChatUnread();
+    }
+  }
+
+  /// 채팅상태 확인.
+  Future<void> checkChatUnread() async {
+    SharedPreferences prefs = await _prefs;
+    // 최신화.
+    await prefs.reload();
+
+    // 채팅...
+    bool chatUnread = prefs.getBool(SystemData.chatUnread) ?? false;
+    if (chatUnread) {
+      tabController.animateTo(1);
+    }
   }
 
   /// 오류로 인한 나가기.
@@ -259,6 +284,7 @@ class _TabBarScreenState extends State<TabBarWidget>
   @override
   void dispose() {
     tabController.dispose();
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 

@@ -14,6 +14,7 @@ class SystemData {
   static const String chatTitle = 'chatTitle';
   static const String chatUserCount = 'chatUserCount';
   static const String chatUserList = 'chatUserList';
+  static const String chatUnread = 'chatUnread';
 
   static const String noticeName = '공지';
 

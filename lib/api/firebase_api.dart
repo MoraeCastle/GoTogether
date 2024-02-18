@@ -1,4 +1,5 @@
 import 'package:bot_toast/bot_toast.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,23 +10,34 @@ import 'package:go_together/utils/string.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// 알림이 도착 했을 때 알림을 탭하지 않아도 작동됨.
+/// 백그라운드 알림이 도착 했을 때. 알림을 탭하지 않아도 작동됨.
 Future<void> handleBackgroundMessage(RemoteMessage message) async {
   Logger logger = Logger();
-  logger.e('Title: ${message.notification?.title}');
-  logger.e('Body: ${message.notification?.body}');
-  logger.e('Payload: ${message..data}');
+  // logger.e('Title: ${message.notification?.title}');
+  // logger.e('Body: ${message.notification?.body}');
+  // logger.e('Payload: ${message..data}');
+  logger.e('백그라운드 메세지 도착...');
+}
+
+/// 포그라운드 알림이 도착 했을 때. 알림을 탭하지 않아도 작동됨.
+Future<void> handleForegroundMessage(RemoteMessage message) async {
+  Logger logger = Logger();
+  logger.e('포그라운드 메세지 도착...');
 }
 
 class FirebaseApi {
   final _firebaseMessaging = FirebaseMessaging.instance;
 
   /// 알림을 탭한 경우.
-  void handleMessage(RemoteMessage? message) {
+  Future<void> handleMessage(RemoteMessage? message) async {
     if (message == null) return;
 
     Logger logger = Logger();
     logger.e('알림 클릭.');
+
+    // 채팅 읽음상태 갱신.
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(SystemData.chatUnread, true);
   }
 
   Future initPushNotifications() async {
@@ -41,6 +53,8 @@ class FirebaseApi {
     FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
     // 알림이 도착하면 작동됨.
     FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
+    // 앱이 켜진 상태에서 받을 때.
+    FirebaseMessaging.onMessage.listen(handleForegroundMessage);
   }
 
   /// FCM 초기화.
