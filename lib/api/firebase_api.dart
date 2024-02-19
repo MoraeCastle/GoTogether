@@ -65,7 +65,10 @@ class FirebaseApi {
     // 알림이 도착하면 작동됨.
     FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
     // 앱이 켜진 상태에서 받을 때.
-    FirebaseMessaging.onMessage.listen(handleForegroundMessage);
+    if (Platform.isAndroid) {
+      // 아이폰의 경우 포그라운드는 자동...
+      FirebaseMessaging.onMessage.listen(handleForegroundMessage);
+    }
   }
 
   /// FCM 초기화.

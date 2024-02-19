@@ -84,7 +84,7 @@ class FlutterLocalNotification {
     NotificationDetails notificationDetails =
       NotificationDetails(
         android: androidNotificationDetails,
-        iOS: DarwinNotificationDetails(badgeNumber: 1)
+        iOS: DarwinNotificationDetails(badgeNumber: 0)
       );
 
     await flutterLocalNotificationsPlugin.show(

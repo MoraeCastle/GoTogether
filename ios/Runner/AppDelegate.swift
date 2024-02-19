@@ -12,8 +12,13 @@ import GoogleMaps
         UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
       }
 
-    GMSServices.provideAPIKey("AIzaSyAx-041yZYqaQCBq3zgZPMUvp-9uEg53Jc")
+    
+      GMSServices.provideAPIKey("AIzaSyAx-041yZYqaQCBq3zgZPMUvp-9uEg53Jc")
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+    
+    override func applicationDidBecomeActive(_ application: UIApplication) {
+      application.applicationIconBadgeNumber = 0;
+    }
 }
