@@ -265,7 +265,7 @@ class NetworkUtil {
 
   /// 채팅방 입장 상태 초기화.(상태 리셋용)
   /// 모든 방 적용은 roomName을 ""로 설정.
-  static Future<bool> leaveAllChatRoom(String travelCode, String roomName, String userCode) async {
+  static Future<bool> changeLeaveAllChatRoom(String travelCode, String roomName, String userCode, bool isOut) async {
     final ref = FirebaseDatabase.instance.ref();
     final snapshot = await ref.child('chat/$travelCode').get();
 
@@ -277,12 +277,12 @@ class NetworkUtil {
         for (Room room in chat.getRoomList()) {
           if (roomName.isNotEmpty) {
             if (room.getTitle() == roomName) {
-              room.removeCurrent(userCode);
+              isOut ? room.removeCurrent(userCode) : room.addCurrent(userCode);
               break;
             }
           } else {
             /// 그냥 모두 나가기 처리.
-            room.removeCurrent(userCode);
+            isOut ? room.removeCurrent(userCode) : room.addCurrent(userCode);
           }
         }
 

@@ -183,7 +183,7 @@ class _TabBarScreenState extends State<TabBarWidget>
           listenChatChange(travelCode, userCode);
 
           // 모든 채팅방 입장상태 초기화.
-          NetworkUtil.leaveAllChatRoom(travel.getTravelCode(), "", userCode);
+          NetworkUtil.changeLeaveAllChatRoom(travel.getTravelCode(), "", userCode, true);
         } else {
           // 데이터가 null이라면 처리할 로직을 여기에 추가하세요.
           BotToast.showText(text: "여행 데이터 불러오기 오류...");

@@ -36,7 +36,7 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
   DatabaseReference ref = FirebaseDatabase.instance.ref();
 
   // listen
-  late StreamSubscription<DatabaseEvent> state;
+  late StreamSubscription<DatabaseEvent> childChange;
 
   AppTheme theme = LightTheme();
   bool isDarkTheme = false;
@@ -162,7 +162,7 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
   /// 채팅 목록을 가져오고 최신화합니다.
   void getChatList() {
     DatabaseReference ref = FirebaseDatabase.instance.ref('chat/$travelCode');
-    state = ref.onValue.listen((DatabaseEvent event) async {
+    childChange = ref.onValue.listen((DatabaseEvent event) async {
       final result = event.snapshot.value;
       if (result != null) {
         var chat = Chat.fromJson(result);
@@ -256,7 +256,7 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
   @override
   void dispose() {
     WidgetsBinding.instance!.removeObserver(this);
-    state.cancel();
+    childChange.cancel();
     super.dispose();
   }
 
@@ -264,10 +264,18 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    // logger.e('>>> lifecyle callback...: ${describeEnum(state)}');
+    logger.e('>>> lifecyle callback...: ${describeEnum(state)}');
     if (state == AppLifecycleState.resumed) {
+      // 앱으로 복귀했을 때.
+      childChange.resume();
+      NetworkUtil.changeLeaveAllChatRoom(travelCode, chatTitle, userCode, false);
       // 알림메세지 모두 읽음처리
       FlutterLocalNotification.cancelAllNotifications();
+    } else if (state == AppLifecycleState.paused) {
+      // 홈 화면으로 나갔을 때.
+      // 방에서 나감처리.
+      childChange.pause();
+      NetworkUtil.changeLeaveAllChatRoom(travelCode, chatTitle, userCode, true);
     }
   }
 
@@ -278,10 +286,10 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
         canPop: false,
         onPopInvoked: (didPop) async {
           if (didPop) return;
-          state.cancel();
+          childChange.cancel();
 
           // 채팅방 나감으로 변경..
-          await NetworkUtil.leaveAllChatRoom(travelCode, chatTitle, userCode);
+          await NetworkUtil.changeLeaveAllChatRoom(travelCode, chatTitle, userCode, true);
           Navigator.pop(context);
         },
         child: Stack(
@@ -322,9 +330,9 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
                 userStatusTextStyle: const TextStyle(color: Colors.grey),
                 onBackPress: () async {
                   // 채팅방 나감으로 변경..
-                  state.cancel();
+                  childChange.cancel();
 
-                  await NetworkUtil.leaveAllChatRoom(travelCode, chatTitle, userCode);
+                  await NetworkUtil.changeLeaveAllChatRoom(travelCode, chatTitle, userCode, true);
                   Navigator.pop(context);
                 },
               ),

@@ -9,6 +9,7 @@ class Room {
   late List<MessageItem> messageList; // 대화 리스트
   late int state; // 채팅방 상태 (1이면 공지)
   late List<String> currentPeople; // 현재 방에 있는 인원.
+  late int pushState; // 푸쉬알림 간 상태... 중복호출 방지값.
 
   Room() {
     title = "";
@@ -17,6 +18,7 @@ class Room {
     messageList = [];
     state = 0;
     currentPeople = [];
+    pushState = 0;
   }
 
   void setTitle(String data) {
@@ -75,6 +77,13 @@ class Room {
     }
   }
 
+  void setPushState(int data) {
+    pushState = data;
+  }
+  int getPushState() {
+    return pushState;
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'title': title,
@@ -83,6 +92,7 @@ class Room {
       'messageList': messageList?.map((s) => s.toJson())?.toList() ?? [],
       'state': state,
       'currentPeople': currentPeople,
+      'pushState': pushState,
     };
   }
 
@@ -99,6 +109,7 @@ class Room {
     room.currentPeople = json['currentPeople'] != null
         ? List<String>.from(json['currentPeople'])
         : <String>[];
+    room.pushState = json['pushState'] ?? 0;
 
     return room;
   }
