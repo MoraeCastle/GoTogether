@@ -12,6 +12,7 @@ import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/providers/schedule_provider.dart';
 import 'package:go_together/screens/schedule_screen.dart';
 import 'package:go_together/service/routing_service.dart';
+import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
@@ -214,8 +215,17 @@ class _MapViewState extends State<MapView> {
           forceAndroidLocationManager: true,
           timeLimit: const Duration(seconds: 15));
 
-      await moveCamera(LatLng(position.latitude, position.longitude));
+      // 위치 업데이트.
+      String positionStr = "${position.latitude},${position.longitude}";
+      if (context.read<DataClass>().currentUser.getPosition() != positionStr) {
+        NetworkUtil.updatePosition(
+          context.read<DataClass>().travel.getTravelCode(),
+          context.read<DataClass>().currentUser.getUserCode(),
+          positionStr,
+        );
+      }
 
+      await moveCamera(LatLng(position.latitude, position.longitude));
       BotToast.showText(text: '위치를 최신화 했습니다.');
     } catch (e) {
       logger.e(e.toString());

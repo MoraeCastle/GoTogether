@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_together/main.dart';
 import 'package:go_together/models/Chat.dart';
 import 'package:go_together/models/Notice.dart';
@@ -25,6 +26,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// 통신 관련
 class NetworkUtil {
+  /// 서버에 현재 위치 업데이트.
+  static Future<void> updatePosition(String travelCode, String userCode, String position) async {
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('travel/$travelCode').get();
+
+    var result = snapshot.value;
+    if (result != null) {
+      var travel = Travel.fromJson(result);
+
+      for (User user in travel.getUserList().values) {
+        if (user.getUserCode() == userCode) {
+          user.setPosition(position);
+          break;
+        }
+      }
+
+      await ref.child('travel/$travelCode').set(travel.toJson());
+    }
+  }
+
   /// 이 유저가 가이드인지?
   static Future<bool> isGuild(Travel travel) async {
     Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
