@@ -181,6 +181,9 @@ class _TabBarScreenState extends State<TabBarWidget>
 
           listenTravelChange(travelCode, userCode);
           listenChatChange(travelCode, userCode);
+
+          // 모든 채팅방 입장상태 초기화.
+          NetworkUtil.leaveAllChatRoom(travel.getTravelCode(), "", userCode);
         } else {
           // 데이터가 null이라면 처리할 로직을 여기에 추가하세요.
           BotToast.showText(text: "여행 데이터 불러오기 오류...");
@@ -253,7 +256,7 @@ class _TabBarScreenState extends State<TabBarWidget>
     });
   }
 
-  /// 여행 데이터 변경 감지
+  /// 채팅 데이터 변경 감지
   void listenChatChange(String travelCode, String userCode) {
     DatabaseReference ref =
     FirebaseDatabase.instance.ref('chat/$travelCode');

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:chatview/chatview.dart';
 import 'package:go_together/models/Chat.dart';
@@ -31,6 +34,9 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   FirebaseDatabase database = FirebaseDatabase.instance;
   DatabaseReference ref = FirebaseDatabase.instance.ref();
+
+  // listen
+  late StreamSubscription<DatabaseEvent> state;
 
   AppTheme theme = LightTheme();
   bool isDarkTheme = false;
@@ -156,7 +162,7 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
   /// 채팅 목록을 가져오고 최신화합니다.
   void getChatList() {
     DatabaseReference ref = FirebaseDatabase.instance.ref('chat/$travelCode');
-    ref.onValue.listen((DatabaseEvent event) async {
+    state = ref.onValue.listen((DatabaseEvent event) async {
       final result = event.snapshot.value;
       if (result != null) {
         var chat = Chat.fromJson(result);
@@ -184,8 +190,9 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
           rearrangeList(chatList);
 
           // 읽음처리.
-          if (targetRoom.getMessageList().length != targetRoom.getUserMap()[userCode]!) {
+          if (targetRoom.getMessageList().length != targetRoom.getUserMap()[userCode]! || !targetRoom.getCurrentPeople().contains(userCode)) {
             targetRoom.getUserMap()[userCode] = targetRoom.getMessageList().length;
+            targetRoom.addCurrent(userCode);
 
             try{
               Room item = chat.getRoomList().firstWhere((element) => element.getTitle() == targetRoom.getTitle());
@@ -245,9 +252,11 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
     getChatUser();
   }
 
+  /// 뒤로 나가기 할 떄...
   @override
   void dispose() {
     WidgetsBinding.instance!.removeObserver(this);
+    state.cancel();
     super.dispose();
   }
 
@@ -255,6 +264,7 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+    // logger.e('>>> lifecyle callback...: ${describeEnum(state)}');
     if (state == AppLifecycleState.resumed) {
       // 알림메세지 모두 읽음처리
       FlutterLocalNotification.cancelAllNotifications();
@@ -266,8 +276,12 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
     return Scaffold(
       body: PopScope(
         canPop: false,
-        onPopInvoked: (didPop) {
+        onPopInvoked: (didPop) async {
           if (didPop) return;
+          state.cancel();
+
+          // 채팅방 나감으로 변경..
+          await NetworkUtil.leaveAllChatRoom(travelCode, chatTitle, userCode);
           Navigator.pop(context);
         },
         child: Stack(
@@ -306,6 +320,13 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
                 userStatus: targetRoom.getMessageList().isEmpty
                     ? "새 채팅방" : SystemUtil.getTodayStr(DateTime.parse(targetRoom.getMessageList().last.createdAt)),
                 userStatusTextStyle: const TextStyle(color: Colors.grey),
+                onBackPress: () async {
+                  // 채팅방 나감으로 변경..
+                  state.cancel();
+
+                  await NetworkUtil.leaveAllChatRoom(travelCode, chatTitle, userCode);
+                  Navigator.pop(context);
+                },
               ),
               chatBackgroundConfig: ChatBackgroundConfiguration(
                 messageTimeIconColor: theme.messageTimeIconColor,
@@ -516,6 +537,7 @@ class _ChatScreenState extends State<ChatRoomView> with WidgetsBindingObserver{
 
             // 채팅 메세지를 보냄과 함꼐 읽음처리 갱신.
             room.getUserMap()[userCode] = room.getMessageList().length;
+            room.addCurrent(userCode);
 
             await ref.child('chat/$travelCode').set(chat.toJson());
 

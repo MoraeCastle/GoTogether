@@ -8,6 +8,7 @@ class Room {
   late Map<String, int> userMap; // 유저리스트, 체크카운터의 값을 가진다.
   late List<MessageItem> messageList; // 대화 리스트
   late int state; // 채팅방 상태 (1이면 공지)
+  late List<String> currentPeople; // 현재 방에 있는 인원.
 
   Room() {
     title = "";
@@ -15,6 +16,7 @@ class Room {
     userMap = {};
     messageList = [];
     state = 0;
+    currentPeople = [];
   }
 
   void setTitle(String data) {
@@ -55,6 +57,24 @@ class Room {
     return state;
   }
 
+  // 현재 채팅방에 있는 인원상태 관련
+  void setCurrentPeople(List<String> data) {
+    currentPeople = data;
+  }
+  List<String> getCurrentPeople() {
+    return currentPeople;
+  }
+  void addCurrent(String user) {
+    if (!currentPeople.contains(user)) {
+      currentPeople.add(user);
+    }
+  }
+  void removeCurrent(String user) {
+    if (currentPeople.contains(user)) {
+      currentPeople.removeWhere((target) => target == user);
+    }
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'title': title,
@@ -62,6 +82,7 @@ class Room {
       'userMap': userMap,
       'messageList': messageList?.map((s) => s.toJson())?.toList() ?? [],
       'state': state,
+      'currentPeople': currentPeople,
     };
   }
 
@@ -75,6 +96,9 @@ class Room {
         .toList() ??
         [];
     room.state = json['state'] ?? 0;
+    room.currentPeople = json['currentPeople'] != null
+        ? List<String>.from(json['currentPeople'])
+        : <String>[];
 
     return room;
   }

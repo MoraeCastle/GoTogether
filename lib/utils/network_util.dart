@@ -249,6 +249,40 @@ class NetworkUtil {
         for (Room room in chat.getRoomList()) {
           if (room.getUserMap().keys.contains(userCode)) {
             room.deleteUser(userCode);
+            room.removeCurrent(userCode);
+          }
+        }
+
+        await ref.child('chat/$travelCode').set(chat.toJson());
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  /// 채팅방 입장 상태 초기화.(상태 리셋용)
+  /// 모든 방 적용은 roomName을 ""로 설정.
+  static Future<bool> leaveAllChatRoom(String travelCode, String roomName, String userCode) async {
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('chat/$travelCode').get();
+
+    if (snapshot.exists) {
+      var result = snapshot.value;
+      if (result != null) {
+        var chat = Chat.fromJson(result);
+
+        for (Room room in chat.getRoomList()) {
+          if (roomName.isNotEmpty) {
+            if (room.getTitle() == roomName) {
+              room.removeCurrent(userCode);
+              break;
+            }
+          } else {
+            /// 그냥 모두 나가기 처리.
+            room.removeCurrent(userCode);
           }
         }
 
