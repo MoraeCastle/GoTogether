@@ -1,16 +1,15 @@
 import 'dart:async';
-
 import 'package:app_settings/app_settings.dart';
 import 'package:bot_toast/bot_toast.dart';
+import 'package:custom_marker/marker_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_google_maps_webservices/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_together/models/RouteItem.dart';
-import 'package:go_together/models/Travel.dart';
+import 'package:go_together/models/User.dart';
+import 'package:go_together/models/data.dart';
 import 'package:go_together/providers/data_provider.dart';
-import 'package:go_together/providers/schedule_provider.dart';
-import 'package:go_together/screens/schedule_screen.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/network_util.dart';
 import 'package:go_together/utils/system_util.dart';
@@ -39,19 +38,23 @@ class _MapViewState extends State<MapView> {
   // 현재 위치 좌표
   late LatLng currentLatLng;
   CameraPosition currentPosition =
-      const CameraPosition(target: LatLng(35.151624, 126.869592), zoom: 16);
+      const CameraPosition(target: LatLng(37.5518911,126.9917937), zoom: 10);
 
   TextEditingController textEditingController = TextEditingController();
 
   FocusNode textFocus = FocusNode();
 
+  RouteItem? recentRoute;
+
   // 현재 일정 마커
   Set<Marker> currentMarkers = {};
-  
+
   /// 맵 컨트롤러 가져오기
   Future<GoogleMapController> getController() async {
     return await _controller.future;
   }
+
+  int testCount = 0;
 
   /// PlaceId의 위치로 이동하기
   findAddressForPlace(String placeId) async {
@@ -119,63 +122,117 @@ class _MapViewState extends State<MapView> {
     super.initState();
 
     _getCurrentLocation();
+
+    // 주기적 마커 업데이트.
+    Timer.periodic(Duration(seconds: 3), (Timer timer) {
+      updateMarker();
+    });
+  }
+
+  /// 마커 업데이트.
+  updateMarker() async {
+    if (mounted) {
+      await getMarkerListToDay(context.read<DataClass>().targetRoute);
+      await refreshUserMarker(context.read<DataClass>().travel.getUserList().values.toList());
+
+      setState(() {});
+    }
   }
 
   /// 루트에 맞는 마커를 맵에 출력합니다.
-  Set<Marker> getMarkerListToDay(RouteItem target) {
+  Future<void> getMarkerListToDay(RouteItem target) async {
+    currentMarkers.removeWhere((marker) => marker.markerId.value.contains('schedule'));
+
     var dataProvider = context.read<DataClass>();
     var schedule = dataProvider.travel.getSchedule();
     var dayKey = dataProvider.targetDayKey;
 
-    if (schedule.isEmpty || dayKey.isEmpty) return {};
+    if (schedule.isEmpty) return;
 
-    if (true) {
-      // if (currentMarkers.isEmpty) {
-      currentMarkers.clear();
-      List<RouteItem> routeList = schedule.first.getRouteMap()[dayKey] ?? [];
+    List<RouteItem> routeList = schedule.first.getRouteMap()[dayKey] ?? [];
 
-      for (RouteItem routeItem in routeList) {
-        currentMarkers.add(
+    // 해당 일자로 채워넣기.
+    for (RouteItem route in routeList) {
+      currentMarkers.add(
           Marker(
+            markerId: MarkerId('schedule: ' + route.getPosition()),
             onTap: () {
-              Provider.of<DataClass>(context, listen: false).targetRoute = routeItem;
+              Provider.of<DataClass>(context, listen: false).targetRoute = route;
             },
-            markerId: MarkerId(routeItem.getRouteName()),
-            position: SystemUtil.convertStringPosition(routeItem.getPosition()),
+            // markerId: MarkerId(routeItem.getRouteName()),
+            position: SystemUtil.convertStringPosition(route.getPosition()),
             infoWindow: InfoWindow(
-              title: routeItem.getRouteName(),
-              snippet: "${routeItem.getStartTime()} ~ ${routeItem.getEndTime()}",
-              onTap: () {
-                ///
-              },
+              title: route.getRouteName(),
+              snippet: "${route.getStartTime()} ~ ${route.getEndTime()}",
+              onTap: () {},
             ),
-            icon: BitmapDescriptor.defaultMarker,
+            icon: await MarkerIcon.circleCanvasWithText(
+              size: Size.fromRadius(50),
+              text: (routeList.indexOf(route) + 1).toString(),
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+              fontColor: Colors.white,
+              circleColor: Colors.green
+            ),
           )
-        );
-      }
+      );
     }
 
-    moveCamera(SystemUtil.convertStringPosition(target.getPosition()));
+    /*if (recentRoute != target) {
+      recentRoute = target;
+      moveCamera(SystemUtil.convertStringPosition(target.getPosition()));
+    }*/
+  }
 
-    return currentMarkers;
+  /// 유저마커 최신화.
+  refreshUserMarker(List<User> userList) async {
+    /// 초기화.
+    currentMarkers.removeWhere((marker) => marker.markerId.value.contains('user'));
+
+    for (User user in userList) {
+      if (user.getPosition().isEmpty) continue;
+
+      currentMarkers.add(
+          Marker(
+            markerId: MarkerId('user: ' + user.getUserCode()),
+            position: SystemUtil.convertStringPosition(user.getPosition()),
+            icon: await MarkerIcon.downloadResizePictureCircle(
+                user.getProfileURL().isEmpty ? Data.defaultImage : user.getProfileURL(),
+                size: 150,
+                addBorder: true,
+                borderColor: Colors.black,
+                borderSize: 15
+            ),
+            infoWindow: InfoWindow(
+              title: user.getName(),
+            ),
+          )
+      );
+    }
   }
 
   moveCamera(LatLng position) async {
     currentLatLng = LatLng(position.latitude, position.longitude);
     GoogleMapController controller = await getController();
 
-    currentPosition = CameraPosition(target: currentLatLng, zoom: 16);
+    currentPosition = CameraPosition(target: currentLatLng, zoom: 17);
 
-    controller.moveCamera(CameraUpdate.newLatLngZoom(currentLatLng, 17));
-
-    logger.d(currentLatLng.toString());
+    // controller.moveCamera(CameraUpdate.newLatLngZoom(currentLatLng, 17));
+    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: currentLatLng,
+      zoom: 17
+    )));
   }
 
-
   _getCurrentLocation() async {
-    Position position;
+    Position? position;
 
     try {
+      position = await Geolocator.getLastKnownPosition();
+      if (position != null) {
+        await moveCamera(LatLng(position.latitude, position.longitude));
+      }
+
       // Test if location services are enabled.
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
@@ -235,7 +292,7 @@ class _MapViewState extends State<MapView> {
   }
 
   /// 일차 이동
-  void moveDay(int isBack) {
+  Future<void> moveDay(int isBack) async {
     var dataProvider = context.read<DataClass>();
     var schedule = dataProvider.travel.getSchedule();
     var dayKey = dataProvider.targetDayKey;
@@ -256,6 +313,8 @@ class _MapViewState extends State<MapView> {
           var newRoute = schedule.first.getRouteMap()[day]!.first;
           Provider.of<DataClass>(context, listen: false).targetRoute = newRoute;
           Provider.of<DataClass>(context, listen: false).targetDayKey = day;
+
+          moveCamera(SystemUtil.convertStringPosition(newRoute.getPosition()));
         }
       }
     } else if (dayIndex == dayList.length - 1){
@@ -265,6 +324,8 @@ class _MapViewState extends State<MapView> {
         var newRoute = schedule.first.getRouteMap()[day]!.last;
         Provider.of<DataClass>(context, listen: false).targetRoute = newRoute;
         Provider.of<DataClass>(context, listen: false).targetDayKey = day;
+
+        moveCamera(SystemUtil.convertStringPosition(newRoute.getPosition()));
       }
     } else {
       // 중간에 낀 일차일 경우.
@@ -284,9 +345,14 @@ class _MapViewState extends State<MapView> {
         if (day.isNotEmpty) {
           Provider.of<DataClass>(context, listen: false).targetRoute = item;
           Provider.of<DataClass>(context, listen: false).targetDayKey = day;
+
+          moveCamera(SystemUtil.convertStringPosition(item.getPosition()));
         }
       }
     }
+
+    await getMarkerListToDay(context.read<DataClass>().targetRoute);
+    setState(() {});
   }
 
   /// 일정 이동
@@ -313,7 +379,6 @@ class _MapViewState extends State<MapView> {
       Provider.of<DataClass>(context, listen: false).targetRoute = newRoute;
 
       moveCamera(SystemUtil.convertStringPosition(newRoute.getPosition()));
-
     }
   }
 
@@ -360,17 +425,19 @@ class _MapViewState extends State<MapView> {
             zoomControlsEnabled: false,
             mapType: MapType.normal,
             initialCameraPosition: currentPosition,
-            onMapCreated: (controller) {
-              if (!_controller.isCompleted) _controller.complete(controller);
+            onMapCreated: (controller) async {
+              if (!_controller.isCompleted) {
+                _controller.complete(controller);
+              }
             },
             onTap: (argument) {
               setState(() {
                 textFocus.unfocus();
               });
             },
-            markers: getMarkerListToDay(
-              context.watch<DataClass>().targetRoute
-            ),
+            // markers: refreshUserMarker(context.watch<DataClass>().currentUser),
+            // markers: test(context.watch<DataClass>().travel),
+            markers: currentMarkers,
           ),
           // 검색창
           Positioned(

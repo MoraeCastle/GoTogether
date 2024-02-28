@@ -51,7 +51,7 @@ class User {
     this.position = position;
   }
 
-  getPosition() {
+  String getPosition() {
     return position;
   }
 

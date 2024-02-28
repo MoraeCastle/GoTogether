@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_together/api/firebase_api.dart';
 import 'package:go_together/main.dart';
 import 'package:go_together/models/Chat.dart';
@@ -86,6 +89,37 @@ class _TabBarScreenState extends State<TabBarWidget>
         tabController.animateTo(1);
       }
     });
+
+    // 주기적 위치 업데이트.
+    Timer.periodic(Duration(seconds: 5), (Timer timer) {
+      updateUserPosition();
+    });
+  }
+
+  /// 내 위치 서버에 업데이트.
+  updateUserPosition() async {
+    try{
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission != LocationPermission.denied) {
+        Position? position;
+
+        position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+            forceAndroidLocationManager: true,
+            timeLimit: const Duration(seconds: 15));
+
+        // 위치 업데이트.
+        String positionStr = "${position.latitude},${position.longitude}";
+        if (context.read<DataClass>().currentUser.getPosition() != positionStr) {
+          NetworkUtil.updatePosition(
+            context.read<DataClass>().travel.getTravelCode(),
+            context.read<DataClass>().currentUser.getUserCode(),
+            positionStr,
+          );
+        }
+      }
+    } catch(e) {}
   }
 
   /// 앱 홈으로 이동해서 돌아왔을 때...
