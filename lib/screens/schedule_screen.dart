@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/providers/schedule_provider.dart';
-import 'package:go_together/screens/schedule_add_view.dart';
 import 'package:go_together/screens/schedule_edit_view.dart';
 import 'package:go_together/screens/schedule_info_view.dart';
 import 'package:flutter/material.dart';
@@ -61,6 +62,8 @@ class _ScheduleWidget extends State<ScheduleWidget>
   String travelCode = "";
   String currentUserCode = "";
 
+  StreamSubscription<DatabaseEvent>? childChange;
+
   @override
   void initState() {
     BotToast.showLoading();
@@ -85,7 +88,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
     Provider.of<ScheduleClass>(context, listen: false).guidCheck = await NetworkUtil.isGuild(data);
 
     /// 임시!!!
-    if (tabController.index == 1) tabController.index = 0;
+    // if (tabController.index == 1) tabController.index = 0;
   }
 
   /// 여행 데이터 변경 감지
@@ -96,7 +99,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
 
     DatabaseReference ref = FirebaseDatabase.instance.ref('travel/$travelCode');
 
-    ref.onValue.listen((DatabaseEvent event) {
+    childChange = ref.onValue.listen((DatabaseEvent event) {
       var result = event.snapshot.value;
       if (result != null) {
         Travel travel = Travel.fromJson(result);
@@ -154,6 +157,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
   @override
   void dispose() {
     tabController.dispose();
+    childChange?.cancel();
     super.dispose();
   }
 
@@ -175,6 +179,7 @@ class _ScheduleWidget extends State<ScheduleWidget>
           backgroundColor: Colors.black.withAlpha(200),
           leading: IconButton(
             onPressed: () {
+              childChange?.cancel();
               Navigator.pop(context);
             },
             icon: const Icon(Icons.arrow_back, color: Colors.white),

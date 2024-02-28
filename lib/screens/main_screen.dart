@@ -283,7 +283,7 @@ class _TabBarScreenState extends State<TabBarWidget>
           }
         }
 
-        BotToast.showText(text: "여행 데이터 로드됨");
+        //BotToast.showText(text: "여행 데이터 로드됨");
       } else {
         BotToast.showText(text: "서버에 오류가 있습니다.");
       }

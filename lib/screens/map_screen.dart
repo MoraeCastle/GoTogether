@@ -472,7 +472,7 @@ class _MapViewState extends State<MapView> {
                             }
                           },
                           icon: context.read<DataClass>().travel.getTravelCode().isEmpty ?
-                          const Icon(Icons.logout) : const Icon(Icons.menu)),
+                          const Icon(Icons.logout) : const Icon(Icons.event_note)),
                     ),
                     Flexible(
                         flex: 7,

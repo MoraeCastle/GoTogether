@@ -21,6 +21,8 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
   List<Widget> userList = [];
   TextEditingController noticeController = TextEditingController();
 
+  Key _gridKey = UniqueKey(); // GridView의 key
+
   @override
   void initState() {
     super.initState();
@@ -154,6 +156,7 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
                       child: Divider(color: Colors.black, thickness: 1.0)),
                   // 인원 리스트
                   GridView.count(
+                    key: _gridKey,
                     childAspectRatio: 3 / 1,
                     shrinkWrap: true,
                     physics: ScrollPhysics(),
@@ -347,6 +350,8 @@ class _ScheduleInfoView extends State<ScheduleEditView> {
   }
 
   List<Widget> getUserItemList(Map<String, User> dataList, bool isGuide) {
+    _gridKey = UniqueKey();
+
     userList.clear();
 
     for (User user in dataList.values) {
