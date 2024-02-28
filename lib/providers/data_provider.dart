@@ -21,6 +21,7 @@ class DataClass with ChangeNotifier {
 
   DataClass() {
     travel = Travel();
+    currentUser = User();
     noticeList = {};
     allUnreadCount = 0;
   }

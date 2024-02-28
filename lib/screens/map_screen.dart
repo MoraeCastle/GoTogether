@@ -1,17 +1,22 @@
 import 'dart:async';
 import 'package:app_settings/app_settings.dart';
 import 'package:bot_toast/bot_toast.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_marker/marker_icon.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_google_maps_webservices/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_together/models/RouteItem.dart';
+import 'package:go_together/models/Travel.dart';
 import 'package:go_together/models/User.dart';
 import 'package:go_together/models/data.dart';
 import 'package:go_together/providers/data_provider.dart';
 import 'package:go_together/service/routing_service.dart';
 import 'package:go_together/utils/network_util.dart';
+import 'package:go_together/utils/string.dart';
 import 'package:go_together/utils/system_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
@@ -200,7 +205,7 @@ class _MapViewState extends State<MapView> {
                 user.getProfileURL().isEmpty ? Data.defaultImage : user.getProfileURL(),
                 size: 150,
                 addBorder: true,
-                borderColor: Colors.black,
+                borderColor: user.getAuthority() == describeEnum(UserType.guide) ? Colors.yellow : Colors.black,
                 borderSize: 15
             ),
             infoWindow: InfoWindow(
@@ -403,19 +408,398 @@ class _MapViewState extends State<MapView> {
     return "";
   }
 
+  void openDrawer() {
+    _scaffoldKey.currentState?.openDrawer();
+  }
+
+  /// 드로워 전용 유저리스트
+  /// 반복 호출 조심.
+  List<Widget> drawerUserList(List<User> values) {
+    List<Widget> userList = [];
+
+    // 정식 유저만 삽입
+    for (User user in values) {
+      String position = '';
+      if (context.read<DataClass>().currentUser.getUserCode() == user.getUserCode()) {
+        position = "ME";
+      }
+      if (user.getAuthority() == describeEnum(UserType.guide)) {
+        if (position.isNotEmpty) {
+          position = "가이드 / " + position;
+        } else {
+          position = "가이드";
+        }
+      }
+
+      Widget userItem = InkWell(
+          onTap: () {
+            _scaffoldKey.currentState?.closeDrawer();
+
+            if (user.getPosition().isNotEmpty) {
+              moveCamera(SystemUtil.convertStringPosition(user.getPosition()));
+            } else {
+              BotToast.showText(text: '위치가 업데이트 되지않은 유저입니다.');
+            }
+          },
+          child: Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(15),
+                height: 80,
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  color: user.getAuthority() == describeEnum(UserType.guide) ? Color.fromARGB(255, 243, 243, 95) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.grey,
+                      offset: Offset(0.0, 3.0), //(x,y)
+                      blurRadius: 6.0,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Image.network(user.getProfileURL().isEmpty ? Data.defaultImage : user.getProfileURL()),
+                    Material(
+                      color: Colors.transparent,
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.network(
+                          user.getProfileURL().isEmpty ? Data.defaultImage : user.getProfileURL(),
+                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                      : null,
+                                ),
+                              );
+                            }
+                          },
+                          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                            return Icon(Icons.error);
+                          },
+                        ),
+                      ),
+                    ),
+                    Text(
+                      user.getName(),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: 5,
+                right: 10,
+                child: Text(
+                  position,
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 12
+                  ),
+                ),
+              ),
+            ],
+          )
+      );
+
+      if (user.getAuthority() == describeEnum(UserType.guide)) {
+        userList.insert(0, userItem);
+      } else {
+        userList.add(userItem);
+      }
+    }
+    
+    // 입장 대기중인 인원이 있는지
+    if (values.where((user) => user.getAuthority() == describeEnum(UserType.common)).isNotEmpty) {
+      bool isGuide = context.read<DataClass>().currentUser.getAuthority() == describeEnum(UserType.guide);
+
+      userList.add(
+        Container(
+          height: 40,
+          padding: EdgeInsets.all(5),
+          margin: const EdgeInsets.only(top: 10, bottom: 10),
+          width: double.infinity,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+                color: Colors.grey,
+                width: 2
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.grey,
+                offset: Offset(0.0, 3.0), //(x,y)
+                blurRadius: 3.0,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '입장 신청 목록',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15
+                ),
+              ),
+            ],
+          )
+        )
+      );
+
+      /// 대기인원 추가.
+      for (User user in values) {
+        if (user.getAuthority() == describeEnum(UserType.common)) {
+          userList.add(
+            InkWell(
+              onTap: () {
+                _scaffoldKey.currentState?.closeDrawer();
+
+                approvalUser(user);
+              },
+              child: Stack(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(15),
+                    height: 80,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 3.0), //(x,y)
+                          blurRadius: 6.0,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Image.network(user.getProfileURL().isEmpty ? Data.defaultImage : user.getProfileURL()),
+                        Material(
+                          color: Colors.transparent,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Image.network(
+                              user.getProfileURL().isEmpty ? Data.defaultImage : user.getProfileURL(),
+                              loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;
+                                } else {
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                          : null,
+                                    ),
+                                  );
+                                }
+                              },
+                              errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                return Icon(Icons.error);
+                              },
+                            ),
+                          ),
+                        ),
+                        Text(
+                          user.getName(),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    height: 80,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(15),
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(80),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Material(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 2,
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Icon(Icons.add)
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            )
+          );
+        }
+      }
+    }
+
+    return userList;
+  }
+
+  /// 유저 입장 승인.
+  Future<void> approvalUser(User targetUser) async {
+    return (await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          Navigator.pop(context);
+        },
+        child: AlertDialog(
+          title: Container(
+            alignment: Alignment.center,
+            child: const Text('인원 추가'),
+          ),
+          content: Container(
+            alignment: Alignment.center,
+            constraints: const BoxConstraints(maxHeight: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  targetUser.getName() + ' 님을 파티에 추가하시겠습니까?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.normal
+                  ),
+                ),
+              ],
+            ),
+          ),
+          icon: const Icon(Icons.person_add),
+          actions: [
+            OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide.none,
+                ),
+                onPressed: () async {
+                  bool result = await changeAuthUser(targetUser.getUserCode());
+
+                  if (!result) {
+                    BotToast.showText(text: '서버 오류입니다. 나중에 다시 시도해주세요...');
+                  }
+                  Navigator.pop(context);
+                },
+                child: const Text('추가')),
+            OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide.none,
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('취소')),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  /// 상태 변경
+  Future<bool> changeAuthUser(String userCode) async {
+    var travelCode = context.read<DataClass>().travel.getTravelCode();
+
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('travel/$travelCode').get();
+
+    var result = snapshot.value;
+    if (result != null) {
+      var travel = Travel.fromJson(result);
+
+      for (User user in travel.getUserList().values) {
+        if (user.getUserCode() == userCode) {
+          user.setAuthority(describeEnum(UserType.user));
+
+          break;
+        }
+      }
+
+      await ref.child('travel/$travelCode').set(travel.toJson());
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomInset: false,
-      /*drawer: Drawer(
+      drawer: Drawer(
+        width: 225,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
               topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
         ),
-        child: Container(),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const SizedBox(
+              height: 100,
+              child: DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 234, 242, 255),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.person),
+                    SizedBox(width: 5),
+                    Text(
+                      '인원 목록',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15
+                      ),
+                    ),
+                  ],
+                )
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 10, right: 10),
+              child: Column(
+                children: drawerUserList(context.watch<DataClass>().travel.getUserList().values.toList()),
+              ),
+            ),
+          ],
+        ),
       ),
-      drawerEdgeDragWidth: 10,*/
+      endDrawerEnableOpenDragGesture: false, // 드로워 수동제어 비활성.
       body: Stack(
         alignment: Alignment.center,
         children: [
@@ -534,6 +918,49 @@ class _MapViewState extends State<MapView> {
                         )),
                   ],
                 )),
+          ),
+          /// 인원 상태
+          Positioned(
+            top: 120,
+            left: 10,
+            child: Visibility(
+              visible: context.watch<DataClass>().travel.getTravelCode().isNotEmpty,
+              child: InkWell(
+                onTap: () {
+                  // 측면 드로워 열기.
+                  openDrawer();
+                },
+                child: Container(
+                  padding: const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.grey,
+                        offset: Offset(0.0, 3.0), //(x,y)
+                        blurRadius: 6.0,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.person),
+                      SizedBox(width: 5),
+                      Text(
+                        context.watch<DataClass>().travel.getUserList().length.toString(),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15
+                        ),
+                      ),
+                      SizedBox(width: 3),
+                    ],
+                  ),
+                ),
+              )
+            )
           ),
           // GPS
           Positioned(
