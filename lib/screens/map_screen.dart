@@ -422,6 +422,8 @@ class _MapViewState extends State<MapView> {
 
     // 정식 유저만 삽입
     for (User user in values) {
+      if (user.getAuthority() == describeEnum(UserType.common)) continue;
+
       String position = '';
       if (context.read<DataClass>().currentUser.getUserCode() == user.getUserCode()) {
         position = "ME";
