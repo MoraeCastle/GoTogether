@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:app_settings/app_settings.dart';
 import 'package:bot_toast/bot_toast.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:custom_marker/marker_icon.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
@@ -60,6 +60,9 @@ class _MapViewState extends State<MapView> {
   }
 
   int testCount = 0;
+
+  /// 드로워에 새 인원이 있는지.
+  bool drawerWaitPersonState = false;
 
   /// PlaceId의 위치로 이동하기
   findAddressForPlace(String placeId) async {
@@ -468,26 +471,30 @@ class _MapViewState extends State<MapView> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Image.network(
-                          user.getProfileURL().isEmpty ? Data.defaultImage : user.getProfileURL(),
-                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            } else {
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
-                                      : null,
-                                ),
-                              );
-                            }
-                          },
-                          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-                            return Icon(Icons.error);
-                          },
+                      child: AspectRatio(
+                        aspectRatio: 1 / 1,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.network(
+                            user.getProfileURL().isEmpty ? Data.defaultImage : user.getProfileURL(),
+                            fit: BoxFit.cover,
+                            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                        : null,
+                                  ),
+                                );
+                              }
+                            },
+                            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                              return Icon(Icons.error);
+                            },
+                          ),
                         ),
                       ),
                     ),
@@ -525,7 +532,8 @@ class _MapViewState extends State<MapView> {
     }
     
     // 입장 대기중인 인원이 있는지
-    if (values.where((user) => user.getAuthority() == describeEnum(UserType.common)).isNotEmpty) {
+    drawerWaitPersonState = values.where((user) => user.getAuthority() == describeEnum(UserType.common)).isNotEmpty;
+    if (drawerWaitPersonState) {
       bool isGuide = context.read<DataClass>().currentUser.getAuthority() == describeEnum(UserType.guide);
 
       userList.add(
@@ -572,6 +580,7 @@ class _MapViewState extends State<MapView> {
           userList.add(
             InkWell(
               onTap: () {
+                if (!isGuide) return;
                 _scaffoldKey.currentState?.closeDrawer();
 
                 approvalUser(user);
@@ -645,16 +654,15 @@ class _MapViewState extends State<MapView> {
                       color: Colors.black.withAlpha(80),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Material(
+                    child: isGuide ? Material(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
                       elevation: 2,
                       child: Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Icon(Icons.add)
-                      ),
-                    ),
+                          padding: EdgeInsets.all(8),
+                          child: Icon(Icons.add)
+                      )) : null,
                   ),
                 ],
               )
@@ -921,7 +929,7 @@ class _MapViewState extends State<MapView> {
           ),
           /// 인원 상태
           Positioned(
-            top: 120,
+            top: 122,
             left: 10,
             child: Visibility(
               visible: context.watch<DataClass>().travel.getTravelCode().isNotEmpty,
@@ -930,33 +938,49 @@ class _MapViewState extends State<MapView> {
                   // 측면 드로워 열기.
                   openDrawer();
                 },
-                child: Container(
-                  padding: const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.grey,
-                        offset: Offset(0.0, 3.0), //(x,y)
-                        blurRadius: 6.0,
-                      ),
-                    ],
+                child: badges.Badge(
+                  showBadge: drawerWaitPersonState,
+                  badgeStyle: badges.BadgeStyle(
+                    badgeColor: Colors.orange,
+                    borderRadius: BorderRadius.circular(4),
+                    elevation: 5,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.person),
-                      SizedBox(width: 5),
-                      Text(
-                        context.watch<DataClass>().travel.getUserList().length.toString(),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15
+                  position: badges.BadgePosition.topEnd(top: -8, end: -8),
+                  badgeContent: Text(
+                    'N',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 8),
+                    decoration: BoxDecoration(
+                      color: drawerWaitPersonState? Colors.yellow : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 3.0), //(x,y)
+                          blurRadius: 6.0,
                         ),
-                      ),
-                      SizedBox(width: 3),
-                    ],
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.person),
+                        SizedBox(width: 5),
+                        Text(
+                          context.watch<DataClass>().travel.getUserList().length.toString(),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15
+                          ),
+                        ),
+                        SizedBox(width: 3),
+                      ],
+                    ),
                   ),
                 ),
               )
