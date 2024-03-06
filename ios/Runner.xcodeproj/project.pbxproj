@@ -13,7 +13,7 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		AC4BCE5FFFDD06B6536DF637 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A6B7A50BA44E6BC013A27C8 /* Pods_Runner.framework */; };
+		BD8D25AB85025E79AC32FCDF /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A6B7A50BA44E6BC013A27C8 /* Pods_Runner.framework */; };
 		CE80AE6B2B82A0F6007895A7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CE80AE6A2B82A0F6007895A7 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -59,7 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AC4BCE5FFFDD06B6536DF637 /* Pods_Runner.framework in Frameworks */,
+				BD8D25AB85025E79AC32FCDF /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
