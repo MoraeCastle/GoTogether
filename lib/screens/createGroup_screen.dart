@@ -41,11 +41,14 @@ class _CreateGroupView extends State<CreateGroupView> {
 
   // 그룹 추가.
   Future insertGroup(Travel travel) async {
+    BotToast.showLoading();
+
     // 생성된 그룹 코드를 DB에 조회...
     final snapshot = await ref.child(travelItem.getTravelCode()).get();
 
     if (snapshot.exists) {
       BotToast.showText(text: "여행코드가 이미 존재합니다. 다시 생성해주세요.");
+      BotToast.closeAllLoading();
     } else {
       // 기기 내에 데이터 저장.
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -56,6 +59,7 @@ class _CreateGroupView extends State<CreateGroupView> {
 
       BotToast.showText(text: '그룹을 생성합니다...');
 
+      BotToast.closeAllLoading();
       Navigator.pop(context);
       Navigator.pushNamed(context, AddUserRoute);
     }
