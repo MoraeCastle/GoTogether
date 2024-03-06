@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:go_together/utils/string.dart';
+import 'package:translator/translator.dart';
 
 /// 번역기 기능
 class TranslateUtil {
@@ -24,6 +25,20 @@ class TranslateUtil {
     '이탈리아어' : 'it',
   };
 
+  static GoogleTranslator translator = GoogleTranslator();
+
+  /// 번역기(임시)
+  static Future<String> translate(String startLang, String endLang, String value) async {
+    var result = await translator.translate(
+      value,
+      from: startLang,
+      to: endLang
+    );
+
+    return result.text;
+  }
+
+  /// 파파고. 요금문제로 폐기.
   static Future<String> translateText(String startLang, String endLang, String value) async {
     final dio = Dio();
     final response = await dio.post(

@@ -159,8 +159,10 @@ class _TranslatorViewState extends State<TranslatorView> {
     if (textEditingController.text.isNotEmpty) {
       var list = TranslateUtil.countryCode;
 
-      resultStr = await TranslateUtil.translateText(
-          list[startLangTxt]!, list[endLangeTxt]!, textEditingController.text);
+      /*resultStr = await TranslateUtil.translateText(
+          list[startLangTxt]!, list[endLangeTxt]!, textEditingController.text);*/
+
+      resultStr = await TranslateUtil.translate(list[startLangTxt]!, list[endLangeTxt]!, textEditingController.text);
 
       setState(() {
         // BotToast.showText(text: resultStr);
