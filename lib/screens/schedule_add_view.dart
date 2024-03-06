@@ -131,6 +131,11 @@ class _ScheduleAddView extends State<ScheduleAddView> {
       var travelCode = prefs.getString(SystemData.travelCode) ?? "";
       var selectDate = widget.arguments;
 
+      if (travelCode.isEmpty) {
+        BotToast.showText(text: '그룹을 찾을 수 없습니다.');
+        return;
+      }
+
       // 생성된 그룹 코드를 DB에 조회...
       final snapshot = await ref.child(travelCode).get();
       if (snapshot.exists) {

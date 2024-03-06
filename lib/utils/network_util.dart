@@ -28,6 +28,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class NetworkUtil {
   /// 서버에 현재 위치 업데이트.
   static Future<void> updatePosition(String travelCode, String userCode, String position) async {
+    // 초기 데이터설정 오류방지.
+    if (travelCode.isEmpty || userCode.isEmpty || position.isEmpty) return;
+
     final ref = FirebaseDatabase.instance.ref();
     final snapshot = await ref.child('travel/$travelCode').get();
 
@@ -111,6 +114,8 @@ class NetworkUtil {
 
   /// 유저 이름 변경
   static Future<bool> changeUserName(String travelCode, String userCode, String newCode) async {
+    if (travelCode.isEmpty) return false;
+
     final ref = FirebaseDatabase.instance.ref();
     final snapshot = await ref.child('travel/$travelCode').get();
 
@@ -234,6 +239,8 @@ class NetworkUtil {
 
   /// 로그아웃(탈퇴)
   static Future<bool> logout(String travelCode, String userCode) async {
+    if (travelCode.isEmpty) return false;
+
     await deleteImage(travelCode, userCode);
 
     final ref = FirebaseDatabase.instance.ref();
@@ -323,6 +330,8 @@ class NetworkUtil {
   /// 
   /// 일정 삭제
   static Future<bool> removeSchedule(String travelCode, String day, String title, String startTime, String endTime) async {
+    if (travelCode.isEmpty) return false;
+
     bool answer = false;
     
     final ref = FirebaseDatabase.instance.ref();
@@ -407,6 +416,8 @@ class NetworkUtil {
   /// 이미지 삭제.
   /// 모든 이미지가 삭제됩니다.
   static Future<bool> deleteImage(String travelCode, String userCode) async {
+    if (travelCode.isEmpty) return false;
+
     try {
       // firebase
       final ref = FirebaseDatabase.instance.ref();

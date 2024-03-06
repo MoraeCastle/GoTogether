@@ -204,7 +204,7 @@ class _TabBarScreenState extends State<TabBarWidget>
 
     // 비회원모드 판별
     if (travelCode.isNotEmpty) {
-      ref = FirebaseDatabase.instance.ref();
+      DatabaseReference ref = FirebaseDatabase.instance.ref();
       var snapshot = await ref.child('travel/$travelCode').get();
       if (snapshot.exists) {
         var result = snapshot.value;
@@ -329,7 +329,7 @@ class _TabBarScreenState extends State<TabBarWidget>
   ];
 
   FirebaseDatabase database = FirebaseDatabase.instance;
-  DatabaseReference ref = FirebaseDatabase.instance.ref();
+  //DatabaseReference ref = FirebaseDatabase.instance.ref();
 
   @override
   void dispose() {

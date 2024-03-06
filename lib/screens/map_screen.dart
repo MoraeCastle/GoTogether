@@ -743,6 +743,8 @@ class _MapViewState extends State<MapView> {
   Future<bool> changeAuthUser(String userCode) async {
     var travelCode = context.read<DataClass>().travel.getTravelCode();
 
+    if (travelCode.isEmpty) return false;
+
     final ref = FirebaseDatabase.instance.ref();
     final snapshot = await ref.child('travel/$travelCode').get();
 
